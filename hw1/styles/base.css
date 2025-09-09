@@ -86,7 +86,7 @@ a:focus-visible {
 }
 
 .header__brand:hover {
-  color: var(--font-700);
+  color: var(--font-800);
 }
 
 .header__brand-name {
@@ -118,7 +118,7 @@ a:focus-visible {
 }
 
 .header__nav-links a:hover {
-  color: var(--font-700);
+  color: var(--font-800);
 }
 
 
@@ -137,9 +137,9 @@ a:focus-visible {
 }
 
 .hero__container {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: var(--space-6);
   position: relative;
   width: 100%;
@@ -164,7 +164,7 @@ a:focus-visible {
 }
 
 .hero__title {
-  font-size: clamp(var(--text-2xl), 4.5vw, 48px);
+  font-size: clamp(var(--text-2xl), 4.5vw, 64px);
   line-height: 1.15;
   letter-spacing: -0.01em;
   margin: 0 0 var(--space-3) 0;
@@ -188,23 +188,18 @@ a:focus-visible {
 /* Hero Visual */
 .hero__visual {
   position: absolute;
+  height: 500px;
   top: 50%;
-  right: 0;
+  right: 5%;
   transform: translateY(-50%);
-  
-  height: auto;
   z-index: 1;
-  pointer-events: none;
 }
 
 .hero__image {
-  width: 100%;
-  height: auto;
-  max-width: 640px;
+  height: 100%;
   opacity: 0.7;
   filter: drop-shadow(0 16px 32px rgb(0 0 0 / 0.3));
   object-fit: contain;
-  display: block;
 }
 
 /* ============================================
