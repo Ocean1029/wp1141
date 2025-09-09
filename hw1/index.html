@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Ocean's Website</title>
+    <meta name="description" content="A fast, accessible static site." />
+    <link rel="preload" href="/styles/tokens.css" as="style" />
+    <link rel="stylesheet" href="/styles/tokens.css" />
+    <link rel="stylesheet" href="/styles/base.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header id="site-header" class="header" data-active="/"></header>
+
+    <main id="main" class="container">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__container">
+          <!-- Hero Content -->
+          <div class="hero__content">
+            <header class="hero__header">
+              <h1 id="hero-title" class="hero__title">Ocean Tseng</h1>
+              <p class="hero__subtitle">
+                This is Ocean's Website.
+              </p>
+            </header>
+            
+            <div class="hero__actions">
+              <a class="btn btn--primary" href="/about/" aria-label="Learn more about Ocean">
+                Read the About
+              </a>
+              <a class="btn btn--ghost" href="/blog/" aria-label="Read Ocean's blog posts">
+                Read the Blog
+              </a>
+            </div>
+          </div>
+      
+          <!-- Hero Visual -->
+          <div class="hero__visual">
+            <img 
+              src="/assets/images/hero-image.png" 
+              alt="Ocean related illustration"
+              class="hero__image"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </section>
+      
+
+      <section class="features" aria-label="Key features">
+        <ul class="grid">
+          <li class="card">
+            <h3>About</h3>
+            <p>About Ocean.</p>
+          </li>
+          <li class="card">
+            <h3>Contact</h3>
+            <p>Contact Ocean.</p>
+          </li>
+          <li class="card">
+            <h3>Blog</h3>
+            <p>Blog of Ocean.</p>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer id="site-footer" class="footer"></footer>
+
+    <script type="module" src="/scripts/main.js"></script>
+  </body>
+</html>
+
