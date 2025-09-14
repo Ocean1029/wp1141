@@ -606,16 +606,12 @@ main.container {
   margin-top: var(--space-8);
 }
 
-.cv-summary h2 {
-  font-size: var(--text-3xl);
-  margin-bottom: var(--space-6);
-  color: var(--font-100);
-}
+
 
 .cv-section {
   margin-bottom: var(--space-8);
   padding: var(--space-6);
-  background: color-mix(in oklab, var(--bg), white 2%);
+  background: color-mix(in oklab, var(--bg), white 4%);
   border-radius: var(--r-lg);
   border: 1px solid rgb(255 255 255 / 0.06);
 }
@@ -638,7 +634,7 @@ main.container {
 
 .cv-item {
   padding: var(--space-3);
-  background: color-mix(in oklab, var(--bg), white 1%);
+  background: color-mix(in oklab, var(--bg), white 2%);
   border-radius: var(--r-md);
   border-left: 3px solid var(--brand-600);
 }
@@ -677,9 +673,9 @@ main.container {
   top: var(--space-2);
   width: 12px;
   height: 12px;
-  background: var(--brand-600);
+  background: transparent;
   border-radius: 50%;
-  border: 3px solid var(--bg);
+  border: none;
 }
 
 .timeline-year {
@@ -718,7 +714,7 @@ main.container {
 }
 
 .skill-category {
-  background: color-mix(in oklab, var(--bg), white 1%);
+  background: color-mix(in oklab, var(--bg), white 2%);
   padding: var(--space-4);
   border-radius: var(--r-md);
   border: 1px solid rgb(255 255 255 / 0.04);
@@ -749,37 +745,72 @@ main.container {
 /* CV Download Section */
 .cv-download {
   text-align: center;
-  padding: var(--space-8);
-  background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
-  border-radius: var(--r-lg);
-  margin-top: var(--space-8);
+  margin-top: var(--space-6);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .cv-download h3 {
   color: white;
   margin-bottom: var(--space-2);
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
 }
 
 .cv-download p {
   color: rgba(255, 255, 255, 0.8);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
 }
 
 .cv-download .btn {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   color: var(--brand-700);
-  border-color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15), 0 3px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cv-download .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
 }
 
 .cv-download .btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.cv-download .btn:hover::before {
+  left: 100%;
+}
+
+.cv-download .btn:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .cv-download .btn svg {
   margin-right: var(--space-2);
+  transition: transform 0.3s ease;
+}
+
+.cv-download .btn:hover svg {
+  transform: translateY(-1px);
 }
 
 /* Responsive Design for CV */
@@ -813,3 +844,6 @@ main.container {
   }
 }
 
+h1::before, h2::before, h3::before, h4::before, h5::before, h6::before {
+  content: none !important;
+}
