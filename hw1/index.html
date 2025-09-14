@@ -1,79 +1,124 @@
 <!doctype html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>Ocean's Website</title>
-    <meta name="description" content="A fast, accessible static site." />
-    <link rel="preload" href="/styles/tokens.css" as="style" />
-    <link rel="stylesheet" href="/styles/tokens.css" />
-    <link rel="stylesheet" href="/styles/base.css" />
-  </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Home — Ocean</title>
+  <meta name="description" content="Ocean Tseng's personal website" />
+  <link rel="preload" href="/styles/tokens.css" as="style" />
+  <link rel="stylesheet" href="/styles/tokens.css" />
+  <link rel="stylesheet" href="/styles/base.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header id="site-header" class="header" data-active="/"></header>
 
-    <header id="site-header" class="header" data-active="/"></header>
-
-    <main id="main" class="container">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero__container">
-          <!-- Hero Content -->
-          <div class="hero__content">
-            <header class="hero__header">
-              <h1 id="hero-title" class="hero__title">Ocean Tseng</h1>
-              <p class="hero__subtitle">
-                曾煥軒 / Ocean Tseng / 火龍果 <br>
-                慣用暱稱是 Ocean1029 / Ocean_1029
-              </p>
-            </header>
-            
-            <div class="hero__actions">
-              <a class="btn btn--primary" href="/about/" aria-label="Learn more about Ocean">
-                Read the About
-              </a>
-              <a class="btn btn--ghost" href="/blog/" aria-label="Read Ocean's blog posts">
-                Read the Blog
-              </a>
-            </div>
-          </div>
-      
-          <!-- Hero Visual -->
-          <div class="hero__visual">
-            <img 
-              src="/assets/images/hero-image.png" 
-              alt="Ocean related illustration"
-              class="hero__image"
-              loading="eager"
-            />
+  <main id="main" class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__container">
+        <!-- Hero Content -->
+        <div class="hero__content">
+          <header class="hero__header">
+            <h1 id="hero-title" class="hero__title">Ocean Tseng</h1>
+            <p class="hero__subtitle">
+              本名曾煥軒，也可以叫我火龍果 <br><br>
+              現就讀於台大資管大三，擔任 SITCON 2024 / 2025 Marketing，NYCU SDC Core System Member。對網頁後端、遊戲開發感興趣，歡迎投餵。
+            </p>
+          </header>
+          
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="/about/" aria-label="Learn more about Ocean">
+              Read the About
+            </a>
+            <a class="btn btn--ghost" href="/blog/" aria-label="Read Ocean's blog posts">
+              Read the Blog
+            </a>
           </div>
         </div>
-      </section>
+    
+        <!-- Hero Visual -->
+        <div class="hero__visual">
+          <img 
+            src="/assets/images/hero-image.png" 
+            alt="Ocean related illustration"
+            class="hero__image"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </section>
+    
+
+    <section class="features" aria-label="Key features">
+      <div class="features-header">
+        <h2>Explore More</h2>
+        <p>深入了解我的作品和經歷</p>
+      </div>
       
-
-      <section class="features" aria-label="Key features">
-        <ul class="grid">
-          <li class="card">
+      <div class="features-vertical">
+        <a href="/about/" class="feature-card feature-card--about">
+          <div class="feature-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="feature-card__content">
             <h3>About</h3>
-            <p>About Ocean.</p>
-          </li>
-          <li class="card">
+            <p class="feature-card__subtitle">About Ocean.</p>
+            <div class="feature-card__hover">
+              <p>了解更多關於我的背景、技能和經歷</p>
+              <span class="feature-card__arrow">→</span>
+            </div>
+          </div>
+          <div class="feature-card__bg-pattern"></div>
+        </a>
+        
+        <a href="/about/#contact" class="feature-card feature-card--contact">
+          <div class="feature-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <div class="feature-card__content">
             <h3>Contact</h3>
-            <p>Contact Ocean.</p>
-          </li>
-          <li class="card">
+            <p class="feature-card__subtitle">Contact Ocean.</p>
+            <div class="feature-card__hover">
+              <p>透過各種方式與我取得聯繫</p>
+              <span class="feature-card__arrow">→</span>
+            </div>
+          </div>
+          <div class="feature-card__bg-pattern"></div>
+        </a>
+        
+        <a href="/blog/" class="feature-card feature-card--blog">
+          <div class="feature-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10,9 9,9 8,9"></polyline>
+            </svg>
+          </div>
+          <div class="feature-card__content">
             <h3>Blog</h3>
-            <p>Blog of Ocean.</p>
-          </li>
-        </ul>
-      </section>
-    </main>
+            <p class="feature-card__subtitle">Blog of Ocean.</p>
+            <div class="feature-card__hover">
+              <p>閱讀我的技術文章和心得分享</p>
+              <span class="feature-card__arrow">→</span>
+            </div>
+          </div>
+          <div class="feature-card__bg-pattern"></div>
+        </a>
+      </div>
+    </section>
 
-    <footer id="site-footer" class="footer"></footer>
+  </main>
 
-    <script type="module" src="/scripts/main.js"></script>
-  </body>
+  <footer id="site-footer" class="footer"></footer>
+  <script type="module" src="/scripts/main.js"></script>
+</body>
 </html>
 

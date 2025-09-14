@@ -37,14 +37,34 @@ function setFooterYear(container = document) {
   if (y) y.textContent = String(new Date().getFullYear());
 }
 
+function initContactForm(doc = document) {
+  const form = doc.querySelector("#contact-form");
+  if (!form) return;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault(); // prevent navigation
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
+    console.info("Contact payload:", payload); // debug log
+
+    const toast = doc.querySelector("#toast");
+    if (toast) {
+      toast.textContent = "Message sent (fake).";
+      toast.style.color = "var(--success)";
+    }
+    form.reset();
+  });
+}
+
+
 /** Main entry. */
 async function bootstrap() {
   await Promise.all([
     injectPartial("#site-header", "/components/Header.html"),
-    injectPartial("#site-footer", "/components/Footer.html"), 
+    injectPartial("#site-footer", "/components/Footer.html"),
   ]);
   setActiveNav(document);
   setFooterYear(document);
+  initContactForm(document);
   console.info("Bootstrap complete");
 }
 
