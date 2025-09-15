@@ -13,5 +13,9 @@ export default defineConfig({
   esbuild: {
     target: "es2018",
   },
+  preview: {
+    port: 4173,
+    strictPort: true,
+  },
 });
 

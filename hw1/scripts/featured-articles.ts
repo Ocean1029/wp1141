@@ -29,23 +29,19 @@ export class FeaturedArticlesManager {
   }
 
   async loadArticles(): Promise<void> {
-    console.log('開始載入文章...');
     try {
       // 嘗試使用 MarkdownParser 載入文章
       const parser = new MarkdownParser();
       this.articles = await parser.loadArticles();
-      console.log('MarkdownParser 載入成功，文章數量:', this.articles.length);
       return;
     } catch (error) {
       console.warn('MarkdownParser 載入失敗，使用備用方法:', error);
     }
     
     // 備用方法：直接載入文章列表
-    console.log('使用備用方法載入文章...');
     const response = await fetch('/articles-list.json');
     if (response.ok) {
       const articleFiles: string[] = await response.json();
-      console.log('文章檔案列表:', articleFiles);
       // 載入每篇文章的詳細內容
       this.articles = [];
       for (const filename of articleFiles) {
@@ -55,7 +51,6 @@ export class FeaturedArticlesManager {
             const content = await articleResponse.text();
             const article = this.parseArticleContent(content, filename);
             if (article) {
-              console.log('載入文章:', article.title, 'pinned:', article.pinned);
               this.articles.push(article);
             }
           }
@@ -63,7 +58,6 @@ export class FeaturedArticlesManager {
           console.warn(`Failed to load article ${filename}:`, error);
         }
       }
-      console.log('備用方法載入完成，總文章數:', this.articles.length);
     } else {
       throw new Error('無法載入文章列表');
     }
@@ -93,8 +87,6 @@ export class FeaturedArticlesManager {
           const key = line.substring(0, colonIndex).trim();
           let value = line.substring(colonIndex + 1).trim();
           
-          console.log(`解析 frontmatter: ${key} = ${value}`);
-          
           // 移除引號
           if ((value.startsWith('"') && value.endsWith('"')) || 
               (value.startsWith("'") && value.endsWith("'"))) {
@@ -104,7 +96,6 @@ export class FeaturedArticlesManager {
           // 轉換布林值
           if (key === 'pinned') {
             (frontmatter as any)[key] = value === 'true';
-            console.log(`pinned 轉換: ${value} -> ${value === 'true'}`);
           } else if (key === 'readTime') {
             (frontmatter as any)[key] = Number(value) || 5;
           } else {
@@ -132,25 +123,19 @@ export class FeaturedArticlesManager {
   }
 
   getFeaturedArticles(): Article[] {
-    console.log('篩選精選文章，總文章數:', this.articles.length);
-    console.log('所有文章:', this.articles.map(a => ({ title: a.title, pinned: a.pinned })));
-    
     // 只篩選出釘選的文章
     const featured = this.articles.filter(article => article.pinned === true);
-    console.log('釘選文章數量:', featured.length);
     
     // 按日期排序（最新的在前）
     featured.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    const result = featured.slice(0, this.maxFeatured);
-    console.log('最終精選文章:', result.map(a => a.title));
-    return result;
+    return featured.slice(0, this.maxFeatured);
   }
 
   createFeaturedArticleCard(article: Article): HTMLAnchorElement {
     const card = document.createElement('a');
     card.className = 'featured-article-card';
-    card.href = `/blog/#${article.slug}`;
+    card.href = `/article/?slug=${article.slug}`;
     
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
@@ -253,13 +238,9 @@ export class FeaturedArticlesManager {
 
 // 當 DOM 載入完成時初始化
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM 載入完成，當前路徑:', window.location.pathname);
   // 只在主頁初始化釘選文章
   if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-    console.log('初始化精選文章管理器...');
     window.featuredArticlesManager = new FeaturedArticlesManager();
-  } else {
-    console.log('不在主頁，跳過精選文章初始化');
   }
 });
 

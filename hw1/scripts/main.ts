@@ -214,9 +214,10 @@ export class BlogManager {
     });
   }
 
-  createArticleCard(article: Article): HTMLDivElement {
-    const card = document.createElement('div');
+  createArticleCard(article: Article): HTMLAnchorElement {
+    const card = document.createElement('a');
     card.className = 'article-card';
+    card.href = `/article/?slug=${article.slug}`;
     
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
