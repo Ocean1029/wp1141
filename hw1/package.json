@@ -16,6 +16,7 @@
     "test:markdown": "playwright test tests/markdown-parser.spec.js",
     "test:management": "playwright test tests/article-management.spec.js",
     "test:performance": "playwright test tests/blog-performance.spec.js",
+    "test:about": "playwright test tests/about-scroll-animation.spec.js",
     "generate-articles": "node scripts/generate-articles-list.js",
     "new-article": "node scripts/new-article.js"
   },

@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 4
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "firefox",
         "name": "firefox",
@@ -75,7 +75,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "webkit",
         "name": "webkit",
@@ -91,7 +91,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Mobile Chrome",
         "name": "Mobile Chrome",
@@ -107,7 +107,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 4
         },
         "id": "Mobile Safari",
         "name": "Mobile Safari",
@@ -133,20 +133,20 @@
   },
   "suites": [
     {
-      "title": "blog.spec.js",
-      "file": "blog.spec.js",
+      "title": "about-scroll-animation.spec.js",
+      "file": "about-scroll-animation.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Blog Page",
-          "file": "blog.spec.js",
+          "title": "About Page Scroll Animation",
+          "file": "about-scroll-animation.spec.js",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "article cards are displayed",
+              "title": "scroll animation elements are present",
               "ok": true,
               "tags": [],
               "tests": [
@@ -161,12 +161,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1114,
+                      "duration": 1104,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:18:37.823Z",
+                      "startTime": "2025-09-15T02:26:31.273Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -174,9 +174,219 @@
                   "status": "expected"
                 }
               ],
-              "id": "ce994c20686539f3e595-708ac33209778ea79ce7",
-              "file": "blog.spec.js",
-              "line": 24,
+              "id": "94becb5a45faa7937b73-7e0922260826f2020225",
+              "file": "about-scroll-animation.spec.js",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "scroll animation initial state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1902,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T02:26:31.269Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94becb5a45faa7937b73-7770de0010298a2dbe51",
+              "file": "about-scroll-animation.spec.js",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "scroll animation triggers on scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2033,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T02:26:31.269Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94becb5a45faa7937b73-fba16b93b0e3bf9b0fcb",
+              "file": "about-scroll-animation.spec.js",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "scroll animation has proper CSS transitions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 6140,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33",
+                        "location": {
+                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
+                          "column": 33,
+                          "line": 66
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m     \n \u001b[90m 65 |\u001b[39m     \u001b[90m// 檢查過渡屬性\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/all 0.8s/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition-timing-function'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/cubic-bezier/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 68 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 69 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
+                            "column": 33,
+                            "line": 66
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 64 |\u001b[39m     \n \u001b[90m 65 |\u001b[39m     \u001b[90m// 檢查過渡屬性\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/all 0.8s/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition-timing-function'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/cubic-bezier/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 68 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 69 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T02:26:31.266Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
+                        "column": 33,
+                        "line": 66
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "94becb5a45faa7937b73-be1d45685c94593e4fe3",
+              "file": "about-scroll-animation.spec.js",
+              "line": 59,
+              "column": 3
+            },
+            {
+              "title": "staggered animation delays work correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 683,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T02:26:32.721Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94becb5a45faa7937b73-540751224041b898afc9",
+              "file": "about-scroll-animation.spec.js",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "scroll animation works on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1662,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T02:26:33.412Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "94becb5a45faa7937b73-84cc38457fe1d774c3f4",
+              "file": "about-scroll-animation.spec.js",
+              "line": 92,
               "column": 3
             }
           ]
@@ -186,11 +396,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-15T02:18:37.521Z",
-    "duration": 1568.437,
-    "expected": 1,
+    "startTime": "2025-09-15T02:26:30.849Z",
+    "duration": 6926.326,
+    "expected": 5,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

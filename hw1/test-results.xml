@@ -1,6 +1,62 @@
-<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="1.5684369999999999">
-<testsuite name="blog.spec.js" timestamp="2025-09-15T02:18:37.548Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.114" errors="0">
-<testcase name="Blog Page › article cards are displayed" classname="blog.spec.js" time="1.114">
+<testsuites id="" name="" tests="6" failures="1" skipped="0" errors="0" time="6.926326">
+<testsuite name="about-scroll-animation.spec.js" timestamp="2025-09-15T02:26:30.874Z" hostname="chromium" tests="6" failures="1" skipped="0" time="13.524" errors="0">
+<testcase name="About Page Scroll Animation › scroll animation elements are present" classname="about-scroll-animation.spec.js" time="1.104">
+</testcase>
+<testcase name="About Page Scroll Animation › scroll animation initial state" classname="about-scroll-animation.spec.js" time="1.902">
+</testcase>
+<testcase name="About Page Scroll Animation › scroll animation triggers on scroll" classname="about-scroll-animation.spec.js" time="2.033">
+</testcase>
+<testcase name="About Page Scroll Animation › scroll animation has proper CSS transitions" classname="about-scroll-animation.spec.js" time="6.14">
+<failure message="about-scroll-animation.spec.js:59:3 scroll animation has proper CSS transitions" type="FAILURE">
+<![CDATA[  [chromium] › about-scroll-animation.spec.js:59:3 › About Page Scroll Animation › scroll animation has proper CSS transitions 
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator: locator('.scroll-animate').first()
+    Expected pattern: /all 0.8s/
+    Received string:  "0.8s cubic-bezier(0.4, 0, 0.2, 1)"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveCSS" with timeout 5000ms
+      - waiting for locator('.scroll-animate').first()
+        9 × locator resolved to <section class="about-intro scroll-animate animate">…</section>
+          - unexpected value "0.8s cubic-bezier(0.4, 0, 0.2, 1)"
+
+
+      64 |     
+      65 |     // 檢查過渡屬性
+    > 66 |     await expect(scrollElement).toHaveCSS('transition', /all 0.8s/);
+         |                                 ^
+      67 |     await expect(scrollElement).toHaveCSS('transition-timing-function', /cubic-bezier/);
+      68 |   });
+      69 |
+        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm]]
+
+[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="About Page Scroll Animation › staggered animation delays work correctly" classname="about-scroll-animation.spec.js" time="0.683">
+</testcase>
+<testcase name="About Page Scroll Animation › scroll animation works on mobile" classname="about-scroll-animation.spec.js" time="1.662">
 </testcase>
 </testsuite>
 </testsuites>
