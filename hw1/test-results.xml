@@ -1,0 +1,6 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="1.5684369999999999">
+<testsuite name="blog.spec.js" timestamp="2025-09-15T02:18:37.548Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.114" errors="0">
+<testcase name="Blog Page › article cards are displayed" classname="blog.spec.js" time="1.114">
+</testcase>
+</testsuite>
+</testsuites>
