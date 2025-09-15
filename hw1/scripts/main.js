@@ -203,9 +203,9 @@ class BlogManager {
     
     const formatDate = (dateString) => {
       const date = new Date(dateString);
-      return date.toLocaleDateString('zh-TW', { 
+      return date.toLocaleDateString('en-US', { 
         year: 'numeric', 
-        month: 'long', 
+        month: 'short', 
         day: 'numeric' 
       });
     };
@@ -213,10 +213,12 @@ class BlogManager {
     card.innerHTML = `
       <img src="${article.image}" alt="${article.title}" class="article-card__image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDQwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMkEyQjJCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2QjcyODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+'">
       <div class="article-card__content">
-        <span class="article-card__category">${article.category}</span>
-        <div class="article-card__meta">
-          <span>${formatDate(article.date)}</span>
-          <span>${article.readTime} min</span>
+        <div class="article-card__header">
+          <span class="article-card__category">${article.category}</span>
+          <div class="article-card__meta">
+            <span>${formatDate(article.date)}</span>
+            <span>${article.readTime} min</span>
+          </div>
         </div>
         <h3 class="article-card__title">${article.title}</h3>
       </div>
