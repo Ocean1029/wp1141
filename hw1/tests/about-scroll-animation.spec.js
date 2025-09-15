@@ -63,8 +63,9 @@ test.describe("About Page Scroll Animation", () => {
     const scrollElement = page.locator('.scroll-animate').first();
     
     // 檢查過渡屬性
-    await expect(scrollElement).toHaveCSS('transition', /all 0.8s/);
-    await expect(scrollElement).toHaveCSS('transition-timing-function', /cubic-bezier/);
+    const transition = await scrollElement.evaluate(el => getComputedStyle(el).transition);
+    expect(transition).toContain('0.8s');
+    expect(transition).toContain('cubic-bezier');
   });
 
   test("staggered animation delays work correctly", async ({ page }) => {

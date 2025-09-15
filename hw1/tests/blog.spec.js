@@ -93,7 +93,8 @@ test.describe("Blog Page", () => {
     
     // 檢查文章網格在手機版是單欄
     const articlesGrid = page.locator(".articles-grid");
-    await expect(articlesGrid).toHaveCSS("grid-template-columns", "1fr");
+    const gridColumns = await articlesGrid.evaluate(el => getComputedStyle(el).gridTemplateColumns);
+    expect(gridColumns).toMatch(/^[0-9.]+px$/); // 手機版應該是單欄，會顯示為具體像素值
     
     // 檢查分類篩選器在手機版是垂直排列
     const categoryFilter = page.locator(".category-filter");
@@ -109,7 +110,8 @@ test.describe("Blog Page", () => {
     
     // 檢查文章網格在平板版是雙欄
     const articlesGrid = page.locator(".articles-grid");
-    await expect(articlesGrid).toHaveCSS("grid-template-columns", /repeat\(2, 1fr\)/);
+    const gridColumns = await articlesGrid.evaluate(el => getComputedStyle(el).gridTemplateColumns);
+    expect(gridColumns).toMatch(/^[0-9.]+px [0-9.]+px$/); // 平板版應該是雙欄，會顯示為兩個像素值
   });
 
   test("article card content structure", async ({ page }) => {

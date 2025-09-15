@@ -4,6 +4,8 @@ category: "分類名稱"
 date: "2025-01-01"
 readTime: 5
 image: "https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=200&fit=crop"
+pinned: false
+slug: "article-slug"
 ---
 
 # 文章標題

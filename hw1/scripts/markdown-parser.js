@@ -41,6 +41,13 @@ class MarkdownParser {
           value = Number(value);
         }
         
+        // 轉換布林值
+        if (value === 'true') {
+          value = true;
+        } else if (value === 'false') {
+          value = false;
+        }
+        
         frontmatter[key] = value;
       }
     });
@@ -104,7 +111,9 @@ class MarkdownParser {
         readTime: frontmatter.readTime || 5,
         image: frontmatter.image || 'https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=200&fit=crop',
         content: markdownContent,
-        filename: filename
+        filename: filename,
+        pinned: frontmatter.pinned || false,
+        slug: frontmatter.slug || filename.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '')
       };
     } catch (error) {
       console.error(`Error loading article ${filename}:`, error);

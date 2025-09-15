@@ -35,9 +35,18 @@ function generateFilename(title) {
   return `${date}-${slug}.md`;
 }
 
+function generateSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // 移除特殊字符
+    .replace(/\s+/g, '-') // 空格替換為連字符
+    .substring(0, 50); // 限制長度
+}
+
 function generateArticleContent(title, category, image) {
   const date = new Date().toISOString().split('T')[0];
   const readTime = Math.max(1, Math.ceil(title.length / 10)); // 簡單估算閱讀時間
+  const slug = generateSlug(title);
   
   return `---
 title: "${title}"
@@ -45,6 +54,8 @@ category: "${category}"
 date: "${date}"
 readTime: ${readTime}
 image: "${image}"
+pinned: false
+slug: "${slug}"
 ---
 
 # ${title}

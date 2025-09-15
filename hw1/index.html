@@ -39,15 +39,13 @@
         </div>
       </div>
     </section>
-    
 
     <section class="features" aria-label="Key features">
       <div class="features-header">
         <h2 class="explore-title">Explore More</h2>
-        <p class="explore-subtitle">深入了解我的作品和經歷</p>
       </div>
       
-      <div class="features-vertical">
+      <div class="features-horizontal">
         <a href="/about/" class="feature-card feature-card--about">
           <div class="feature-card__icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,11 +104,36 @@
         </a>
       </div>
     </section>
+    
+    <!-- Featured Articles Section -->
+    <section class="featured-articles" aria-labelledby="featured-articles-title">
+      <div class="featured-articles__header">
+        <h2 id="featured-articles-title" class="featured-articles__title">Featured Articles</h2>
+        
+      </div>
+      
+      <div class="featured-articles__grid" id="featured-articles-grid">
+        <!-- 釘選文章將由 JavaScript 動態生成 -->
+      </div>
+      
+      <div class="featured-articles__footer">
+        <a href="/blog/" class="btn btn--outline">
+          查看所有文章
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7"></path>
+            <path d="M7 7h10v10"></path>
+          </svg>
+        </a>
+      </div>
+    </section>
 
   </main>
 
   <footer id="site-footer" class="footer"></footer>
+  <script src="/scripts/markdown-parser.js"></script>
   <script type="module" src="/scripts/main.js"></script>
+  <script type="module" src="/scripts/featured-articles.js"></script>
+  <script type="module" src="/scripts/scroll-animations.js"></script>
 </body>
 </html>
 

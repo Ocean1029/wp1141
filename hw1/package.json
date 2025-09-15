@@ -17,6 +17,7 @@
     "test:management": "playwright test tests/article-management.spec.js",
     "test:performance": "playwright test tests/blog-performance.spec.js",
     "test:about": "playwright test tests/about-scroll-animation.spec.js",
+    "test:featured": "playwright test tests/featured-articles.spec.js",
     "generate-articles": "node scripts/generate-articles-list.js",
     "new-article": "node scripts/new-article.js"
   },

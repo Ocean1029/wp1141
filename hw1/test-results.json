@@ -9,7 +9,7 @@
     "globalTimeout": 0,
     "grep": {},
     "grepInvert": null,
-    "maxFailures": 0,
+    "maxFailures": 5,
     "metadata": {
       "actualWorkers": 4
     },
@@ -133,20 +133,20 @@
   },
   "suites": [
     {
-      "title": "about-scroll-animation.spec.js",
-      "file": "about-scroll-animation.spec.js",
+      "title": "blog-performance.spec.js",
+      "file": "blog-performance.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "About Page Scroll Animation",
-          "file": "about-scroll-animation.spec.js",
+          "title": "Blog Performance",
+          "file": "blog-performance.spec.js",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "scroll animation elements are present",
+              "title": "page load performance",
               "ok": true,
               "tags": [],
               "tests": [
@@ -161,12 +161,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1104,
+                      "duration": 961,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:31.273Z",
+                      "startTime": "2025-09-15T09:15:24.752Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -174,13 +174,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-7e0922260826f2020225",
-              "file": "about-scroll-animation.spec.js",
-              "line": 8,
+              "id": "6d8930f5f8f4726f7d1a-c643a82c86ddc1994eb3",
+              "file": "blog-performance.spec.js",
+              "line": 4,
               "column": 3
             },
             {
-              "title": "scroll animation initial state",
+              "title": "article loading performance",
               "ok": true,
               "tags": [],
               "tests": [
@@ -195,12 +195,12 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 1902,
+                      "duration": 1084,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:31.269Z",
+                      "startTime": "2025-09-15T09:15:24.512Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -208,13 +208,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-7770de0010298a2dbe51",
-              "file": "about-scroll-animation.spec.js",
-              "line": 22,
+              "id": "6d8930f5f8f4726f7d1a-debffa3c263848ceb199",
+              "file": "blog-performance.spec.js",
+              "line": 19,
               "column": 3
             },
             {
-              "title": "scroll animation triggers on scroll",
+              "title": "category filter performance",
               "ok": true,
               "tags": [],
               "tests": [
@@ -229,12 +229,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 2033,
+                      "duration": 2354,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:31.269Z",
+                      "startTime": "2025-09-15T09:15:24.643Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -242,13 +242,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-fba16b93b0e3bf9b0fcb",
-              "file": "about-scroll-animation.spec.js",
-              "line": 41,
+              "id": "6d8930f5f8f4726f7d1a-1f8628cea434fff88780",
+              "file": "blog-performance.spec.js",
+              "line": 35,
               "column": 3
             },
             {
-              "title": "scroll animation has proper CSS transitions",
+              "title": "hover animation performance",
               "ok": false,
               "tags": [],
               "tests": [
@@ -263,66 +263,100 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "failed",
-                      "duration": 6140,
+                      "duration": 2565,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m200\u001b[39m\nReceived:   \u001b[31m448\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m200\u001b[39m\nReceived:   \u001b[31m448\u001b[39m\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:68:23",
                         "location": {
-                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
-                          "column": 33,
-                          "line": 66
+                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                          "column": 23,
+                          "line": 68
                         },
-                        "snippet": "\u001b[0m \u001b[90m 64 |\u001b[39m     \n \u001b[90m 65 |\u001b[39m     \u001b[90m// 檢查過渡屬性\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/all 0.8s/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition-timing-function'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/cubic-bezier/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 68 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 69 |\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 66 |\u001b[39m     \n \u001b[90m 67 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 68 |\u001b[39m     expect(hoverTime)\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 69 |\u001b[39m     \n \u001b[90m 70 |\u001b[39m     \u001b[90m// 檢查 hover 效果是否應用\u001b[39m\n \u001b[90m 71 |\u001b[39m     \u001b[36mconst\u001b[39m transform \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m firstCard\u001b[33m.\u001b[39mevaluate(el \u001b[33m=>\u001b[39m \u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
-                            "column": 33,
-                            "line": 66
+                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                            "column": 23,
+                            "line": 68
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.scroll-animate').first()\nExpected pattern: \u001b[32m/all 0.8s/\u001b[39m\nReceived string:  \u001b[31m\"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCSS\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.scroll-animate').first()\u001b[22m\n\u001b[2m    9 × locator resolved to <section class=\"about-intro scroll-animate animate\">…</section>\u001b[22m\n\u001b[2m      - unexpected value \"0.8s cubic-bezier(0.4, 0, 0.2, 1)\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 64 |\u001b[39m     \n \u001b[90m 65 |\u001b[39m     \u001b[90m// 檢查過渡屬性\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 66 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/all 0.8s/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 67 |\u001b[39m     \u001b[36mawait\u001b[39m expect(scrollElement)\u001b[33m.\u001b[39mtoHaveCSS(\u001b[32m'transition-timing-function'\u001b[39m\u001b[33m,\u001b[39m \u001b[35m/cubic-bezier/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 68 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 69 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m200\u001b[39m\nReceived:   \u001b[31m448\u001b[39m\n\n\u001b[0m \u001b[90m 66 |\u001b[39m     \n \u001b[90m 67 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 68 |\u001b[39m     expect(hoverTime)\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 69 |\u001b[39m     \n \u001b[90m 70 |\u001b[39m     \u001b[90m// 檢查 hover 效果是否應用\u001b[39m\n \u001b[90m 71 |\u001b[39m     \u001b[36mconst\u001b[39m transform \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m firstCard\u001b[33m.\u001b[39mevaluate(el \u001b[33m=>\u001b[39m \u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:68:23\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:31.266Z",
+                      "startTime": "2025-09-15T09:15:24.741Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png"
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/test-failed-1.png"
                         },
                         {
                           "name": "video",
                           "contentType": "video/webm",
-                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm"
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/video.webm"
                         },
                         {
                           "name": "error-context",
                           "contentType": "text/markdown",
-                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md"
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/error-context.md"
                         }
                       ],
                       "errorLocation": {
-                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js",
-                        "column": 33,
-                        "line": 66
+                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                        "column": 23,
+                        "line": 68
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-be1d45685c94593e4fe3",
-              "file": "about-scroll-animation.spec.js",
-              "line": 59,
+              "id": "6d8930f5f8f4726f7d1a-085536b300ddccdc6cd4",
+              "file": "blog-performance.spec.js",
+              "line": 55,
               "column": 3
             },
             {
-              "title": "staggered animation delays work correctly",
+              "title": "image loading performance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1869,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:26.456Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6d8930f5f8f4726f7d1a-27faad5f7c58465ffc83",
+              "file": "blog-performance.spec.js",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "memory usage during interactions",
               "ok": true,
               "tags": [],
               "tests": [
@@ -337,12 +371,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 683,
+                      "duration": 1921,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:32.721Z",
+                      "startTime": "2025-09-15T09:15:26.461Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -350,13 +384,167 @@
                   "status": "expected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-540751224041b898afc9",
-              "file": "about-scroll-animation.spec.js",
-              "line": 70,
+              "id": "6d8930f5f8f4726f7d1a-cbc79f45932adeaabc10",
+              "file": "blog-performance.spec.js",
+              "line": 95,
               "column": 3
             },
             {
-              "title": "scroll animation works on mobile",
+              "title": "responsive layout performance",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 12506,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.article-card') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.article-card') to be visible\u001b[22m\n\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:128:18",
+                        "location": {
+                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                          "column": 18,
+                          "line": 128
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 126 |\u001b[39m       \n \u001b[90m 127 |\u001b[39m       \u001b[36mconst\u001b[39m startTime \u001b[33m=\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 128 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m\".article-card\"\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 129 |\u001b[39m       \u001b[36mconst\u001b[39m loadTime \u001b[33m=\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow() \u001b[33m-\u001b[39m startTime\u001b[33m;\u001b[39m\n \u001b[90m 130 |\u001b[39m       \n \u001b[90m 131 |\u001b[39m       \u001b[90m// 每個視窗大小都應該快速載入\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                            "column": 18,
+                            "line": 128
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.article-card') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 126 |\u001b[39m       \n \u001b[90m 127 |\u001b[39m       \u001b[36mconst\u001b[39m startTime \u001b[33m=\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 128 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m\".article-card\"\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 129 |\u001b[39m       \u001b[36mconst\u001b[39m loadTime \u001b[33m=\u001b[39m \u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow() \u001b[33m-\u001b[39m startTime\u001b[33m;\u001b[39m\n \u001b[90m 130 |\u001b[39m       \n \u001b[90m 131 |\u001b[39m       \u001b[90m// 每個視窗大小都應該快速載入\u001b[39m\u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:128:18\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:28.007Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js",
+                        "column": 18,
+                        "line": 128
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "6d8930f5f8f4726f7d1a-845e1e6a63b6673af0cb",
+              "file": "blog-performance.spec.js",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "accessibility performance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 405,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:29.147Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6d8930f5f8f4726f7d1a-0c97cd3518be22b6d307",
+              "file": "blog-performance.spec.js",
+              "line": 140,
+              "column": 3
+            },
+            {
+              "title": "error recovery performance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1315,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:28.355Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6d8930f5f8f4726f7d1a-7342ca6204c93747ae49",
+              "file": "blog-performance.spec.js",
+              "line": 156,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "blog.spec.js",
+      "file": "blog.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Blog Page",
+          "file": "blog.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "blog page loads correctly",
               "ok": true,
               "tags": [],
               "tests": [
@@ -371,12 +559,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 1662,
+                      "duration": 1155,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-09-15T02:26:33.412Z",
+                      "startTime": "2025-09-15T09:15:28.891Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -384,9 +572,735 @@
                   "status": "expected"
                 }
               ],
-              "id": "94becb5a45faa7937b73-84cc38457fe1d774c3f4",
-              "file": "about-scroll-animation.spec.js",
-              "line": 92,
+              "id": "ce994c20686539f3e595-e5057a034aa1bfdd8f17",
+              "file": "blog.spec.js",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "article cards are displayed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1242,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:29.701Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-708ac33209778ea79ce7",
+              "file": "blog.spec.js",
+              "line": 24,
+              "column": 3
+            },
+            {
+              "title": "category filter functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1505,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:29.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-3fdf9d0813aa83a32deb",
+              "file": "blog.spec.js",
+              "line": 44,
+              "column": 3
+            },
+            {
+              "title": "article card hover effects",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 535,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:30.061Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-ccfcf66e11ae2384d8d3",
+              "file": "blog.spec.js",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "responsive layout on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 393,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:30.612Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-45f0509a0afba5227912",
+              "file": "blog.spec.js",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "responsive layout on tablet",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 448,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/^[0-9.]+px [0-9.]+px$/\u001b[39m\nReceived string:  \u001b[31m\"674.547px\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/^[0-9.]+px [0-9.]+px$/\u001b[39m\nReceived string:  \u001b[31m\"674.547px\"\u001b[39m\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js:114:25",
+                        "location": {
+                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js",
+                          "column": 25,
+                          "line": 114
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 112 |\u001b[39m     \u001b[36mconst\u001b[39m articlesGrid \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m\".articles-grid\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m     \u001b[36mconst\u001b[39m gridColumns \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m articlesGrid\u001b[33m.\u001b[39mevaluate(el \u001b[33m=>\u001b[39m getComputedStyle(el)\u001b[33m.\u001b[39mgridTemplateColumns)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m     expect(gridColumns)\u001b[33m.\u001b[39mtoMatch(\u001b[35m/^[0-9.]+px [0-9.]+px$/\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// 平板版應該是雙欄，會顯示為兩個像素值\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m\n \u001b[90m 117 |\u001b[39m   test(\u001b[32m\"article card content structure\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js",
+                            "column": 25,
+                            "line": 114
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/^[0-9.]+px [0-9.]+px$/\u001b[39m\nReceived string:  \u001b[31m\"674.547px\"\u001b[39m\n\n\u001b[0m \u001b[90m 112 |\u001b[39m     \u001b[36mconst\u001b[39m articlesGrid \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m\".articles-grid\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m     \u001b[36mconst\u001b[39m gridColumns \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m articlesGrid\u001b[33m.\u001b[39mevaluate(el \u001b[33m=>\u001b[39m getComputedStyle(el)\u001b[33m.\u001b[39mgridTemplateColumns)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m     expect(gridColumns)\u001b[33m.\u001b[39mtoMatch(\u001b[35m/^[0-9.]+px [0-9.]+px$/\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// 平板版應該是雙欄，會顯示為兩個像素值\u001b[39m\n \u001b[90m     |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m\n \u001b[90m 117 |\u001b[39m   test(\u001b[32m\"article card content structure\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js:114:25\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:30.961Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js",
+                        "column": 25,
+                        "line": 114
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-781b1db29703fd8b73cc",
+              "file": "blog.spec.js",
+              "line": 104,
+              "column": 3
+            },
+            {
+              "title": "article card content structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 424,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:31.034Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-f2c5f32ec29042dc23f5",
+              "file": "blog.spec.js",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "other topics dropdown functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 369,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:31.326Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-e8b39e7b1423dcda0c22",
+              "file": "blog.spec.js",
+              "line": 147,
+              "column": 3
+            },
+            {
+              "title": "article filtering by category",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 666,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:33.387Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-14f105ca2b4c85147a8d",
+              "file": "blog.spec.js",
+              "line": 167,
+              "column": 3
+            },
+            {
+              "title": "accessibility features",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 407,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:31.495Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-fd30ef954779f6354001",
+              "file": "blog.spec.js",
+              "line": 195,
+              "column": 3
+            },
+            {
+              "title": "markdown content loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 363,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:31.733Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce994c20686539f3e595-d5621f6d9e804fa64298",
+              "file": "blog.spec.js",
+              "line": 209,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "featured-articles.spec.js",
+      "file": "featured-articles.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Featured Articles on Homepage",
+          "file": "featured-articles.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "featured articles section is displayed",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 6376,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.featured-articles').locator('.featured-articles__title')\nExpected string: \u001b[32m\"精選文章\"\u001b[39m\nReceived string: \u001b[31m\"Featured Articles\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.featured-articles').locator('.featured-articles__title')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"featured-articles-title\" class=\"featured-articles__title\">Featured Articles</h2>\u001b[22m\n\u001b[2m      - unexpected value \"Featured Articles\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.featured-articles').locator('.featured-articles__title')\nExpected string: \u001b[32m\"精選文章\"\u001b[39m\nReceived string: \u001b[31m\"Featured Articles\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.featured-articles').locator('.featured-articles__title')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"featured-articles-title\" class=\"featured-articles__title\">Featured Articles</h2>\u001b[22m\n\u001b[2m      - unexpected value \"Featured Articles\"\u001b[22m\n\n    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js:17:72",
+                        "location": {
+                          "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js",
+                          "column": 72,
+                          "line": 17
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 15 |\u001b[39m     \n \u001b[90m 16 |\u001b[39m     \u001b[90m// 檢查標題\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 17 |\u001b[39m     \u001b[36mawait\u001b[39m expect(featuredSection\u001b[33m.\u001b[39mlocator(\u001b[32m'.featured-articles__title'\u001b[39m))\u001b[33m.\u001b[39mtoHaveText(\u001b[32m'Featured Articles'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 18 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m   test(\u001b[32m\"featured articles load correctly\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js",
+                            "column": 72,
+                            "line": 17
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.featured-articles').locator('.featured-articles__title')\nExpected string: \u001b[32m\"精選文章\"\u001b[39m\nReceived string: \u001b[31m\"Featured Articles\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.featured-articles').locator('.featured-articles__title')\u001b[22m\n\u001b[2m    9 × locator resolved to <h2 id=\"featured-articles-title\" class=\"featured-articles__title\">Featured Articles</h2>\u001b[22m\n\u001b[2m      - unexpected value \"Featured Articles\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 15 |\u001b[39m     \n \u001b[90m 16 |\u001b[39m     \u001b[90m// 檢查標題\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 17 |\u001b[39m     \u001b[36mawait\u001b[39m expect(featuredSection\u001b[33m.\u001b[39mlocator(\u001b[32m'.featured-articles__title'\u001b[39m))\u001b[33m.\u001b[39mtoHaveText(\u001b[32m'Featured Articles'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 18 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 19 |\u001b[39m\n \u001b[90m 20 |\u001b[39m   test(\u001b[32m\"featured articles load correctly\"\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js:17:72\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:31.951Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js",
+                        "column": 72,
+                        "line": 17
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-f4394b89653e71d961fc",
+              "file": "featured-articles.spec.js",
+              "line": 8,
+              "column": 3
+            },
+            {
+              "title": "featured articles load correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3257,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:32.125Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-dab3ba5ac09f11fcb612",
+              "file": "featured-articles.spec.js",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "featured articles have proper styling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1486,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:34.403Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-89b4c70f7f2ac5cc449d",
+              "file": "featured-articles.spec.js",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "featured articles are responsive",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2758,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:35.407Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-42a533bd9b3f75fa9cce",
+              "file": "featured-articles.spec.js",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "featured articles footer button works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2509,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:35.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-314c1d5459151a44d667",
+              "file": "featured-articles.spec.js",
+              "line": 85,
+              "column": 3
+            },
+            {
+              "title": "pinned articles display correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 3244,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:38.198Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9525410c2ff5956ce2b6-bca3e924e90ae80fe97b",
+              "file": "featured-articles.spec.js",
+              "line": 97,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "home.spec.js",
+      "file": "home.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Home",
+          "file": "home.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "hero visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 479,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:40.702Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "379953442ddfc3019abd-016d11cd19d908d13f95",
+              "file": "home.spec.js",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "skip link is focusable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 532,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-15T09:15:38.547Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "379953442ddfc3019abd-fd81bb02ff9b3b5b0524",
+              "file": "home.spec.js",
+              "line": 10,
               "column": 3
             }
           ]
@@ -396,11 +1310,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-09-15T02:26:30.849Z",
-    "duration": 6926.326,
-    "expected": 5,
+    "startTime": "2025-09-15T09:15:23.168Z",
+    "duration": 18424.004,
+    "expected": 24,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 4,
     "flaky": 0
   }
 }

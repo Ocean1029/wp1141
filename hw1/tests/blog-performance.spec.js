@@ -64,7 +64,7 @@ test.describe("Blog Performance", () => {
     await page.waitForTimeout(100); // 等待動畫開始
     const hoverTime = Date.now() - startTime;
     
-    // hover 響應應該很快
+    
     expect(hoverTime).toBeLessThan(200);
     
     // 檢查 hover 效果是否應用

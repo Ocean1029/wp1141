@@ -1,62 +1,219 @@
-<testsuites id="" name="" tests="6" failures="1" skipped="0" errors="0" time="6.926326">
-<testsuite name="about-scroll-animation.spec.js" timestamp="2025-09-15T02:26:30.874Z" hostname="chromium" tests="6" failures="1" skipped="0" time="13.524" errors="0">
-<testcase name="About Page Scroll Animation › scroll animation elements are present" classname="about-scroll-animation.spec.js" time="1.104">
+<testsuites id="" name="" tests="28" failures="4" skipped="0" errors="0" time="18.424004">
+<testsuite name="blog-performance.spec.js" timestamp="2025-09-15T09:15:23.240Z" hostname="chromium" tests="9" failures="2" skipped="0" time="24.98" errors="0">
+<testcase name="Blog Performance › page load performance" classname="blog-performance.spec.js" time="0.961">
 </testcase>
-<testcase name="About Page Scroll Animation › scroll animation initial state" classname="about-scroll-animation.spec.js" time="1.902">
+<testcase name="Blog Performance › article loading performance" classname="blog-performance.spec.js" time="1.084">
 </testcase>
-<testcase name="About Page Scroll Animation › scroll animation triggers on scroll" classname="about-scroll-animation.spec.js" time="2.033">
+<testcase name="Blog Performance › category filter performance" classname="blog-performance.spec.js" time="2.354">
 </testcase>
-<testcase name="About Page Scroll Animation › scroll animation has proper CSS transitions" classname="about-scroll-animation.spec.js" time="6.14">
-<failure message="about-scroll-animation.spec.js:59:3 scroll animation has proper CSS transitions" type="FAILURE">
-<![CDATA[  [chromium] › about-scroll-animation.spec.js:59:3 › About Page Scroll Animation › scroll animation has proper CSS transitions 
+<testcase name="Blog Performance › hover animation performance" classname="blog-performance.spec.js" time="2.565">
+<failure message="blog-performance.spec.js:55:3 hover animation performance" type="FAILURE">
+<![CDATA[  [chromium] › blog-performance.spec.js:55:3 › Blog Performance › hover animation performance ──────
 
-    Error: expect(locator).toHaveCSS(expected) failed
+    Error: expect(received).toBeLessThan(expected)
 
-    Locator: locator('.scroll-animate').first()
-    Expected pattern: /all 0.8s/
-    Received string:  "0.8s cubic-bezier(0.4, 0, 0.2, 1)"
-    Timeout: 5000ms
+    Expected: < 200
+    Received:   448
 
-    Call log:
-      - Expect "toHaveCSS" with timeout 5000ms
-      - waiting for locator('.scroll-animate').first()
-        9 × locator resolved to <section class="about-intro scroll-animate animate">…</section>
-          - unexpected value "0.8s cubic-bezier(0.4, 0, 0.2, 1)"
-
-
-      64 |     
-      65 |     // 檢查過渡屬性
-    > 66 |     await expect(scrollElement).toHaveCSS('transition', /all 0.8s/);
-         |                                 ^
-      67 |     await expect(scrollElement).toHaveCSS('transition-timing-function', /cubic-bezier/);
-      68 |   });
-      69 |
-        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/about-scroll-animation.spec.js:66:33
+      66 |     
+      67 |     
+    > 68 |     expect(hoverTime).toBeLessThan(200);
+         |                       ^
+      69 |     
+      70 |     // 檢查 hover 效果是否應用
+      71 |     const transform = await firstCard.evaluate(el => 
+        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:68:23
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png
+    ../test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm
+    ../test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ../test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md
+    Error Context: ../test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/error-context.md
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/test-failed-1.png]]
+[[ATTACHMENT|test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/test-failed-1.png]]
 
-[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/video.webm]]
+[[ATTACHMENT|test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/video.webm]]
 
-[[ATTACHMENT|test-results/about-scroll-animation-Abo-1f0d8--has-proper-CSS-transitions-chromium/error-context.md]]
+[[ATTACHMENT|test-results/blog-performance-Blog-Perf-e8743-hover-animation-performance-chromium/error-context.md]]
 ]]>
 </system-out>
 </testcase>
-<testcase name="About Page Scroll Animation › staggered animation delays work correctly" classname="about-scroll-animation.spec.js" time="0.683">
+<testcase name="Blog Performance › image loading performance" classname="blog-performance.spec.js" time="1.869">
 </testcase>
-<testcase name="About Page Scroll Animation › scroll animation works on mobile" classname="about-scroll-animation.spec.js" time="1.662">
+<testcase name="Blog Performance › memory usage during interactions" classname="blog-performance.spec.js" time="1.921">
+</testcase>
+<testcase name="Blog Performance › responsive layout performance" classname="blog-performance.spec.js" time="12.506">
+<failure message="blog-performance.spec.js:116:3 responsive layout performance" type="FAILURE">
+<![CDATA[  [chromium] › blog-performance.spec.js:116:3 › Blog Performance › responsive layout performance ───
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('.article-card') to be visible
+
+
+      126 |       
+      127 |       const startTime = Date.now();
+    > 128 |       await page.waitForSelector(".article-card", { timeout: 10000 });
+          |                  ^
+      129 |       const loadTime = Date.now() - startTime;
+      130 |       
+      131 |       // 每個視窗大小都應該快速載入
+        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog-performance.spec.js:128:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/blog-performance-Blog-Perf-50dab-sponsive-layout-performance-chromium/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Blog Performance › accessibility performance" classname="blog-performance.spec.js" time="0.405">
+</testcase>
+<testcase name="Blog Performance › error recovery performance" classname="blog-performance.spec.js" time="1.315">
+</testcase>
+</testsuite>
+<testsuite name="blog.spec.js" timestamp="2025-09-15T09:15:23.240Z" hostname="chromium" tests="11" failures="1" skipped="0" time="7.507" errors="0">
+<testcase name="Blog Page › blog page loads correctly" classname="blog.spec.js" time="1.155">
+</testcase>
+<testcase name="Blog Page › article cards are displayed" classname="blog.spec.js" time="1.242">
+</testcase>
+<testcase name="Blog Page › category filter functionality" classname="blog.spec.js" time="1.505">
+</testcase>
+<testcase name="Blog Page › article card hover effects" classname="blog.spec.js" time="0.535">
+</testcase>
+<testcase name="Blog Page › responsive layout on mobile" classname="blog.spec.js" time="0.393">
+</testcase>
+<testcase name="Blog Page › responsive layout on tablet" classname="blog.spec.js" time="0.448">
+<failure message="blog.spec.js:104:3 responsive layout on tablet" type="FAILURE">
+<![CDATA[  [chromium] › blog.spec.js:104:3 › Blog Page › responsive layout on tablet ────────────────────────
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^[0-9.]+px [0-9.]+px$/
+    Received string:  "674.547px"
+
+      112 |     const articlesGrid = page.locator(".articles-grid");
+      113 |     const gridColumns = await articlesGrid.evaluate(el => getComputedStyle(el).gridTemplateColumns);
+    > 114 |     expect(gridColumns).toMatch(/^[0-9.]+px [0-9.]+px$/); // 平板版應該是雙欄，會顯示為兩個像素值
+          |                         ^
+      115 |   });
+      116 |
+      117 |   test("article card content structure", async ({ page }) => {
+        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/blog.spec.js:114:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/video.webm]]
+
+[[ATTACHMENT|test-results/blog-Blog-Page-responsive-layout-on-tablet-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Blog Page › article card content structure" classname="blog.spec.js" time="0.424">
+</testcase>
+<testcase name="Blog Page › other topics dropdown functionality" classname="blog.spec.js" time="0.369">
+</testcase>
+<testcase name="Blog Page › article filtering by category" classname="blog.spec.js" time="0.666">
+</testcase>
+<testcase name="Blog Page › accessibility features" classname="blog.spec.js" time="0.407">
+</testcase>
+<testcase name="Blog Page › markdown content loading" classname="blog.spec.js" time="0.363">
+</testcase>
+</testsuite>
+<testsuite name="featured-articles.spec.js" timestamp="2025-09-15T09:15:23.240Z" hostname="chromium" tests="6" failures="1" skipped="0" time="19.63" errors="0">
+<testcase name="Featured Articles on Homepage › featured articles section is displayed" classname="featured-articles.spec.js" time="6.376">
+<failure message="featured-articles.spec.js:8:3 featured articles section is displayed" type="FAILURE">
+<![CDATA[  [chromium] › featured-articles.spec.js:8:3 › Featured Articles on Homepage › featured articles section is displayed 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.featured-articles').locator('.featured-articles__title')
+    Expected string: "精選文章"
+    Received string: "Featured Articles"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for locator('.featured-articles').locator('.featured-articles__title')
+        9 × locator resolved to <h2 id="featured-articles-title" class="featured-articles__title">Featured Articles</h2>
+          - unexpected value "Featured Articles"
+
+
+      15 |     
+      16 |     // 檢查標題
+    > 17 |     await expect(featuredSection.locator('.featured-articles__title')).toHaveText('Featured Articles');
+         |                                                                        ^
+      18 |   });
+      19 |
+      20 |   test("featured articles load correctly", async ({ page }) => {
+        at /Users/huan_hsuan/NTU-3.1/WebProgramming/homework/hw1/tests/featured-articles.spec.js:17:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/video.webm]]
+
+[[ATTACHMENT|test-results/featured-articles-Featured-b3d5e-ticles-section-is-displayed-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Featured Articles on Homepage › featured articles load correctly" classname="featured-articles.spec.js" time="3.257">
+</testcase>
+<testcase name="Featured Articles on Homepage › featured articles have proper styling" classname="featured-articles.spec.js" time="1.486">
+</testcase>
+<testcase name="Featured Articles on Homepage › featured articles are responsive" classname="featured-articles.spec.js" time="2.758">
+</testcase>
+<testcase name="Featured Articles on Homepage › featured articles footer button works" classname="featured-articles.spec.js" time="2.509">
+</testcase>
+<testcase name="Featured Articles on Homepage › pinned articles display correctly" classname="featured-articles.spec.js" time="3.244">
+</testcase>
+</testsuite>
+<testsuite name="home.spec.js" timestamp="2025-09-15T09:15:23.240Z" hostname="chromium" tests="2" failures="0" skipped="0" time="1.011" errors="0">
+<testcase name="Home › hero visible" classname="home.spec.js" time="0.479">
+</testcase>
+<testcase name="Home › skip link is focusable" classname="home.spec.js" time="0.532">
 </testcase>
 </testsuite>
 </testsuites>
