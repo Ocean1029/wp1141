@@ -4,7 +4,6 @@ category: "Recording software"
 date: "2025-09-05"
 readTime: 12
 image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop"
-pinned: true
 slug: "zoom-alternatives-2025"
 ---
 
