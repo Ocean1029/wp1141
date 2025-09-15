@@ -1068,7 +1068,7 @@ main.container {
 
 .cv-section {
   margin-bottom: var(--space-8);
-  padding: var(--space-6);
+  padding-left: var(--space-6);
   background: color-mix(in oklab, var(--bg), white 4%);
   border-radius: var(--r-lg);
   border: 1px solid rgb(255 255 255 / 0.06);

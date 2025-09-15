@@ -3,8 +3,11 @@
 // - Sets active nav state
 // - Adds small UX niceties
 
+import type { Article, Category, ContactFormData } from './types.js';
+import MarkdownParser from './markdown-parser.js';
+
 /** Fetch and inject an HTML partial into a target element. */
-async function injectPartial(targetSelector, url) {
+async function injectPartial(targetSelector: string, url: string): Promise<void> {
   const el = document.querySelector(targetSelector);
   if (!el) return;
   try {
@@ -18,7 +21,7 @@ async function injectPartial(targetSelector, url) {
 }
 
 /** Mark the current nav link with aria-current based on pathname. */
-function setActiveNav(container = document) {
+function setActiveNav(container: Document = document): void {
   const current = (location.pathname || "/").replace(/\/+$/, "") || "/";
   container.querySelectorAll('[data-path]').forEach((link) => {
     const path = link.getAttribute('data-path') || '';
@@ -32,40 +35,42 @@ function setActiveNav(container = document) {
 }
 
 /** Initialize footer dynamic year. */
-function setFooterYear(container = document) {
+function setFooterYear(container: Document = document): void {
   const y = container.querySelector("#year");
   if (y) y.textContent = String(new Date().getFullYear());
 }
 
-function initContactForm(doc = document) {
-  const form = doc.querySelector("#contact-form");
+function initContactForm(doc: Document = document): void {
+  const form = doc.querySelector("#contact-form") as HTMLFormElement;
   if (!form) return;
   form.addEventListener("submit", (e) => {
     e.preventDefault(); // prevent navigation
     const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
+    const payload = Object.fromEntries(fd.entries()) as unknown as ContactFormData;
     console.info("Contact payload:", payload); // debug log
 
     const toast = doc.querySelector("#toast");
     if (toast) {
       toast.textContent = "Message sent (fake).";
-      toast.style.color = "var(--success)";
+      (toast as HTMLElement).style.color = "var(--success)";
     }
     form.reset();
   });
 }
 
 // Blog functionality
-class BlogManager {
+export class BlogManager {
+  private articles: Article[] = [];
+  private currentFilter: string = 'all';
+  private maxVisibleCategories: number = 5; // 最多顯示5個分類
+  private parser: MarkdownParser;
+
   constructor() {
-    this.articles = [];
-    this.currentFilter = 'all';
-    this.maxVisibleCategories = 5; // 最多顯示5個分類
     this.parser = new MarkdownParser();
     this.init();
   }
 
-  async loadArticles() {
+  async loadArticles(): Promise<Article[]> {
     try {
       this.articles = await this.parser.loadArticles();
       console.log(`載入了 ${this.articles.length} 篇文章`);
@@ -78,7 +83,7 @@ class BlogManager {
     }
   }
 
-  getDefaultArticles() {
+  getDefaultArticles(): Article[] {
     return [
       {
         id: "2025-09-09-zoom-recording",
@@ -86,7 +91,11 @@ class BlogManager {
         category: "Recording software",
         image: "https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=200&fit=crop",
         date: "2025-09-09",
-        readTime: 16
+        readTime: 16,
+        content: "",
+        filename: "2025-09-09-zoom-recording.md",
+        pinned: false,
+        slug: "zoom-recording"
       },
       {
         id: "2025-09-08-podcast-software",
@@ -94,7 +103,11 @@ class BlogManager {
         category: "Podcast Software",
         image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=200&fit=crop",
         date: "2025-09-08",
-        readTime: 10
+        readTime: 10,
+        content: "",
+        filename: "2025-09-08-podcast-software.md",
+        pinned: false,
+        slug: "podcast-software"
       },
       {
         id: "2025-09-05-zoom-alternatives",
@@ -102,16 +115,20 @@ class BlogManager {
         category: "Recording software",
         image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop",
         date: "2025-09-05",
-        readTime: 12
+        readTime: 12,
+        content: "",
+        filename: "2025-09-05-zoom-alternatives.md",
+        pinned: false,
+        slug: "zoom-alternatives"
       }
     ];
   }
 
-  getCategories() {
+  getCategories(): Category[] {
     return this.parser.getCategories();
   }
 
-  renderCategories() {
+  renderCategories(): void {
     const categories = this.getCategories();
     const categoryList = document.getElementById('category-list');
     const otherTopics = document.getElementById('other-topics');
@@ -121,7 +138,7 @@ class BlogManager {
 
     // 清空現有內容
     categoryList.innerHTML = '';
-    otherTopicsDropdown.innerHTML = '';
+    if (otherTopicsDropdown) otherTopicsDropdown.innerHTML = '';
 
     // 顯示前幾個分類
     const visibleCategories = categories.slice(0, this.maxVisibleCategories);
@@ -137,7 +154,7 @@ class BlogManager {
     });
 
     // 如果有隱藏的分類，顯示 "Other topics"
-    if (hiddenCategories.length > 0) {
+    if (hiddenCategories.length > 0 && otherTopics && otherTopicsDropdown) {
       otherTopics.style.display = 'block';
       hiddenCategories.forEach(({ category }) => {
         const tag = document.createElement('button');
@@ -146,7 +163,7 @@ class BlogManager {
         tag.addEventListener('click', () => this.filterByCategory(category));
         otherTopicsDropdown.appendChild(tag);
       });
-    } else {
+    } else if (otherTopics) {
       otherTopics.style.display = 'none';
     }
 
@@ -158,13 +175,13 @@ class BlogManager {
     categoryList.insertBefore(allTag, categoryList.firstChild);
   }
 
-  filterByCategory(category) {
+  filterByCategory(category: string): void {
     this.currentFilter = category;
     this.renderArticles();
     this.updateActiveCategory();
   }
 
-  updateActiveCategory() {
+  updateActiveCategory(): void {
     document.querySelectorAll('.category-tag').forEach(tag => {
       tag.classList.remove('active');
     });
@@ -178,7 +195,7 @@ class BlogManager {
     }
   }
 
-  renderArticles() {
+  renderArticles(): void {
     const articlesGrid = document.getElementById('articles-grid');
     if (!articlesGrid) return;
 
@@ -197,11 +214,11 @@ class BlogManager {
     });
   }
 
-  createArticleCard(article) {
+  createArticleCard(article: Article): HTMLDivElement {
     const card = document.createElement('div');
     card.className = 'article-card';
     
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', { 
         year: 'numeric', 
@@ -229,10 +246,10 @@ class BlogManager {
 
   // 文章現在透過 Markdown 檔案管理，不需要動態新增
 
-  initAddArticleForm() {
+  initAddArticleForm(): void {
     const addBtn = document.getElementById('add-article-btn');
     const form = document.getElementById('add-article-form');
-    const articleForm = document.getElementById('article-form');
+    const articleForm = document.getElementById('article-form') as HTMLFormElement;
     const cancelBtn = document.getElementById('cancel-add');
 
     if (!addBtn || !form || !articleForm || !cancelBtn) return;
@@ -248,16 +265,16 @@ class BlogManager {
 
     articleForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const formData = new FormData(articleForm);
-      const articleData = Object.fromEntries(formData.entries());
+      // const formData = new FormData(articleForm);
+      // const articleData = Object.fromEntries(formData.entries());
       
-      this.addArticle(articleData);
+      // this.addArticle(articleData);
       form.style.display = 'none';
       articleForm.reset();
     });
   }
 
-  initOtherTopicsDropdown() {
+  initOtherTopicsDropdown(): void {
     const otherTopicsBtn = document.getElementById('other-topics-btn');
     const dropdown = document.getElementById('other-topics-dropdown');
 
@@ -276,14 +293,14 @@ class BlogManager {
 
     // 點擊外部關閉下拉選單
     document.addEventListener('click', (e) => {
-      if (!otherTopicsBtn.contains(e.target) && !dropdown.contains(e.target)) {
+      if (!otherTopicsBtn.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
         otherTopicsBtn.classList.remove('open');
         dropdown.classList.remove('show');
       }
     });
   }
 
-  async init() {
+  async init(): Promise<void> {
     await this.loadArticles();
     this.renderCategories();
     this.renderArticles();
@@ -293,16 +310,15 @@ class BlogManager {
   }
 }
 
-function initBlog(doc = document) {
+function initBlog(_doc: Document = document): void {
   // 只在 blog 頁面初始化
   if (location.pathname.includes('/blog')) {
     new BlogManager();
   }
 }
 
-
 /** Main entry. */
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   await Promise.all([
     injectPartial("#site-header", "/components/Header.html"),
     injectPartial("#site-footer", "/components/Footer.html"),
@@ -315,4 +331,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-

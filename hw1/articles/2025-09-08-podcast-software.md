@@ -4,6 +4,8 @@ category: "Podcast Software"
 date: "2025-09-08"
 readTime: 10
 image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=200&fit=crop"
+pinned: true
+slug: "podcast-software"
 ---
 
 # 20 Best Podcast Recording Software for Pros & Beginners | 2025

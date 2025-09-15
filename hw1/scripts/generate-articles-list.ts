@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function generateArticlesList() {
+function generateArticlesList(): void {
   const articlesDir = path.join(__dirname, '../articles');
   const outputFile = path.join(__dirname, '../public/articles-list.json');
   

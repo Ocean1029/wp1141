@@ -3,13 +3,16 @@
  * 處理頁面滾動時的動畫效果
  */
 
-class ScrollAnimations {
+// import type { ScrollAnimationElement } from './types.js';
+
+export class ScrollAnimations {
+  private animatedElements: Set<HTMLElement> = new Set();
+
   constructor() {
-    this.animatedElements = new Set();
     this.init();
   }
 
-  init() {
+  init(): void {
     // 等待 DOM 載入完成
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.setupAnimations());
@@ -18,19 +21,21 @@ class ScrollAnimations {
     }
   }
 
-  setupAnimations() {
+  setupAnimations(): void {
     // 為需要滾動動畫的元素添加初始狀態
     const elementsToAnimate = document.querySelectorAll(`
       .features-header,
       .feature-card,
       .featured-articles__header,
-      .featured-article-card
+      .featured-article-card,
+      .scroll-animate
     `);
 
     elementsToAnimate.forEach(element => {
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(30px)';
-      element.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+      const htmlElement = element as HTMLElement;
+      htmlElement.style.opacity = '0';
+      htmlElement.style.transform = 'translateY(30px)';
+      htmlElement.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
     });
 
     // 設置滾動監聽器
@@ -40,10 +45,10 @@ class ScrollAnimations {
     this.checkElements();
   }
 
-  setupScrollListener() {
+  setupScrollListener(): void {
     let ticking = false;
 
-    const handleScroll = () => {
+    const handleScroll = (): void => {
       if (!ticking) {
         requestAnimationFrame(() => {
           this.checkElements();
@@ -56,33 +61,35 @@ class ScrollAnimations {
     window.addEventListener('scroll', handleScroll, { passive: true });
   }
 
-  checkElements() {
+  checkElements(): void {
     // 檢查 features 區域
     this.checkFeaturesSection();
     
     // 檢查其他元素
     const otherElements = document.querySelectorAll(`
       .featured-articles__header,
-      .featured-article-card
+      .featured-article-card,
+      .scroll-animate
     `);
 
     otherElements.forEach(element => {
-      if (this.animatedElements.has(element)) return;
+      const htmlElement = element as HTMLElement;
+      if (this.animatedElements.has(htmlElement)) return;
 
-      if (this.isElementInViewport(element)) {
-        this.animateElement(element);
-        this.animatedElements.add(element);
+      if (this.isElementInViewport(htmlElement)) {
+        this.animateElement(htmlElement);
+        this.animatedElements.add(htmlElement);
       }
     });
   }
 
-  checkFeaturesSection() {
-    const featuresSection = document.querySelector('.features');
+  checkFeaturesSection(): void {
+    const featuresSection = document.querySelector('.features') as HTMLElement;
     if (!featuresSection || this.animatedElements.has(featuresSection)) return;
 
     if (this.isElementInViewport(featuresSection)) {
       // 同時觸發 features-header 和所有 feature-card 的動畫
-      const featuresHeader = featuresSection.querySelector('.features-header');
+      const featuresHeader = featuresSection.querySelector('.features-header') as HTMLElement;
       const featureCards = featuresSection.querySelectorAll('.feature-card');
 
       if (featuresHeader && !this.animatedElements.has(featuresHeader)) {
@@ -92,10 +99,11 @@ class ScrollAnimations {
 
       // 所有 feature-card 同時動畫，但有錯開延遲
       featureCards.forEach((card, index) => {
-        if (!this.animatedElements.has(card)) {
+        const htmlCard = card as HTMLElement;
+        if (!this.animatedElements.has(htmlCard)) {
           setTimeout(() => {
-            this.animateElement(card);
-            this.animatedElements.add(card);
+            this.animateElement(htmlCard);
+            this.animatedElements.add(htmlCard);
           }, index * 100); // 每個卡片延遲 100ms
         }
       });
@@ -104,7 +112,7 @@ class ScrollAnimations {
     }
   }
 
-  isElementInViewport(element) {
+  isElementInViewport(element: HTMLElement): boolean {
     const rect = element.getBoundingClientRect();
     const windowHeight = window.innerHeight || document.documentElement.clientHeight;
     
@@ -112,19 +120,19 @@ class ScrollAnimations {
     return rect.top <= windowHeight * 0.8 && rect.bottom >= 0;
   }
 
-  animateElement(element) {
+  animateElement(element: HTMLElement): void {
     element.style.opacity = '1';
     element.style.transform = 'translateY(0)';
   }
 
   // 重置動畫（用於測試或重新載入）
-  reset() {
+  reset(): void {
     this.animatedElements.clear();
     
     // 重置 features 區域
-    const featuresSection = document.querySelector('.features');
+    const featuresSection = document.querySelector('.features') as HTMLElement;
     if (featuresSection) {
-      const featuresHeader = featuresSection.querySelector('.features-header');
+      const featuresHeader = featuresSection.querySelector('.features-header') as HTMLElement;
       const featureCards = featuresSection.querySelectorAll('.feature-card');
       
       if (featuresHeader) {
@@ -133,8 +141,9 @@ class ScrollAnimations {
       }
       
       featureCards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
+        const htmlCard = card as HTMLElement;
+        htmlCard.style.opacity = '0';
+        htmlCard.style.transform = 'translateY(30px)';
       });
     }
     
@@ -145,8 +154,9 @@ class ScrollAnimations {
     `);
 
     otherElements.forEach(element => {
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(30px)';
+      const htmlElement = element as HTMLElement;
+      htmlElement.style.opacity = '0';
+      htmlElement.style.transform = 'translateY(30px)';
     });
   }
 }

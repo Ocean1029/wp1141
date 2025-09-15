@@ -18,13 +18,13 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-function question(prompt) {
+function question(prompt: string): Promise<string> {
   return new Promise((resolve) => {
     rl.question(prompt, resolve);
   });
 }
 
-function generateFilename(title) {
+function generateFilename(title: string): string {
   const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const slug = title
     .toLowerCase()
@@ -35,7 +35,7 @@ function generateFilename(title) {
   return `${date}-${slug}.md`;
 }
 
-function generateSlug(title) {
+function generateSlug(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '') // 移除特殊字符
@@ -43,7 +43,7 @@ function generateSlug(title) {
     .substring(0, 50); // 限制長度
 }
 
-function generateArticleContent(title, category, image) {
+function generateArticleContent(title: string, category: string, image: string): string {
   const date = new Date().toISOString().split('T')[0];
   const readTime = Math.max(1, Math.ceil(title.length / 10)); // 簡單估算閱讀時間
   const slug = generateSlug(title);
@@ -85,7 +85,7 @@ console.log('Hello World');
 文章結尾...`;
 }
 
-async function createNewArticle() {
+async function createNewArticle(): Promise<void> {
   try {
     console.log('📝 新增文章\n');
     

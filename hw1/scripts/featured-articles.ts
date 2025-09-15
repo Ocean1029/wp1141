@@ -3,15 +3,20 @@
  * 處理主頁的釘選文章顯示
  */
 
-class FeaturedArticlesManager {
+import type { Article, Frontmatter } from './types.js';
+import MarkdownParser from './markdown-parser.js';
+
+export class FeaturedArticlesManager {
+  private articles: Article[] = [];
+  private featuredGrid: HTMLElement | null;
+  private maxFeatured: number = 3; // 最多顯示 3 篇釘選文章
+
   constructor() {
-    this.articles = [];
     this.featuredGrid = document.getElementById('featured-articles-grid');
-    this.maxFeatured = 3; // 最多顯示 3 篇釘選文章
     this.init();
   }
 
-  async init() {
+  async init(): Promise<void> {
     if (!this.featuredGrid) return;
     
     try {
@@ -23,22 +28,24 @@ class FeaturedArticlesManager {
     }
   }
 
-  async loadArticles() {
+  async loadArticles(): Promise<void> {
+    console.log('開始載入文章...');
     try {
       // 嘗試使用 MarkdownParser 載入文章
-      if (typeof MarkdownParser !== 'undefined') {
-        const parser = new MarkdownParser();
-        this.articles = await parser.loadArticles();
-        return;
-      }
+      const parser = new MarkdownParser();
+      this.articles = await parser.loadArticles();
+      console.log('MarkdownParser 載入成功，文章數量:', this.articles.length);
+      return;
     } catch (error) {
       console.warn('MarkdownParser 載入失敗，使用備用方法:', error);
     }
     
     // 備用方法：直接載入文章列表
+    console.log('使用備用方法載入文章...');
     const response = await fetch('/articles-list.json');
     if (response.ok) {
-      const articleFiles = await response.json();
+      const articleFiles: string[] = await response.json();
+      console.log('文章檔案列表:', articleFiles);
       // 載入每篇文章的詳細內容
       this.articles = [];
       for (const filename of articleFiles) {
@@ -48,6 +55,7 @@ class FeaturedArticlesManager {
             const content = await articleResponse.text();
             const article = this.parseArticleContent(content, filename);
             if (article) {
+              console.log('載入文章:', article.title, 'pinned:', article.pinned);
               this.articles.push(article);
             }
           }
@@ -55,12 +63,13 @@ class FeaturedArticlesManager {
           console.warn(`Failed to load article ${filename}:`, error);
         }
       }
+      console.log('備用方法載入完成，總文章數:', this.articles.length);
     } else {
       throw new Error('無法載入文章列表');
     }
   }
 
-  parseArticleContent(content, filename) {
+  parseArticleContent(content: string, filename: string): Article | null {
     try {
       // 解析 frontmatter
       const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
@@ -72,12 +81,19 @@ class FeaturedArticlesManager {
       const markdownContent = frontmatterMatch[2];
       
       // 簡單的 YAML 解析器
-      const frontmatter = {};
+      const frontmatter: Frontmatter = {
+        title: '',
+        category: '',
+        date: ''
+      };
+      
       frontmatterText.split('\n').forEach(line => {
         const colonIndex = line.indexOf(':');
         if (colonIndex > 0) {
           const key = line.substring(0, colonIndex).trim();
           let value = line.substring(colonIndex + 1).trim();
+          
+          console.log(`解析 frontmatter: ${key} = ${value}`);
           
           // 移除引號
           if ((value.startsWith('"') && value.endsWith('"')) || 
@@ -85,19 +101,15 @@ class FeaturedArticlesManager {
             value = value.slice(1, -1);
           }
           
-          // 轉換數字
-          if (!isNaN(value) && value !== '') {
-            value = Number(value);
-          }
-          
           // 轉換布林值
-          if (value === 'true') {
-            value = true;
-          } else if (value === 'false') {
-            value = false;
+          if (key === 'pinned') {
+            (frontmatter as any)[key] = value === 'true';
+            console.log(`pinned 轉換: ${value} -> ${value === 'true'}`);
+          } else if (key === 'readTime') {
+            (frontmatter as any)[key] = Number(value) || 5;
+          } else {
+            (frontmatter as any)[key] = value;
           }
-          
-          frontmatter[key] = value;
         }
       });
 
@@ -106,11 +118,11 @@ class FeaturedArticlesManager {
         title: frontmatter.title,
         category: frontmatter.category,
         date: frontmatter.date,
-        readTime: frontmatter.readTime || 5,
+        readTime: Number(frontmatter.readTime) || 5,
         image: frontmatter.image || 'https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=200&fit=crop',
         content: markdownContent,
         filename: filename,
-        pinned: frontmatter.pinned || false,
+        pinned: frontmatter.pinned === true,
         slug: frontmatter.slug || filename.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '')
       };
     } catch (error) {
@@ -119,22 +131,28 @@ class FeaturedArticlesManager {
     }
   }
 
-  getFeaturedArticles() {
+  getFeaturedArticles(): Article[] {
+    console.log('篩選精選文章，總文章數:', this.articles.length);
+    console.log('所有文章:', this.articles.map(a => ({ title: a.title, pinned: a.pinned })));
+    
     // 只篩選出釘選的文章
     const featured = this.articles.filter(article => article.pinned === true);
+    console.log('釘選文章數量:', featured.length);
     
     // 按日期排序（最新的在前）
-    featured.sort((a, b) => new Date(b.date) - new Date(a.date));
+    featured.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    return featured.slice(0, this.maxFeatured);
+    const result = featured.slice(0, this.maxFeatured);
+    console.log('最終精選文章:', result.map(a => a.title));
+    return result;
   }
 
-  createFeaturedArticleCard(article) {
+  createFeaturedArticleCard(article: Article): HTMLAnchorElement {
     const card = document.createElement('a');
     card.className = 'featured-article-card';
     card.href = `/blog/#${article.slug}`;
     
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', { 
         year: 'numeric', 
@@ -171,7 +189,7 @@ class FeaturedArticlesManager {
     return card;
   }
 
-  renderFeaturedArticles() {
+  renderFeaturedArticles(): void {
     if (!this.featuredGrid) return;
     
     const featuredArticles = this.getFeaturedArticles();
@@ -187,11 +205,13 @@ class FeaturedArticlesManager {
     // 渲染釘選文章卡片
     featuredArticles.forEach(article => {
       const card = this.createFeaturedArticleCard(article);
-      this.featuredGrid.appendChild(card);
+      this.featuredGrid!.appendChild(card);
     });
   }
 
-  showNoArticles() {
+  showNoArticles(): void {
+    if (!this.featuredGrid) return;
+    
     this.featuredGrid.innerHTML = `
       <div class="featured-articles__empty">
         <h3>暫無精選文章</h3>
@@ -207,7 +227,9 @@ class FeaturedArticlesManager {
     `;
   }
 
-  showError() {
+  showError(): void {
+    if (!this.featuredGrid) return;
+    
     this.featuredGrid.innerHTML = `
       <div class="featured-articles__error">
         <h3>載入文章時發生錯誤</h3>
@@ -231,9 +253,13 @@ class FeaturedArticlesManager {
 
 // 當 DOM 載入完成時初始化
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM 載入完成，當前路徑:', window.location.pathname);
   // 只在主頁初始化釘選文章
   if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+    console.log('初始化精選文章管理器...');
     window.featuredArticlesManager = new FeaturedArticlesManager();
+  } else {
+    console.log('不在主頁，跳過精選文章初始化');
   }
 });
 

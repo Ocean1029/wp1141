@@ -4,6 +4,8 @@ category: "Recording software"
 date: "2025-09-09"
 readTime: 16
 image: "https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=200&fit=crop"
+pinned: true
+slug: "zoom-recording"
 ---
 
 # How to Record Zoom Meetings With or Without Permission
