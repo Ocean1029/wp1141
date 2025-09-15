@@ -4,11 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run generate-articles && vite",
+    "build": "npm run generate-articles && vite build",
     "preview": "vite preview --port 4173",
-    "test": "playwright test"
-    },
+    "test": "playwright test",
+    "generate-articles": "node scripts/generate-articles-list.js",
+    "new-article": "node scripts/new-article.js"
+  },
   "devDependencies": {
     "@playwright/test": "^1.47.2",
     "vite": "^5.4.0"
