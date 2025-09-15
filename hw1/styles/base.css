@@ -957,10 +957,93 @@ main.container {
    ============================================ */
 
 .footer {
-  margin-top: clamp(40px, 8vw, 120px);
-  border-top: 1px solid rgb(255 255 255 / 0.06);
   padding: var(--space-6) 0;
+  width: 100%;
+  background: color-mix(in oklab, var(--bg), white 5%);
   color: var(--muted);
+}
+
+/* Footer Contact Styles */
+.footer__contact {
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.footer__contact-title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-6);
+  color: var(--font-100);
+  font-weight: 600;
+}
+
+.footer__contact-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.footer__contact-item {
+  padding: var(--space-4);
+  border-radius: var(--r-md);
+  border-left: 3px solid var(--brand-600);
+  background: color-mix(in oklab, var(--bg), white 1%);
+  transition: all 0.3s ease;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.footer__contact-item:hover {
+  background: color-mix(in oklab, var(--bg), white 3%);
+  transform: translateX(4px);
+}
+
+.footer__contact-item strong {
+  color: var(--brand-400);
+  margin-right: var(--space-2);
+}
+
+.footer__copyright {
+  text-align: center;
+  padding-top: var(--space-3);
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+  margin-top: var(--space-3);
+}
+
+/* Responsive Design for Footer Contact */
+@media (max-width: 768px) {
+  .footer__contact {
+    margin-bottom: var(--space-3);
+  }
+  
+  .footer__contact-title {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-4);
+  }
+  
+  .footer__contact-list {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    max-width: 100%;
+  }
+  
+  .footer__contact-item {
+    padding: var(--space-3);
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__contact-list {
+    gap: var(--space-2);
+  }
+  
+  .footer__contact-item {
+    padding: var(--space-1);
+    font-size: var(--text-sm);
+  }
 }
 
 /* ============================================
@@ -978,6 +1061,7 @@ main.container {
 
 .cv-summary {
   margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
 }
 
 
