@@ -60,7 +60,7 @@ hw1/
 ### 環境需求
 
 - Node.js 16+ 
-- npm 或 pnpm
+- npm 
 - TypeScript 5.0+
 
 ### 安裝與執行
@@ -68,8 +68,6 @@ hw1/
 1. **安裝依賴**
    ```bash
    npm install
-   # 或
-   pnpm install
    ```
 
 2. **開發模式**
