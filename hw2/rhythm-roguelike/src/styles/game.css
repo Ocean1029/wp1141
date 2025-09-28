@@ -1,0 +1,21 @@
+/* 遊戲相關樣式 */
+.game-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.game-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (prefers-color-scheme: light) {
+  .game-page {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+}

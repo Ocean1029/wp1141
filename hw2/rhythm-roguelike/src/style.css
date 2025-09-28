@@ -22,10 +22,124 @@ a:hover {
   color: #535bf2;
 }
 
-body {
+body, html, #root {
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #808080; /* 灰色背景 */
+}
+
+.gray-background {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.play-button {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 30px;
+  font-size: 18px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.play-button:hover {
+  background: #357abd;
+}
+
+.rhythm-container {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.center-circle {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #fff 0%, #ddd 100%);
+  border-radius: 50%;
+  border: 3px solid #333;
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.rhythm-bar {
+  position: absolute;
+  width: 6px;
+  height: 35px;
+  border-radius: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  animation-timing-function: linear;
+}
+
+.rhythm-bar.blue {
+  background: linear-gradient(
+    to bottom,
+    #4a90e2 0%,
+    #2171b5 100%
+  );
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.8);
+}
+
+.rhythm-bar.purple {
+  background: linear-gradient(
+    to bottom,
+    #8e44ad 0%,
+    #6a2c91 100%
+  );
+  box-shadow: 0 0 15px rgba(142, 68, 173, 0.8);
+}
+
+@keyframes moveFromLeft {
+  0% {
+    left: -10px;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    left: 50%;
+    opacity: 0;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes moveFromRight {
+  0% {
+    left: calc(100% + 10px);
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    left: 50%;
+    opacity: 0;
+    transform: translateY(-50%) scale(1);
+  }
 }
 
 h1 {

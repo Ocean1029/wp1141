@@ -22,6 +22,13 @@ export default [
         document: 'readonly',
         window: 'readonly',
         console: 'readonly',
+        AudioContext: 'readonly',
+        AudioBuffer: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        Audio: 'readonly',
+        HTMLDivElement: 'readonly',
+        setTimeout: 'readonly',
       },
     },
     plugins: {

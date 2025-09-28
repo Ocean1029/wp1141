@@ -1,0 +1,5 @@
+/* 主樣式檔案 - 匯入所有其他樣式 */
+@import './base.css';
+@import './buttons.css';
+@import './game.css';
+@import './rhythm.css';
