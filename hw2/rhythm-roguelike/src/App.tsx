@@ -18,7 +18,7 @@ const App: React.FC = () => {
     const loadResources = async () => {
       try {
         // 這裡可以載入遊戲所需的資源
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         setIsLoading(false);
       } catch (error) {
         console.error('資源載入失敗:', error);

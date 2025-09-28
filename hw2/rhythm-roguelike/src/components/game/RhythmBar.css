@@ -1,0 +1,30 @@
+/* RhythmBar 組件樣式 */
+.rhythm-bar {
+  position: absolute;
+  width: 10px;
+  height: 70px;
+  border-radius: 5px;
+  top: 90%;
+  transform: translateY(-50%);
+  z-index: 50;
+  transition: none; /* 禁用 CSS 過渡，使用 JS 動畫 */
+  
+  /* 像素風格 - 禁用反鋸齒 */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* 藍色節奏條 */
+.rhythm-bar--blue {
+  background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+  height: 50px;
+  /* border: 3px solid #193a4f; */
+}
+
+/* 白色節奏條 */
+.rhythm-bar--white {
+  background: linear-gradient(180deg, #ecf0f1 0%, #bdc3c7 100%);
+  /*border: 2px solid #95a5a6;*/
+}
+

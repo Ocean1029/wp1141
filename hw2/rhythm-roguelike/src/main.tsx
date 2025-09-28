@@ -58,4 +58,3 @@ root.render(
 
 // 初始化遊戲
 initGame();
-z

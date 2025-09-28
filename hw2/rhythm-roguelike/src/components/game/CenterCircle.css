@@ -1,0 +1,39 @@
+/* CenterCircle 組件樣式 */
+.center-circle {
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  
+  background: radial-gradient(circle, #545d79 0%, #604949 100%);
+  border: 2px solid rgb(17, 31, 47);
+  
+  
+  /* 像素風格 - 禁用反鋸齒 */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  
+  /* z-index 確保在節奏條上方 */
+  z-index: 100;
+}
+
+/* 節拍跳動效果 */
+.center-circle--pulse {
+  animation: beatPulse var(--pulse-duration, 0.2s) ease-out;
+}
+
+@keyframes beatPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

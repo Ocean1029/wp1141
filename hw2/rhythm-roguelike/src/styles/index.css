@@ -1,7 +1,17 @@
-/* 主樣式檔案 - 匯入所有其他樣式 */
+/* 主樣式檔案 - 只匯入基礎樣式 */
 @import './base.css';
 @import './layout.css';
-@import './buttons.css';
-@import './rhythm.css';
-@import './animations.css';
-@import './start-screen.css';
+
+/* 
+組件樣式現在與組件綁定：
+- Button 樣式 -> src/components/ui/Button.css
+- GameScreen 樣式 -> src/scenes/GameScreen.css
+- StartScreen 樣式 -> src/scenes/StartScreen.css
+- 其他組件樣式都在對應的組件資料夾中
+
+這樣的架構讓：
+1. 樣式與組件更緊密綁定
+2. 更容易維護和修改
+3. 減少全域樣式污染
+4. 組件可以獨立使用
+*/

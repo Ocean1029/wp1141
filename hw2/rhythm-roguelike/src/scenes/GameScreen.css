@@ -55,68 +55,11 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  cursor: pointer;
 }
 
-.center-circle {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ffd700 0%, #ff6b6b 100%);
-  border: 4px solid white;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-  transition: all 0.1s ease;
-}
+/* 中央圓圈樣式已移至 components/game/CenterCircle.css */
 
-.rhythm-container:hover .center-circle {
-  transform: scale(1.1);
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
-}
-
-.rhythm-container:active .center-circle {
-  transform: scale(0.95);
-}
-
-.rhythm-bar {
-  position: absolute;
-  width: 20px;
-  height: 100px;
-  border-radius: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.rhythm-bar.blue {
-  background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
-  box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
-}
-
-.rhythm-bar.white {
-  background: linear-gradient(180deg, #ecf0f1 0%, #bdc3c7 100%);
-  box-shadow: 0 0 20px rgba(236, 240, 241, 0.6);
-}
-
-@keyframes moveFromLeft {
-  from {
-    left: 0%;
-    opacity: 1;
-  }
-  to {
-    left: 50%;
-    opacity: 0;
-  }
-}
-
-@keyframes moveFromRight {
-  from {
-    left: 100%;
-    opacity: 1;
-  }
-  to {
-    left: 50%;
-    opacity: 0;
-  }
-}
+/* 節奏條樣式已移至 components/game/RhythmBar.css */
 
 .game-instructions {
   position: absolute;

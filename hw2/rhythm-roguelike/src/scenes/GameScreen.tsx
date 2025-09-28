@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGameState } from '../hooks/useGameState';
 import Button from '../components/ui/Button';
+import RhythmBarManager from '../components/game/RhythmBarManager';
+import CenterCircle from '../components/game/CenterCircle';
 import './GameScreen.css';
 
 interface GameScreenProps {
@@ -8,12 +10,14 @@ interface GameScreenProps {
   onGameOver: () => void;
 }
 
-const GameScreen: React.FC<GameScreenProps> = ({ onPause, onGameOver }) => {
-  const { gameData, updateScore, decreaseLives, updateCombo } = useGameState();
+const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
+  const { gameData, updateCombo } = useGameState();
   const [audio] = useState(new Audio('/src/assets/music 1.mp3'));
   const [isPlaying, setIsPlaying] = useState(false);
   const [combo, setCombo] = useState(0);
+  const [currentBpm, setCurrentBpm] = useState(100); // 預設 BPM，可以根據音樂動態調整
   const containerRef = useRef<HTMLDivElement>(null);
+  const rhythmManagerRef = useRef<any>(null);
 
   useEffect(() => {
     // 開始播放音樂
@@ -31,66 +35,48 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause, onGameOver }) => {
     };
   }, [audio]);
 
+  // 動態 BPM 調整示例 - 可以根據音樂時間軸調整
   useEffect(() => {
     if (!isPlaying) return;
 
-    // 節拍系統
-    const bpm = 100;
-    const beatInterval = 60000 / bpm; // 600ms per beat
-    const barMoveDuration = beatInterval * 4; // 4 beats to reach center
-    let beatCount = 0;
-
-    const createBarPair = () => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      // 決定這一對的顏色 (每拍交替)
-      const isBlue = beatCount % 2 === 1;
-      const colorClass = isBlue ? 'blue' : 'white';
-
-      // 創建左側條
-      const leftBar = document.createElement('div');
-      leftBar.className = `rhythm-bar ${colorClass}`;
-      leftBar.style.left = '0%';
-      leftBar.style.animationDuration = `${barMoveDuration}ms`;
-      leftBar.style.animationName = 'moveFromLeft';
-      leftBar.style.animationTimingFunction = 'linear';
-
-      // 創建右側條
-      const rightBar = document.createElement('div');
-      rightBar.className = `rhythm-bar ${colorClass}`;
-      rightBar.style.left = '100%';
-      rightBar.style.animationDuration = `${barMoveDuration}ms`;
-      rightBar.style.animationName = 'moveFromRight';
-      rightBar.style.animationTimingFunction = 'linear';
-
-      container.appendChild(leftBar);
-      container.appendChild(rightBar);
-
-      // Remove bars after animation
-      setTimeout(() => {
-        if (leftBar.parentNode) leftBar.parentNode.removeChild(leftBar);
-        if (rightBar.parentNode) rightBar.parentNode.removeChild(rightBar);
-      }, barMoveDuration);
-
-      beatCount++;
+    // 這裡可以根據音樂的進度動態調整 BPM
+    // 例如：根據音樂的不同段落設置不同的 BPM
+    const adjustBpmOverTime = () => {
+      const currentTime = audio.currentTime;
+      
+      // 示例：根據音樂時間調整 BPM
+      if (currentTime < 30) {
+        setCurrentBpm(100); // 開頭較慢
+      } else if (currentTime < 60) {
+        setCurrentBpm(120); // 中段加快
+      } else {
+        setCurrentBpm(140); // 高潮部分更快
+      }
     };
 
-    // 立即開始創建 bar
-    const interval = setInterval(createBarPair, beatInterval / 2);
+    // 每秒檢查一次 BPM 調整
+    const bpmCheckInterval = setInterval(adjustBpmOverTime, 1000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(bpmCheckInterval);
     };
-  }, [isPlaying]);
+  }, [isPlaying, audio]);
 
-  const handleClick = () => {
-    // 簡單的點擊計分邏輯
-    const points = 10 + combo * 5;
-    updateScore(points);
-    setCombo(prev => prev + 1);
-    updateCombo(combo + 1);
+  // 處理節奏條完成
+  const handleBarComplete = (_barId: string, wasHit: boolean) => {
+    if (!wasHit) {
+      // 錯過了節奏條，重置連擊
+      setCombo(0);
+      updateCombo(0);
+    }
   };
+
+  // 處理節奏條更新
+  const handleBarUpdate = (_barId: string, _progress: number) => {
+    // 可以在這裡添加額外的邏輯，比如視覺效果
+  };
+
+  // 點擊處理已移除 - 中央圓圈不再需要點擊互動
 
   return (
     <div className="game-screen">
@@ -120,13 +106,18 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause, onGameOver }) => {
       <div 
         className="rhythm-container" 
         ref={containerRef}
-        onClick={handleClick}
       >
-        <div className="center-circle"></div>
-      </div>
-
-      <div className="game-instructions">
-        <p>點擊中央圓圈來得分！</p>
+        <CenterCircle 
+          isPlaying={isPlaying}
+          bpm={currentBpm}
+        />
+        <RhythmBarManager
+          isPlaying={isPlaying}
+          bpm={currentBpm}
+          onBarComplete={handleBarComplete}
+          onBarUpdate={handleBarUpdate}
+          containerRef={rhythmManagerRef}
+        />
       </div>
     </div>
   );
