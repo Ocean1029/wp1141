@@ -81,78 +81,19 @@ button:focus-visible {
 }
 
 /* 遊戲相關樣式 */
-.home-page {
+.game-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-header {
-  text-align: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.page-header h1 {
-  margin: 0 0 1rem 0;
-  font-size: 3rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.page-header p {
-  margin: 0;
-  font-size: 1.2rem;
-  opacity: 0.9;
-}
-
-.page-main {
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .game-container {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 600px;
   width: 100%;
-}
-
-.game-container h1 {
-  color: #fff;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-}
-
-.game-area {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 2rem;
-  margin-top: 1rem;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.game-area p {
-  color: #ccc;
-  font-size: 1.1rem;
-}
-
-.page-footer {
-  text-align: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  color: #888;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 @media (prefers-color-scheme: light) {
@@ -167,31 +108,322 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
   
-  .page-header {
+  .game-page {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: #333;
   }
-  
-  .game-container {
+}
+
+/* 節拍系統樣式 */
+.rhythm-controller {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.controller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.controller-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.controller-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #666;
+}
+
+.status-dot.playing {
+  background: #4ecdc4;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.controller-controls {
+  margin-bottom: 1.5rem;
+}
+
+.control-group {
+  margin-bottom: 1rem;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4ecdc4;
+  cursor: pointer;
+}
+
+.control-group input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4ecdc4;
+  cursor: pointer;
+  border: none;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.start-button, .stop-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-button {
+  background: #4ecdc4;
+  color: #333;
+}
+
+.start-button:hover:not(:disabled) {
+  background: #45b7aa;
+  transform: translateY(-2px);
+}
+
+.stop-button {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.stop-button:hover:not(:disabled) {
+  background: #ff5252;
+  transform: translateY(-2px);
+}
+
+.start-button:disabled, .stop-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.rhythm-indicator-container {
+  margin: 1rem 0;
+}
+
+.rhythm-indicator {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.rhythm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.rhythm-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.bpm-display, .time-signature {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.beat-display {
+  text-align: center;
+}
+
+.beat-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.beat-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.beat-number.active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.beat-progress {
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.1s ease;
+  border-radius: 4px;
+}
+
+.beat-type {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.rhythm-status {
+  margin-top: 1rem;
+}
+
+.status-indicator {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-indicator.playing {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  border: 1px solid #4ecdc4;
+}
+
+.status-indicator.stopped {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.rhythm-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.info-label {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.info-value {
+  color: #fff;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: light) {
+  .rhythm-controller {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .controller-header h2 {
     color: #333;
   }
   
-  .game-container h1 {
+  .controller-status {
+    color: #666;
+  }
+  
+  .control-group label {
     color: #333;
   }
   
-  .game-area {
+  .rhythm-indicator {
     background: rgba(0, 0, 0, 0.05);
   }
   
-  .game-area p {
+  .rhythm-header h3 {
+    color: #333;
+  }
+  
+  .beat-number {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+  }
+  
+  .beat-type {
+    color: #333;
+  }
+  
+  .info-item {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  .info-label {
     color: #666;
   }
   
-  .page-footer {
-    background: rgba(0, 0, 0, 0.05);
-    color: #666;
+  .info-value {
+    color: #333;
   }
 }

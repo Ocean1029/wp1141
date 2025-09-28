@@ -9,12 +9,31 @@ export interface RhythmPattern {
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
+export interface RhythmConfig {
+  bpm: number;
+  timeSignature: [number, number]; // [beats per measure, note value]
+  tolerance: number; // milliseconds
+}
+
+export type BeatType = 'downbeat' | 'upbeat';
+
 export class RhythmSystem {
   private patterns: RhythmPattern[] = [];
   private currentPattern: RhythmPattern | null = null;
   private startTime: number = 0;
+  private config: RhythmConfig;
+  private isPlaying: boolean = false;
+  private beatInterval: number | null = null;
+  private onBeatCallback: ((beatType: BeatType, beatNumber: number) => void) | null = null;
+  private currentBeat: number = 0;
 
-  constructor() {
+  constructor(config?: Partial<RhythmConfig>) {
+    this.config = {
+      bpm: 120,
+      timeSignature: [4, 4],
+      tolerance: 50, // 50ms tolerance for input
+      ...config,
+    };
     this.initializePatterns();
   }
 
@@ -106,5 +125,68 @@ export class RhythmSystem {
   public isPatternComplete(): boolean {
     if (!this.currentPattern) return true;
     return Date.now() - this.startTime >= this.currentPattern.duration;
+  }
+
+  // 節拍器功能
+  public startMetronome(): void {
+    if (this.isPlaying) return;
+    
+    this.isPlaying = true;
+    this.currentBeat = 0;
+    this.startTime = Date.now();
+    
+    const beatInterval = 60000 / this.config.bpm; // milliseconds per beat
+    
+    this.beatInterval = setInterval(() => {
+      if (!this.isPlaying) return;
+      
+      const beatNumber = this.currentBeat % this.config.timeSignature[0];
+      const beatType: BeatType = beatNumber === 0 ? 'downbeat' : 'upbeat';
+      
+      if (this.onBeatCallback) {
+        this.onBeatCallback(beatType, beatNumber);
+      }
+      
+      this.currentBeat++;
+    }, beatInterval);
+  }
+
+  public stopMetronome(): void {
+    this.isPlaying = false;
+    if (this.beatInterval) {
+      clearInterval(this.beatInterval);
+      this.beatInterval = null;
+    }
+  }
+
+  public setBeatCallback(callback: (beatType: BeatType, beatNumber: number) => void): void {
+    this.onBeatCallback = callback;
+  }
+
+  public getCurrentBeat(): number {
+    return this.currentBeat;
+  }
+
+  public getBeatProgress(): number {
+    if (!this.isPlaying) return 0;
+    const beatInterval = 60000 / this.config.bpm;
+    const elapsed = Date.now() - this.startTime;
+    return (elapsed % beatInterval) / beatInterval;
+  }
+
+  public isDownbeat(): boolean {
+    return this.currentBeat % this.config.timeSignature[0] === 0;
+  }
+
+  public isUpbeat(): boolean {
+    return !this.isDownbeat();
+  }
+
+  public getConfig(): RhythmConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(newConfig: Partial<RhythmConfig>): void {
+    this.config = { ...this.config, ...newConfig };
   }
 }

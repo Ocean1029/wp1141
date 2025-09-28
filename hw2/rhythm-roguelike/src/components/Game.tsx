@@ -1,16 +1,18 @@
 import React from 'react';
+import { RhythmController } from './index';
 
 interface GameProps {
   className?: string;
 }
 
 const Game: React.FC<GameProps> = ({ className }) => {
+  const handleBeat = (beatType: 'downbeat' | 'upbeat', beatNumber: number) => {
+    console.log(`節拍: ${beatType}, 節拍號: ${beatNumber}`);
+  };
+
   return (
     <div className={`game-container ${className || ''}`}>
-      <h1>Rhythm Roguelike</h1>
-      <div className="game-area">
-        <p>遊戲區域將在這裡顯示</p>
-      </div>
+      <RhythmController onBeat={handleBeat} />
     </div>
   );
 };

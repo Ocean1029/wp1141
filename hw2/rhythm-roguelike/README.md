@@ -64,12 +64,15 @@ npm run format:check
 - 🎵 節拍遊戲機制
 - 🎲 Roguelike 隨機元素
 - 🎮 響應式設計
-- 🌙 深色/淺色主題支援
 - ⚡ 高效能 React 架構
 
 ## 遊戲規格
 
 詳細的遊戲設計規格請參考 [docs/spec.md](./docs/spec.md)
+
+## 版本規劃
+
+詳細的版本交付清單請參考 [docs/release-plan.md](./docs/release-plan.md)
 
 ### 核心特色
 - 🎵 **節拍系統**: 120 BPM, 4/4 拍，正負拍音效
