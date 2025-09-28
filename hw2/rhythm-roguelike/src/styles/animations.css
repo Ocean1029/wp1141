@@ -1,0 +1,39 @@
+/* 動畫效果 */
+@keyframes moveFromLeft {
+  0% {
+    left: -10px;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    left: 50%;
+    opacity: 0;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes moveFromRight {
+  0% {
+    left: calc(100% + 10px);
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    left: 50%;
+    opacity: 0;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
