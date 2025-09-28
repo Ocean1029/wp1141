@@ -38,16 +38,16 @@
     #4a90e2 0%,
     #2171b5 100%
   );
-  box-shadow: 0 0 20px rgba(74, 144, 226, 1), 0 0 40px rgba(74, 144, 226, 0.5);
   border: 1px solid rgba(74, 144, 226, 0.8);
+  height: 25px;
 }
 
-.rhythm-bar.purple {
+.rhythm-bar.white {
   background: linear-gradient(
     to bottom,
-    #8e44ad 0%,
-    #6a2c91 100%
+    #ffffff 0%,
+    #f0f0f0 100%
   );
-  box-shadow: 0 0 20px rgba(142, 68, 173, 1), 0 0 40px rgba(142, 68, 173, 0.5);
-  border: 1px solid rgba(142, 68, 173, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  height: 35px;
 }
