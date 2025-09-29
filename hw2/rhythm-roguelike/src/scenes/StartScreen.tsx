@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Button from '../components/ui/Button';
 import './StartScreen.css';
 
@@ -7,8 +7,6 @@ interface StartScreenProps {
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
-  const [isButtonHovered, setIsButtonHovered] = useState(false);
-
   return (
     <div className="start-screen">
       <div className="cover-image" />
@@ -16,10 +14,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
       <div className="start-content">
         <div className="start-actions">
           <Button
-            className={`start-game-button ${isButtonHovered ? 'hovered' : ''}`}
+            className="start-game-button"
             onClick={onStart}
-            onMouseEnter={() => setIsButtonHovered(true)}
-            onMouseLeave={() => setIsButtonHovered(false)}
           >
             <span className="button-text">Accept Quest</span>
           </Button>
