@@ -21,15 +21,11 @@ interface RhythmBarProps {
 const RhythmBar: React.FC<RhythmBarProps> = ({ bar, onComplete, onUpdate }) => {
   const barRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(0);
 
   // Update phase - 計算當前位置和狀態
-  const update = (currentTime: number) => {
-    if (!startTimeRef.current) {
-      startTimeRef.current = currentTime;
-    }
-
-    const elapsed = currentTime - startTimeRef.current;
+  const update = () => {
+    // 使用與 RhythmBarManager 一致的時間基準 (Date.now())
+    const elapsed = Date.now() - bar.startTime;
     const progress = Math.min(elapsed / bar.duration, 1);
     
     // 計算當前位置
@@ -61,6 +57,7 @@ const RhythmBar: React.FC<RhythmBarProps> = ({ bar, onComplete, onUpdate }) => {
     
     // 更新位置
     element.style.left = `${position}%`;
+    
     
     // 更新透明度 (接近目標時漸隱)
     const opacity = progress > 0.9 ? 1 - (progress - 0.9) * 5 : 1;
