@@ -15,30 +15,30 @@ export const SONG_CONFIGS: SongConfig[] = [
     name: 'Beating',
     filePath: '/src/assets/music/beating.mp3',
     bpm: 120,
-    difficulty: 'medium',
+    difficulty: 'easy',
     genre: 'Electronic'
   },
   {
     id: 'blue',
     name: 'Blue',
     filePath: '/src/assets/music/blue.mp3',
-    bpm: 110,
-    difficulty: 'easy',
+    bpm: 121,
+    difficulty: 'medium',
     genre: 'Ambient'
   },
   {
     id: 'can-we-do-it',
     name: 'Can We Do It',
     filePath: '/src/assets/music/can-we-do-it.mp3',
-    bpm: 128,
-    difficulty: 'hard',
+    bpm: 106,
+    difficulty: 'easy',
     genre: 'Hip Hop'
   },
   {
     id: 'edm',
     name: 'EDM',
     filePath: '/src/assets/music/EDM.mp3',
-    bpm: 130,
+    bpm: 176,
     difficulty: 'hard',
     genre: 'Electronic'
   },
@@ -46,7 +46,7 @@ export const SONG_CONFIGS: SongConfig[] = [
     id: 'embrace',
     name: 'Embrace',
     filePath: '/src/assets/music/embrace.mp3',
-    bpm: 95,
+    bpm: 65,
     difficulty: 'easy',
     genre: 'Ambient'
   },
@@ -54,23 +54,23 @@ export const SONG_CONFIGS: SongConfig[] = [
     id: 'jungle-waves',
     name: 'Jungle Waves',
     filePath: '/src/assets/music/jungle-waves.mp3',
-    bpm: 115,
-    difficulty: 'medium',
+    bpm: 170,
+    difficulty: 'hard',
     genre: 'World'
   },
   {
     id: 'sandbreaker',
     name: 'Sandbreaker',
     filePath: '/src/assets/music/sandbreaker.mp3',
-    bpm: 140,
-    difficulty: 'hard',
+    bpm: 130,
+    difficulty: 'medium',
     genre: 'Rock'
   },
   {
     id: 'soft-music',
     name: 'Soft Music',
     filePath: '/src/assets/music/soft-music.mp3',
-    bpm: 85,
+    bpm: 99,
     difficulty: 'easy',
     genre: 'Chill'
   }
