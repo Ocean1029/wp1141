@@ -25,8 +25,8 @@ const Button: React.FC<ButtonProps> = ({
   // Initialize audio elements
   React.useEffect(() => {
     if (enableSound) {
-      selectSoundRef.current = new Audio('/src/assets/select-button.mp3');
-      clickSoundRef.current = new Audio('/src/assets/click-button.mp3');
+      selectSoundRef.current = new Audio('/src/assets/sound_effect/select-button.mp3');
+      clickSoundRef.current = new Audio('/src/assets/sound_effect/click-button.mp3');
       
       // Set volume for sound effects
       if (selectSoundRef.current) {

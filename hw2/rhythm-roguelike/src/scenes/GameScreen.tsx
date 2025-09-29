@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Button from '../components/ui/Button';
 import RhythmBarManager from '../components/game/RhythmBarManager';
 import CenterCircle from '../components/game/CenterCircle';
+import SongSelector from '../components/ui/SongSelector';
+import { useMusicManager } from '../hooks/useMusicManager';
 import './GameScreen.css';
 
 interface GameScreenProps {
@@ -10,48 +12,92 @@ interface GameScreenProps {
 }
 
 const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
-  const [audio] = useState(new Audio('/src/assets/music 1.mp3'));
-  const [isPlaying, setIsPlaying] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showSongSelector, setShowSongSelector] = useState(false);
   
-  // 固定 BPM，不再動態調整
-  const currentBpm = 106;
-
+  // Initialize music manager with default song
+  const musicManager = useMusicManager(); // Will use DEFAULT_SONG_ID from config
+  
+  // Start music when component mounts (only once)
   useEffect(() => {
-    // 開始播放音樂
-    audio.loop = true;
-    audio.volume = 0.5;
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch(() => {
-      console.log('音樂播放失敗');
-      setIsPlaying(true); // 即使音樂失敗也繼續遊戲
-    });
-
+    musicManager.play();
+    
     return () => {
-      audio.pause();
+      musicManager.stop();
     };
-  }, [audio]);
+  }, []); // Empty dependency array - only run once on mount
 
-  // 處理節奏條完成 - 純視覺效果，無遊戲邏輯
-  const handleBarComplete = (_barId: string) => {
-    // 節奏條完成，純視覺效果
+  // Handle pause button click
+  const handlePause = () => {
+    musicManager.pause();
+    onPause();
   };
 
-  // 處理節奏條更新 - 純視覺效果
+  // Handle song change
+  const handleSongChange = (songId: string) => {
+    musicManager.setCurrentSong(songId);
+    musicManager.play(songId);
+    setShowSongSelector(false);
+  };
+
+  // Get current BPM from music manager
+  const currentBpm = musicManager.getCurrentBpm();
+  const isPlaying = musicManager.state.isPlaying;
+  const currentSong = musicManager.getCurrentSong();
+
+  // Handle rhythm bar completion - pure visual effect
+  const handleBarComplete = (_barId: string) => {
+    // Rhythm bar completion, pure visual effect
+  };
+
+  // Handle rhythm bar update - pure visual effect
   const handleBarUpdate = (_barId: string, _progress: number) => {
-    // 可以在這裡添加額外的視覺效果
+    // Additional visual effects can be added here
   };
 
   return (
     <div className="game-screen">
       <div className="game-ui">
         <div className="game-controls">
-          <Button onClick={onPause} variant="secondary">
-            暫停 (ESC)
+         
+          <Button 
+            onClick={() => setShowSongSelector(!showSongSelector)} 
+            variant="secondary"
+          >
+            選擇歌曲
           </Button>
         </div>
+        
+        {/* Music info display */}
+        <div className="music-info">
+          <div className="current-song">
+            {currentSong?.name || 'No Song'}
+          </div>
+          <div className="bpm-display">
+            BPM: {currentBpm}
+          </div>
+        </div>
       </div>
+
+      {/* Song Selector Modal */}
+      {showSongSelector && (
+        <div className="song-selector-modal">
+          <div className="modal-backdrop" onClick={() => setShowSongSelector(false)} />
+          <div className="modal-content">
+            <SongSelector
+              currentSongId={currentSong?.id || ''}
+              onSongChange={handleSongChange}
+            />
+            <Button 
+              onClick={() => setShowSongSelector(false)}
+              variant="secondary"
+              className="close-button"
+            >
+              關閉
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div 
         className="rhythm-container" 
