@@ -19,7 +19,6 @@
   cursor: not-allowed;
 }
 
-/* 變體樣式
 .button--primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -64,7 +63,7 @@
   font-size: 1.125rem;
   min-width: 160px;
 } 
-*/
+
 
 /* 像素風按鈕樣式 - 發光效果 */
 .start-game-button {

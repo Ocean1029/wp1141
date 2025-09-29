@@ -11,7 +11,7 @@ interface GameScreenProps {
   onGameOver: () => void;
 }
 
-const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
+const GameScreen: React.FC<GameScreenProps> = ({ onPause: _ }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showSongSelector, setShowSongSelector] = useState(false);
   
@@ -26,12 +26,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
       musicManager.stop();
     };
   }, []); // Empty dependency array - only run once on mount
-
-  // Handle pause button click
-  const handlePause = () => {
-    musicManager.pause();
-    onPause();
-  };
 
   // Handle song change
   const handleSongChange = (songId: string) => {
@@ -57,18 +51,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
 
   return (
     <div className="game-screen">
-      <div className="game-ui">
-        <div className="game-controls">
-         
-          <Button 
-            onClick={() => setShowSongSelector(!showSongSelector)} 
-            variant="secondary"
-          >
-            選擇歌曲
-          </Button>
-        </div>
-        
-        {/* Music info display */}
+      {/* Fixed top bar with music info */}
+      <div className="top-bar">
         <div className="music-info">
           <div className="current-song">
             {currentSong?.name || 'No Song'}
@@ -77,6 +61,17 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
             BPM: {currentBpm}
           </div>
         </div>
+      </div>
+
+      {/* Fixed song selector button in top right */}
+      <div className="song-selector-button">
+        <Button 
+          onClick={() => setShowSongSelector(!showSongSelector)} 
+          variant="secondary"
+          size="small"
+        >
+          選擇歌曲
+        </Button>
       </div>
 
       {/* Song Selector Modal */}
@@ -88,13 +83,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ onPause }) => {
               currentSongId={currentSong?.id || ''}
               onSongChange={handleSongChange}
             />
-            <Button 
-              onClick={() => setShowSongSelector(false)}
-              variant="secondary"
-              className="close-button"
-            >
-              關閉
-            </Button>
           </div>
         </div>
       )}
