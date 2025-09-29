@@ -1,0 +1,214 @@
+/* Player component styles for v0.2 */
+
+.player-container {
+  position: relative;
+  z-index: 10;
+}
+
+.player {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease-in-out;
+  z-index: 15;
+}
+
+/* Player sprite styling */
+.player__sprite {
+  position: relative;
+  width: 80%;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player__body {
+  width: 60%;
+  height: 80%;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  border-radius: 50% 50% 40% 40%;
+  border: 2px solid #2c5aa0;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.player__face {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 30%;
+  background: #f4e4bc;
+  border-radius: 50%;
+  border: 1px solid #d4c4a8;
+}
+
+/* Player states */
+.player--moving {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.player--attacking {
+  animation: playerAttack 0.3s ease-in-out;
+}
+
+@keyframes playerAttack {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Attack direction indicators */
+.player--attack-up .player__body {
+  border-top-color: #ff6b6b;
+  box-shadow: 0 -2px 8px rgba(255, 107, 107, 0.5);
+}
+
+.player--attack-down .player__body {
+  border-bottom-color: #ff6b6b;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.5);
+}
+
+.player--attack-left .player__body {
+  border-left-color: #ff6b6b;
+  box-shadow: -2px 0 8px rgba(255, 107, 107, 0.5);
+}
+
+.player--attack-right .player__body {
+  border-right-color: #ff6b6b;
+  box-shadow: 2px 0 8px rgba(255, 107, 107, 0.5);
+}
+
+/* Attack indicator */
+.player__attack-indicator {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.player__attack-effect {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 107, 107, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: attackPulse 0.3s ease-out;
+}
+
+@keyframes attackPulse {
+  0% { 
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Attack direction positioning */
+.player__attack-indicator--up {
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 100%;
+}
+
+.player__attack-indicator--down {
+  bottom: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 100%;
+}
+
+.player__attack-indicator--left {
+  left: -100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 80%;
+}
+
+.player__attack-indicator--right {
+  right: -100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 80%;
+}
+
+/* Health bar */
+.player__health-bar {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.player__health-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4757, #ff6b6b);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+/* Player stats overlay */
+.player__stats-overlay {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: white;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.player:hover .player__stats-overlay {
+  opacity: 1;
+}
+
+.player__stat {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.player__stat-label {
+  color: #ccc;
+  font-weight: bold;
+}
+
+.player__stat-value {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .player__stats-overlay {
+    font-size: 8px;
+    padding: 2px 4px;
+  }
+  
+  .player__health-bar {
+    height: 3px;
+  }
+}
