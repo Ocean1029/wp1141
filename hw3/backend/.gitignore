@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Environment variables
 .env
@@ -8,6 +9,7 @@ node_modules/
 logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
 
 # OS files
 .DS_Store

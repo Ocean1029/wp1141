@@ -15,9 +15,10 @@ hw3/
 
 ## Tech Stack
 
-- **Frontend**: React
+- **Frontend**: React + TypeScript
 - **Backend**: Node.js + Express
 - **Database**: PostgreSQL
+- **Package Manager**: pnpm
 - **Containerization**: Docker & Docker Compose
 
 ## Getting Started
@@ -26,6 +27,7 @@ hw3/
 
 - Docker
 - Docker Compose
+- (Optional) pnpm - for local development outside Docker
 
 ### Installation & Running
 

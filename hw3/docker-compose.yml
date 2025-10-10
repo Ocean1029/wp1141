@@ -1,8 +1,11 @@
+# Docker Compose file for Diary Reflection App
+# Compose file format version 3.8 (compatible with Docker Engine 19.03.0+)
 services:
   # PostgreSQL Database
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: hw3-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: diary_db
       POSTGRES_USER: diary_user
@@ -11,12 +14,13 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U diary_user -d diary_db"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   # Node.js Backend
   backend:
@@ -24,6 +28,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: hw3-backend
+    restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
@@ -33,10 +38,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        restart: true
     volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run dev
+      - ./backend:/app:delegated
+      - backend_node_modules:/app/node_modules
+    command: pnpm run dev
 
   # React Frontend
   frontend:
@@ -44,22 +50,33 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: hw3-frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       REACT_APP_API_URL: http://localhost:3001
       WDS_SOCKET_PORT: 3000
       CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
+      - ./frontend/src:/app/src:delegated
+      - ./frontend/public:/app/public:delegated
       - frontend_node_modules:/app/node_modules
     stdin_open: true
     tty: true
 
 volumes:
   postgres_data:
+    driver: local
+  backend_node_modules:
+    driver: local
   frontend_node_modules:
+    driver: local
+
+networks:
+  default:
+    name: hw3_network
 
