@@ -26,22 +26,23 @@ function parseCSV(filename) {
 async function seedColors() {
   console.log('🎨 Seeding colors...');
   
-  const colors = parseCSV('colors.csv');
+  const colors = await parseCSV('colors.csv');
   
   for (const color of colors) {
     try {
       const result = await db.query(
-        `INSERT INTO colors (hex_code, name, meaning)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (hex_code) DO NOTHING
+        `INSERT INTO colors (id, hex_code, name, meaning)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (id) DO UPDATE
+         SET hex_code = EXCLUDED.hex_code,
+             name = EXCLUDED.name,
+             meaning = EXCLUDED.meaning
          RETURNING id`,
-        [color.hex_code, color.name, color.meaning]
+        [color.id, color.hex_code, color.name, color.meaning]
       );
       
       if (result.rows.length > 0) {
-        console.log(`  ✓ Added color: ${color.name} (${color.hex_code})`);
-      } else {
-        console.log(`  ⊘ Color already exists: ${color.name}`);
+        console.log(`  ✓ Added/Updated color #${color.id}: ${color.name} (${color.hex_code})`);
       }
     } catch (error) {
       console.error(`  ✗ Error adding color ${color.name}:`, error.message);
@@ -57,24 +58,11 @@ async function seedColors() {
 async function seedThemes() {
   console.log('🏷️  Seeding themes...');
   
-  const themes = parseCSV('themes.csv');
+  const themes = await parseCSV('themes.csv');
   
   for (const theme of themes) {
     try {
-      // First, get the color_id from hex_code
-      const colorResult = await db.query(
-        'SELECT id FROM colors WHERE hex_code = $1',
-        [theme.color_hex]
-      );
-      
-      if (colorResult.rows.length === 0) {
-        console.log(`  ⚠️  Color ${theme.color_hex} not found for theme ${theme.name}`);
-        continue;
-      }
-      
-      const colorId = colorResult.rows[0].id;
-      
-      // Insert theme
+      // Insert theme with color_id directly from CSV
       const result = await db.query(
         `INSERT INTO themes (name, description, color_id)
          VALUES ($1, $2, $3)
@@ -83,11 +71,11 @@ async function seedThemes() {
              color_id = EXCLUDED.color_id,
              updated_at = CURRENT_TIMESTAMP
          RETURNING id`,
-        [theme.name, theme.description, colorId]
+        [theme.name, theme.description, parseInt(theme.color_id)]
       );
       
       if (result.rows.length > 0) {
-        console.log(`  ✓ Added/Updated theme: ${theme.name}`);
+        console.log(`  ✓ Added/Updated theme: ${theme.name} (color #${theme.color_id})`);
       }
     } catch (error) {
       console.error(`  ✗ Error adding theme ${theme.name}:`, error.message);

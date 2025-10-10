@@ -9,6 +9,7 @@ This directory contains CSV files with seed data for the database.
 Defines the color palette used throughout the application.
 
 **Columns:**
+- `id`: Serial number (1, 2, 3, ...)
 - `hex_code`: Color hex code (e.g., #FF6B6B)
 - `name`: Human-readable color name
 - `meaning`: Psychological/emotional meaning of the color
@@ -20,7 +21,7 @@ Defines default theme categories for diary entries.
 **Columns:**
 - `name`: Theme name
 - `description`: Detailed description of the theme
-- `color_hex`: Associated color hex code (must exist in colors.csv)
+- `color_id`: Associated color ID (must exist in colors.csv)
 
 ### diaries.csv
 

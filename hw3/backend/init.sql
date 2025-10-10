@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create colors table for color scheme management
 CREATE TABLE IF NOT EXISTS colors (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id SERIAL PRIMARY KEY,
   hex_code VARCHAR(7) NOT NULL UNIQUE, -- e.g., '#FF6B6B'
   name VARCHAR(50) NOT NULL UNIQUE, -- e.g., 'Coral Red'
   meaning TEXT, -- Description of what this color represents
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS themes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(100) UNIQUE NOT NULL,
   description TEXT,
-  color_id UUID REFERENCES colors(id) ON DELETE SET NULL,
+  color_id INTEGER REFERENCES colors(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
