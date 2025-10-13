@@ -1,0 +1,78 @@
+// Prisma schema for Diary Reflection App
+// Modern ORM approach with type safety
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Color scheme for theme visualization
+model Color {
+  id        Int      @id @default(autoincrement())
+  hexCode   String   @unique @map("hex_code") @db.VarChar(7)
+  name      String   @unique @db.VarChar(50)
+  meaning   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  themes Theme[]
+
+  @@map("colors")
+}
+
+// Theme categories for diary segments
+model Theme {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  colorId     Int?     @map("color_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  color    Color?    @relation(fields: [colorId], references: [id], onDelete: SetNull)
+  segments Segment[]
+
+  @@index([colorId])
+  @@map("themes")
+}
+
+// Main diary entries
+model Diary {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String?  @db.VarChar(255)
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  segments Segment[]
+
+  @@index([createdAt(sort: Desc)])
+  @@map("diaries")
+}
+
+// AI-generated segments from diary entries
+model Segment {
+  id           String   @id @default(uuid()) @db.Uuid
+  diaryId      String   @map("diary_id") @db.Uuid
+  themeId      String?  @map("theme_id") @db.Uuid
+  content      String   @db.Text
+  segmentOrder Int      @map("segment_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  diary Diary  @relation(fields: [diaryId], references: [id], onDelete: Cascade)
+  theme Theme? @relation(fields: [themeId], references: [id], onDelete: SetNull)
+
+  @@index([diaryId])
+  @@index([themeId])
+  @@map("segments")
+}
+

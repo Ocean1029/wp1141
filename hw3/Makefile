@@ -44,8 +44,8 @@ help:
 
 install:
 	@echo "📦 Installing dependencies..."
-	cd backend && pnpm install
-	cd frontend && pnpm install
+	cd backend && npm install
+	cd frontend && npm install
 	@echo "✅ All dependencies installed!"
 
 # ============================================================
@@ -76,7 +76,7 @@ shell-frontend:
 
 docker-seed:
 	@echo "🌱 Running seed script inside backend container..."
-	docker compose exec backend pnpm run seed
+	docker compose exec backend npm run seed
 
 docker-db:
 	@echo "🗄️  Opening PostgreSQL CLI in Docker..."
@@ -89,7 +89,6 @@ docker-db:
 local-setup:
 	@echo "🔧 Setting up local environment..."
 	@command -v node >/dev/null 2>&1 || { echo "❌ Node.js not found! Install from https://nodejs.org"; exit 1; }
-	@command -v pnpm >/dev/null 2>&1 || { echo "❌ pnpm not found! Install with: npm install -g pnpm"; exit 1; }
 	@command -v psql >/dev/null 2>&1 || { echo "⚠️  PostgreSQL CLI not found! Install PostgreSQL 15+"; }
 	@make install
 	@echo ""
@@ -116,11 +115,11 @@ local-dev:
 
 local-backend:
 	@echo "🔧 Backend running at http://localhost:3001"
-	cd backend && pnpm run dev
+	cd backend && npm run dev
 
 local-frontend:
 	@echo "⚛️  Frontend running at http://localhost:3000"
-	cd frontend && pnpm start
+	cd frontend && npm start
 
 local-db:
 	@echo "🗄️  Connecting to local PostgreSQL..."
@@ -159,7 +158,7 @@ db:
 clean:
 	@echo "🧹 Cleaning project..."
 	rm -rf backend/node_modules frontend/node_modules
-	rm -rf backend/.pnpm-store frontend/.pnpm-store
+	rm -rf backend/package-lock.json frontend/package-lock.json
 	rm -rf frontend/build
 	@echo "🧼 Cleaning Docker volumes..."
 	docker compose down -v

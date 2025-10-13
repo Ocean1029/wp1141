@@ -1,17 +1,23 @@
 # Use Node.js LTS version
 FROM node:20-alpine
 
-# Install pnpm globally
-RUN npm install -g pnpm@latest && npm cache clean --force
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files first (for better layer caching)
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json package-lock.json* ./
 
-# Install dependencies using pnpm
-RUN pnpm install --frozen-lockfile || pnpm install
+# Install dependencies using npm
+RUN npm ci || npm install
+
+# Copy Prisma schema
+COPY prisma ./prisma
+
+# Generate Prisma Client  
+RUN npm run prisma:generate
 
 # Copy application files
 COPY . .
@@ -30,6 +36,6 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["pnpm", "run", "dev"]
+# Generate Prisma Client on start (for volume-mounted scenarios)
+CMD sh -c "npm run prisma:generate && npm run dev"
 

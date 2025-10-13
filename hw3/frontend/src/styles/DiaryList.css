@@ -1,0 +1,66 @@
+/* DiaryList component styles */
+
+.diary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.diary-list__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 4rem 2rem;
+  color: var(--color-text-secondary);
+}
+
+.diary-list__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 4rem 2rem;
+  background-color: var(--color-bg-primary);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.diary-list__empty-icon {
+  color: var(--color-text-light);
+  opacity: 0.5;
+}
+
+.diary-list__empty-text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 400px;
+}
+
+@media (max-width: 1024px) {
+  .diary-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .diary-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .diary-list__loading,
+  .diary-list__empty {
+    padding: 3rem 1.5rem;
+  }
+
+  .diary-list__empty-text {
+    font-size: 0.9375rem;
+  }
+}
+

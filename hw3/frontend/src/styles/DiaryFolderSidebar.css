@@ -1,0 +1,296 @@
+/* DiaryFolderSidebar component styles - VSCode/Confluence-like folder structure */
+
+.diary-folder-sidebar {
+  width: 320px;
+  height: 100vh;
+  background-color: var(--color-bg-primary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diary-folder-sidebar__search {
+  position: relative;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.diary-folder-sidebar__search-icon {
+  position: absolute;
+  left: 1.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-light);
+  pointer-events: none;
+}
+
+.diary-folder-sidebar__search-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: all 0.2s;
+}
+
+.diary-folder-sidebar__search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.diary-folder-sidebar__search-input::placeholder {
+  color: var(--color-text-light);
+}
+
+.diary-folder-sidebar__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.diary-folder-sidebar__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.diary-folder-sidebar__folders {
+  display: flex;
+  flex-direction: column;
+}
+
+.diary-folder-sidebar__folder {
+  margin-bottom: 0.5rem;
+}
+
+.diary-folder-sidebar__folder-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.diary-folder-sidebar__folder-header:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.diary-folder-sidebar__folder-toggle {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diary-folder-sidebar__folder-toggle:hover {
+  color: var(--color-text-primary);
+}
+
+.diary-folder-sidebar__folder-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.diary-folder-sidebar__add-btn {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--color-text-light);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.diary-folder-sidebar__add-btn:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.diary-folder-sidebar__folder-content {
+  padding-left: 1.5rem;
+}
+
+.diary-folder-sidebar__empty {
+  padding: 1rem 1.25rem;
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: 0.8125rem;
+}
+
+.diary-folder-sidebar__diaries {
+  display: flex;
+  flex-direction: column;
+}
+
+.diary-folder-sidebar__diary {
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0;
+  position: relative;
+}
+
+.diary-folder-sidebar__diary:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.diary-folder-sidebar__diary--active {
+  background-color: rgba(99, 102, 241, 0.05);
+  border-right: 3px solid var(--color-primary);
+}
+
+.diary-folder-sidebar__diary--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--color-primary);
+}
+
+.diary-folder-sidebar__diary-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.diary-folder-sidebar__diary-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.diary-folder-sidebar__diary-preview {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.diary-folder-sidebar__diary-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.diary-folder-sidebar__diary-date {
+  font-size: 0.75rem;
+}
+
+.diary-folder-sidebar__diary-delete {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--color-text-light);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.diary-folder-sidebar__diary:hover .diary-folder-sidebar__diary-delete {
+  opacity: 1;
+}
+
+.diary-folder-sidebar__diary-delete:hover {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+/* Scrollbar styling */
+.diary-folder-sidebar__content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.diary-folder-sidebar__content::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
+}
+
+.diary-folder-sidebar__content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.diary-folder-sidebar__content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-light);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .diary-folder-sidebar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .diary-folder-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .diary-folder-sidebar__search {
+    padding: 0.75rem 1rem 0.5rem;
+  }
+
+  .diary-folder-sidebar__diary {
+    padding: 0.625rem 1rem;
+  }
+
+  .diary-folder-sidebar__diary-delete {
+    opacity: 1;
+  }
+}

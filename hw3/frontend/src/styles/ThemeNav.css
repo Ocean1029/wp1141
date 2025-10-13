@@ -1,0 +1,117 @@
+/* ThemeNav component styles */
+
+.theme-nav {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: var(--color-bg-primary);
+  border-right: 1px solid var(--color-border);
+  padding: 1.5rem;
+  height: calc(100vh - 7rem);
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.theme-nav__header {
+  margin-bottom: 1.25rem;
+}
+
+.theme-nav__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.theme-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.theme-nav__item:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.theme-nav__item--active {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.theme-nav__item-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.theme-nav__item-name {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.theme-nav__item--active .theme-nav__item-name {
+  color: var(--color-primary);
+}
+
+.theme-nav__divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 1rem 0;
+}
+
+.theme-nav__list {
+  max-height: calc(100vh - 20rem);
+  overflow-y: auto;
+}
+
+/* Scrollbar styles */
+.theme-nav__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.theme-nav__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.theme-nav__list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.theme-nav__list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-light);
+}
+
+@media (max-width: 1024px) {
+  .theme-nav {
+    width: 220px;
+    padding: 1.25rem 1rem;
+  }
+
+  .theme-nav__item {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .theme-nav__item-name {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-nav {
+    display: none; /* Hide on mobile - could add a mobile drawer version */
+  }
+}
+

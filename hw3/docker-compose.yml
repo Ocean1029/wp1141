@@ -38,9 +38,9 @@ services:
         condition: service_healthy
         restart: true
     volumes:
-      - ./backend:/app:cached
-      - backend_node_modules:/app/node_modules
-    command: pnpm run dev
+      - ./backend/src:/app/src:cached
+      - ./backend/prisma:/app/prisma:cached
+    command: npm run dev
 
   frontend:
     build:

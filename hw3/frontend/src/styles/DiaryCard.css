@@ -1,0 +1,133 @@
+/* DiaryCard component styles */
+
+.diary-card {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.diary-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--color-primary-light);
+}
+
+.diary-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.diary-card__time-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.diary-card__date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.diary-card__date-full {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.diary-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.diary-card:hover .diary-card__actions {
+  opacity: 1;
+}
+
+.diary-card__action-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.diary-card__action-btn:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.diary-card__action-btn--edit:hover {
+  color: var(--color-primary);
+}
+
+.diary-card__action-btn--delete:hover {
+  color: var(--color-danger);
+}
+
+.diary-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.diary-card__preview {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.diary-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.diary-card__read-more {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  transition: color 0.2s;
+}
+
+.diary-card:hover .diary-card__read-more {
+  color: var(--color-primary-dark);
+}
+
+@media (max-width: 768px) {
+  .diary-card {
+    padding: 1.25rem;
+  }
+
+  .diary-card__title {
+    font-size: 1.125rem;
+  }
+
+  .diary-card__preview {
+    font-size: 0.875rem;
+  }
+
+  .diary-card__actions {
+    opacity: 1;
+  }
+}
+
