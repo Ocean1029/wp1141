@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import type { Diary } from '../types/diary';
-import { formatDate, formatRelativeTime } from '../utils/date';
+import { formatRelativeTime } from '../utils/date';
 import { getPreviewText } from '../utils/text';
 import '../styles/DiarySidebar.css';
 
@@ -67,10 +67,6 @@ const DiarySidebar: React.FC<DiarySidebarProps> = ({
     );
   };
 
-  const handleDeleteDiary = (e: React.MouseEvent, diary: Diary) => {
-    e.stopPropagation();
-    onDeleteDiary(diary);
-  };
 
   const filteredFolders = localFolders.map(folder => ({
     ...folder,

@@ -1,36 +1,26 @@
 // Main App component - diary reflection application
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import type { Diary } from './types/diary';
-import type { Theme } from './types/theme';
 import diaryService from './services/diaryService';
-import themeService from './services/themeService';
-import api from './services/api';
-import SearchBar from './components/SearchBar';
-import DiaryList from './components/DiaryList';
 import DiaryForm from './components/DiaryForm';
-import DiaryDetail from './components/DiaryDetail';
 import ConfirmDialog from './components/ConfirmDialog';
-import ThemeNav from './components/ThemeNav';
-import ThemePage from './components/ThemePage';
 import DataModeToggle from './components/DataModeToggle';
 import DiarySidebar from './components/DiarySidebar';
 import CreateFolderDialog from './components/CreateFolderDialog';
 import './App.css';
 
-type ViewMode = 'form' | 'theme';
-
-function App() {
+// Main layout component
+function DiaryApp() {
+  const navigate = useNavigate();
+  const { diaryId } = useParams<{ diaryId: string }>();
+  
   // State management
-  const [diaries, setDiaries] = useState<Diary[]>([]);
   const [filteredDiaries, setFilteredDiaries] = useState<Diary[]>([]);
-  const [themes, setThemes] = useState<Theme[]>([]);
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
-  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('form');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isFormLoading, setIsFormLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirmDiary, setDeleteConfirmDiary] = useState<Diary | null>(null);
   const [isCreateFolderDialogOpen, setIsCreateFolderDialogOpen] = useState(false);
@@ -51,7 +41,6 @@ function App() {
     
     try {
       const fetchedDiaries = await diaryService.getAllDiaries(query);
-      setDiaries(fetchedDiaries);
       setFilteredDiaries(fetchedDiaries);
       
       // Update root folder with all diaries
@@ -72,29 +61,32 @@ function App() {
 
   useEffect(() => {
     fetchDiaries();
-    fetchThemes();
   }, [fetchDiaries]);
 
-  // Fetch themes
-  const fetchThemes = async () => {
-    try {
-      const fetchedThemes = await themeService.getAllThemes();
-      setThemes(fetchedThemes);
-    } catch (err) {
-      console.error('Failed to fetch themes:', err);
-    }
-  };
+  // Load diary from URL parameter
+  useEffect(() => {
+    const loadDiaryFromUrl = async () => {
+      if (diaryId && diaryId !== 'new') {
+        try {
+          const diary = await diaryService.getDiaryById(diaryId);
+          setSelectedDiary(diary);
+        } catch (err) {
+          console.error('Failed to load diary from URL:', err);
+          setSelectedDiary(null);
+          navigate('/');
+        }
+      } else if (diaryId === 'new') {
+        setSelectedDiary(null);
+      }
+    };
 
-  // Handle search
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    fetchDiaries(query);
-  }, [fetchDiaries]);
+    loadDiaryFromUrl();
+  }, [diaryId, navigate]);
 
   // Handle create new diary
   const handleCreateNew = (folderId: string) => {
     setSelectedDiary(null);
-    setViewMode('form');
+    navigate('/diary/new');
   };
 
   // Handle create folder
@@ -126,17 +118,11 @@ function App() {
     setIsCreateFolderDialogOpen(false);
   };
 
-  // Handle diary click - show in edit mode
+  // Handle diary click - navigate to diary page
   const handleDiaryClick = (diary: Diary) => {
-    setSelectedDiary(diary);
-    setViewMode('form');
+    navigate(`/diary/${diary.id}`);
   };
 
-  // Handle edit diary
-  const handleEdit = (diary: Diary) => {
-    setSelectedDiary(diary);
-    setViewMode('form');
-  };
 
   // Handle delete diary - show confirmation
   const handleDeleteClick = (diary: Diary) => {
@@ -152,38 +138,16 @@ function App() {
       await fetchDiaries(searchQuery);
       setDeleteConfirmDiary(null);
       
-      // If currently viewing the deleted diary, go back to form
+      // If currently viewing the deleted diary, navigate to home
       if (selectedDiary?.id === deleteConfirmDiary.id) {
-        setViewMode('form');
         setSelectedDiary(null);
+        navigate('/');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete diary');
     }
   };
 
-  // Handle form submission
-  const handleFormSubmit = async (data: { title?: string; content: string }) => {
-    setIsFormLoading(true);
-    
-    try {
-      if (selectedDiary) {
-        // Update existing diary
-        await diaryService.updateDiary(selectedDiary.id, data);
-      } else {
-        // Create new diary
-        await diaryService.createDiary(data);
-      }
-      
-      await fetchDiaries(searchQuery);
-      setViewMode('form');
-      setSelectedDiary(null);
-    } catch (err) {
-      throw err; // Let DiaryForm handle the error display
-    } finally {
-      setIsFormLoading(false);
-    }
-  };
 
   // Handle auto-save
   const handleAutoSave = async (data: { title?: string; content: string }) => {
@@ -206,34 +170,6 @@ function App() {
     }
   };
 
-  // Handle theme selection
-  const handleThemeSelect = (themeId: string) => {
-    setSelectedThemeId(themeId);
-    setViewMode('theme');
-  };
-
-  // Handle show all themes
-  const handleShowAll = () => {
-    setSelectedThemeId(null);
-    setViewMode('form');
-  };
-
-  // Handle view diary from theme page
-  const handleViewDiaryFromTheme = async (diaryId: string) => {
-    try {
-      const diary = await diaryService.getDiaryById(diaryId);
-      setSelectedDiary(diary);
-      setViewMode('form');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load diary');
-    }
-  };
-
-  // Handle close theme page
-  const handleCloseTheme = () => {
-    setSelectedThemeId(null);
-    setViewMode('form');
-  };
 
   return (
     <div className="app">
@@ -281,23 +217,13 @@ function App() {
               </div>
             )}
 
-            {/* Form View (Default) */}
-            {viewMode === 'form' && (
-              <DiaryForm
-                diary={selectedDiary}
-                onAutoSave={handleAutoSave}
-                isLoading={isFormLoading}
-              />
-            )}
+            {/* Diary Editor */}
+            <DiaryForm
+              diary={selectedDiary}
+              onAutoSave={handleAutoSave}
+              isLoading={isLoading}
+            />
 
-            {/* Theme View */}
-            {viewMode === 'theme' && selectedThemeId && (
-              <ThemePage
-                themeId={selectedThemeId}
-                onViewDiary={handleViewDiaryFromTheme}
-                onClose={handleCloseTheme}
-              />
-            )}
           </div>
         </div>
       </main>
@@ -325,6 +251,16 @@ function App() {
         isDestructive={true}
       />
     </div>
+  );
+}
+
+// Main App component with routing
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<DiaryApp />} />
+      <Route path="/diary/:diaryId" element={<DiaryApp />} />
+    </Routes>
   );
 }
 

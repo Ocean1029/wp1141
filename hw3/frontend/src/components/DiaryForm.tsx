@@ -1,8 +1,10 @@
 // DiaryForm component - auto-saving form for creating and editing diary entries
-// Similar to Apple Notes behavior
+// Similar to Apple Notes behavior with Notion-style floating toolbar and Markdown preview
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { Diary, DiaryFormData } from '../types/diary';
+import FloatingToolbar from './FloatingToolbar';
+import MarkdownRenderer from './MarkdownRenderer';
 import '../styles/DiaryForm.css';
 
 interface DiaryFormProps {
@@ -21,6 +23,7 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -134,6 +137,102 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
     debouncedAutoSave();
   };
 
+  // Handle text formatting
+  const handleFormatText = useCallback((format: 'bold' | 'italic' | 'underline' | 'strikethrough') => {
+    const textarea = contentTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    if (start === end) return;
+
+    const selectedText = textarea.value.substring(start, end);
+    
+    let formattedText = '';
+    switch (format) {
+      case 'bold':
+        formattedText = `**${selectedText}**`;
+        break;
+      case 'italic':
+        formattedText = `*${selectedText}*`;
+        break;
+      case 'underline':
+        formattedText = `<u>${selectedText}</u>`;
+        break;
+      case 'strikethrough':
+        formattedText = `~~${selectedText}~~`;
+        break;
+    }
+
+    // Replace selected text with formatted text
+    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    setContent(newContent);
+    latestValuesRef.current.content = newContent;
+    setHasUnsavedChanges(true);
+    debouncedAutoSave();
+
+    // Update cursor position
+    setTimeout(() => {
+      const newStart = start + formattedText.length;
+      textarea.setSelectionRange(newStart, newStart);
+    }, 0);
+  }, [debouncedAutoSave]);
+
+  const handleAddLink = useCallback(() => {
+    const textarea = contentTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    if (start === end) return;
+
+    const selectedText = textarea.value.substring(start, end);
+    const linkText = selectedText || 'Link';
+    const formattedText = `[${linkText}](url)`;
+
+    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    setContent(newContent);
+    latestValuesRef.current.content = newContent;
+    setHasUnsavedChanges(true);
+    debouncedAutoSave();
+
+    setTimeout(() => {
+      const newStart = start + formattedText.length;
+      textarea.setSelectionRange(newStart, newStart);
+    }, 0);
+  }, [debouncedAutoSave]);
+
+  const handleAddComment = useCallback(() => {
+    const textarea = contentTextareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    if (start === end) return;
+
+    const selectedText = textarea.value.substring(start, end);
+    const formattedText = `<!-- ${selectedText} -->`;
+
+    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    setContent(newContent);
+    latestValuesRef.current.content = newContent;
+    setHasUnsavedChanges(true);
+    debouncedAutoSave();
+
+    setTimeout(() => {
+      const newStart = start + formattedText.length;
+      textarea.setSelectionRange(newStart, newStart);
+    }, 0);
+  }, [debouncedAutoSave]);
+
+  // Toggle preview mode
+  const togglePreviewMode = useCallback(() => {
+    setIsPreviewMode(prev => !prev);
+  }, []);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -164,6 +263,27 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
       </div>
 
       <div className="diary-form__content">
+        {/* Preview Mode Toggle */}
+        <div className="diary-form__toolbar">
+          <button
+            type="button"
+            className={`diary-form__toolbar-btn ${isPreviewMode ? 'diary-form__toolbar-btn--active' : ''}`}
+            onClick={togglePreviewMode}
+            disabled={isLoading}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 2C4.5 2 1.73 4.11 1 7c.73 2.89 3.5 5 7 5s6.27-2.11 7-5c-.73-2.89-3.5-5-7-5zM8 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {isPreviewMode ? 'Edit' : 'Preview'}
+          </button>
+        </div>
+
         <div className="diary-form__field">
           <input
             ref={titleInputRef}
@@ -179,18 +299,32 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
         </div>
 
         <div className="diary-form__field">
-          <textarea
-            ref={contentTextareaRef}
-            className="diary-form__textarea"
-            placeholder="Start writing your thoughts..."
-            value={content}
-            onChange={handleContentChange}
-            disabled={isLoading}
-            rows={25}
-            autoFocus={!title}
-          />
+          {isPreviewMode ? (
+            <div className="diary-form__preview">
+              <MarkdownRenderer content={content} />
+            </div>
+          ) : (
+            <textarea
+              ref={contentTextareaRef}
+              className="diary-form__textarea"
+              placeholder="Start writing your thoughts..."
+              value={content}
+              onChange={handleContentChange}
+              disabled={isLoading}
+              rows={25}
+              autoFocus={!title}
+            />
+          )}
         </div>
       </div>
+
+      {/* Floating Toolbar for text formatting */}
+      <FloatingToolbar
+        onFormatText={handleFormatText}
+        onAddLink={handleAddLink}
+        onAddComment={handleAddComment}
+        textareaRef={contentTextareaRef}
+      />
     </div>
   );
 };
