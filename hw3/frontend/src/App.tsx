@@ -3,13 +3,228 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import type { Diary } from './types/diary';
+import type { Theme, ThemeSegment } from './types/theme';
 import diaryService from './services/diaryService';
 import DiaryForm from './components/DiaryForm';
+import ThemePage from './components/ThemePage';
+import ThemeList from './components/ThemeList';
+import ThemeSidebar from './components/ThemeSidebar';
+import Navigation from './components/Navigation';
 import ConfirmDialog from './components/ConfirmDialog';
 import DataModeToggle from './components/DataModeToggle';
 import DiarySidebar from './components/DiarySidebar';
 import CreateFolderDialog from './components/CreateFolderDialog';
+import { mockThemes, mockSegments } from './data/mockData';
 import './App.css';
+
+// Theme list page component
+function ThemeListApp() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredThemes, setFilteredThemes] = useState<Theme[]>(mockThemes);
+  
+  // Filter themes based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredThemes(mockThemes);
+    } else {
+      const filtered = mockThemes.filter(theme =>
+        theme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (theme.description && theme.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+      setFilteredThemes(filtered);
+    }
+  }, [searchQuery]);
+  
+  const handleThemeClick = (theme: Theme) => {
+    navigate(`/theme/${theme.id}`);
+  };
+
+  const handleEditTheme = (theme: Theme) => {
+    console.log('Edit theme:', theme);
+    // TODO: Implement theme editing
+  };
+
+  const handleDeleteTheme = (theme: Theme) => {
+    console.log('Delete theme:', theme);
+    // TODO: Implement theme deletion
+  };
+
+  const handleCreateTheme = () => {
+    console.log('Create new theme');
+    // TODO: Implement theme creation
+  };
+
+  return (
+    <div className="app">
+      {/* Header */}
+      <header className="app__header">
+        <div className="app__container">
+          <div className="app__brand">
+            <h1 className="app__title">Diary Reflection</h1>
+            <p className="app__subtitle">Organize your thoughts by themes</p>
+          </div>
+          
+          <div className="app__header-actions">
+            <Navigation />
+            <DataModeToggle />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="app__main">
+        <div className="app__layout">
+          {/* Left Sidebar - Theme List */}
+          <ThemeSidebar
+            themes={mockThemes}
+            selectedThemeId={null}
+            onThemeSelect={handleThemeClick}
+            onCreateTheme={handleCreateTheme}
+            onSearchChange={setSearchQuery}
+            isLoading={false}
+            searchQuery={searchQuery}
+          />
+
+          {/* Right Content Area */}
+          <div className="app__content">
+            <ThemeList
+              themes={filteredThemes}
+              onEditTheme={handleEditTheme}
+              onDeleteTheme={handleDeleteTheme}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Theme page component
+function ThemeApp() {
+  const navigate = useNavigate();
+  const { themeId } = useParams<{ themeId: string }>();
+  
+  const [theme, setTheme] = useState<Theme | null>(null);
+  const [segments, setSegments] = useState<ThemeSegment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const loadThemeData = () => {
+      setIsLoading(true);
+      
+      // Find theme from mock data
+      const foundTheme = mockThemes.find(t => t.id === themeId);
+      if (foundTheme) {
+        setTheme(foundTheme);
+        
+        // Find segments for this theme
+        const themeSegments = mockSegments.filter(s => s.theme_id === themeId);
+        setSegments(themeSegments);
+      } else {
+        // Theme not found, redirect to home
+        navigate('/');
+      }
+      
+      setIsLoading(false);
+    };
+
+    loadThemeData();
+  }, [themeId, navigate]);
+
+  const handleSegmentClick = (segment: ThemeSegment) => {
+    // Navigate to the diary that contains this segment
+    navigate(`/diary/${segment.diary_id}`);
+  };
+
+  const handleEditTheme = (theme: Theme) => {
+    console.log('Edit theme:', theme);
+    // TODO: Implement theme editing
+  };
+
+  const handleDeleteTheme = (theme: Theme) => {
+    console.log('Delete theme:', theme);
+    // TODO: Implement theme deletion
+  };
+
+  const handleThemeClick = (theme: Theme) => {
+    navigate(`/theme/${theme.id}`);
+  };
+
+  const handleCreateTheme = () => {
+    console.log('Create new theme');
+    // TODO: Implement theme creation
+  };
+
+  if (isLoading) {
+    return (
+      <div className="app">
+        <div className="app__loading">
+          <div className="spinner"></div>
+          <p>Loading theme...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!theme) {
+    return (
+      <div className="app">
+        <div className="app__error">
+          <h2>Theme not found</h2>
+          <p>The requested theme could not be found.</p>
+          <button onClick={() => navigate('/')}>Go Home</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      {/* Header */}
+      <header className="app__header">
+        <div className="app__container">
+          <div className="app__brand">
+            <h1 className="app__title">Diary Reflection</h1>
+            <p className="app__subtitle">Organize your thoughts by themes</p>
+          </div>
+          <div className="app__header-actions">
+            <Navigation />
+            <DataModeToggle />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="app__main">
+        <div className="app__layout">
+          {/* Left Sidebar - Theme List */}
+          <ThemeSidebar
+            themes={mockThemes}
+            selectedThemeId={themeId}
+            onThemeSelect={handleThemeClick}
+            onCreateTheme={handleCreateTheme}
+            onSearchChange={setSearchQuery}
+            isLoading={false}
+            searchQuery={searchQuery}
+          />
+
+          {/* Right Content Area */}
+          <div className="app__content">
+            <ThemePage
+              theme={theme}
+              segments={segments}
+              onSegmentClick={handleSegmentClick}
+              onEditTheme={handleEditTheme}
+              onDeleteTheme={handleDeleteTheme}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
 
 // Main layout component
 function DiaryApp() {
@@ -170,6 +385,27 @@ function DiaryApp() {
     }
   };
 
+  // Handle segment creation
+  const handleCreateSegment = async (segmentData: { content: string; themeId: string; diaryId: string }) => {
+    try {
+      // TODO: Implement segment creation API call
+      console.log('Creating segment:', segmentData);
+      // Segment created successfully - no popup needed
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create segment');
+    }
+  };
+
+  // Handle theme creation
+  const handleCreateTheme = async (themeData: { name: string; description: string; color_hex: string }) => {
+    try {
+      // TODO: Implement theme creation API call
+      console.log('Creating theme:', themeData);
+      // Theme created successfully - no popup needed
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create theme');
+    }
+  };
 
   return (
     <div className="app">
@@ -182,6 +418,7 @@ function DiaryApp() {
           </div>
           
           <div className="app__header-actions">
+            <Navigation />
             <DataModeToggle />
           </div>
         </div>
@@ -221,6 +458,9 @@ function DiaryApp() {
             <DiaryForm
               diary={selectedDiary}
               onAutoSave={handleAutoSave}
+              onCreateSegment={handleCreateSegment}
+              onCreateTheme={handleCreateTheme}
+              themes={mockThemes}
               isLoading={isLoading}
             />
 
@@ -260,6 +500,8 @@ function App() {
     <Routes>
       <Route path="/" element={<DiaryApp />} />
       <Route path="/diary/:diaryId" element={<DiaryApp />} />
+      <Route path="/theme" element={<ThemeListApp />} />
+      <Route path="/theme/:themeId" element={<ThemeApp />} />
     </Routes>
   );
 }

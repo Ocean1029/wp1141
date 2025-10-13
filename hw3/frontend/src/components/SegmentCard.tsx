@@ -1,84 +1,115 @@
-// SegmentCard component - displays a diary segment with theme
-
+// SegmentCard component - displays individual segments in Notion style
 import React from 'react';
-import type { Segment } from '../types/segment';
 import type { ThemeSegment } from '../types/theme';
 import '../styles/SegmentCard.css';
 
 interface SegmentCardProps {
-  segment: Segment | ThemeSegment;
-  onViewDiary?: () => void;
-  onThemeChange?: (segmentId: string, newThemeId: string | null) => void;
-  onDelete?: (segmentId: string) => void;
-  showDiaryLink?: boolean;
+  segment: ThemeSegment;
+  onClick?: (segment: ThemeSegment) => void;
+  onEdit?: (segment: ThemeSegment) => void;
+  onDelete?: (segment: ThemeSegment) => void;
 }
 
 const SegmentCard: React.FC<SegmentCardProps> = ({
   segment,
-  onViewDiary,
-  onThemeChange,
+  onClick,
+  onEdit,
   onDelete,
-  showDiaryLink = false,
 }) => {
-  const themeColor = segment.theme_color || '#9ca3af';
+  const handleClick = () => {
+    onClick?.(segment);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(segment);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(segment);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   return (
-    <div className="segment-card" style={{ borderLeftColor: themeColor }}>
-      <div className="segment-card__header">
-        {segment.theme_name && (
-          <span
-            className="segment-card__theme"
-            style={{
-              backgroundColor: `${themeColor}20`,
-              color: themeColor,
-            }}
-          >
-            {segment.theme_name}
-          </span>
-        )}
-        
-        {showDiaryLink && segment.diary_title && (
-          <button
-            className="segment-card__diary-link"
-            onClick={onViewDiary}
-            type="button"
-          >
-            View original diary →
-          </button>
-        )}
-      </div>
-
-      <p className="segment-card__content">{segment.content}</p>
-
-      {(onThemeChange || onDelete) && (
-        <div className="segment-card__actions">
-          {onThemeChange && (
-            <button
-              className="segment-card__action-btn"
-              onClick={() => {
-                // TODO: Implement theme change UI
-                console.log('Change theme for segment', segment.id);
-              }}
-              type="button"
-            >
-              Change Theme
-            </button>
-          )}
-          
-          {onDelete && (
-            <button
-              className="segment-card__action-btn segment-card__action-btn--delete"
-              onClick={() => onDelete(segment.id)}
-              type="button"
-            >
-              Delete
-            </button>
-          )}
+    <div className="segment-card" onClick={handleClick}>
+      <div className="segment-card__content">
+        {/* Segment Header */}
+        <div className="segment-card__header">
+          <div className="segment-card__meta">
+            <span className="segment-card__diary-title">
+              {segment.diary_title || 'Untitled Diary'}
+            </span>
+            <span className="segment-card__date">
+              {formatDate(segment.diary_created_at)}
+            </span>
+          </div>
+          <div className="segment-card__actions">
+            {onEdit && (
+              <button
+                className="segment-card__action-btn"
+                onClick={handleEdit}
+                title="Edit segment"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path 
+                    d="M11.5 1.5L14.5 4.5L5.5 13.5H2.5V10.5L11.5 1.5Z" 
+                    stroke="currentColor" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            )}
+            {onDelete && (
+              <button
+                className="segment-card__action-btn segment-card__action-btn--danger"
+                onClick={handleDelete}
+                title="Delete segment"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path 
+                    d="M2 4h12M5.5 4V2.5h5V4m1.5 0v10a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 3 14V4h10M6.5 7v5M9.5 7v5" 
+                    stroke="currentColor" 
+                    strokeWidth="1.2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
-      )}
+
+        {/* Segment Content */}
+        <div className="segment-card__text">
+          {segment.content}
+        </div>
+
+        {/* Segment Footer */}
+        <div className="segment-card__footer">
+          <div className="segment-card__order">
+            #{segment.segment_order}
+          </div>
+          <div className="segment-card__theme-info">
+            {segment.theme_name && (
+              <span className="segment-card__theme-name">
+                {segment.theme_name}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default SegmentCard;
-

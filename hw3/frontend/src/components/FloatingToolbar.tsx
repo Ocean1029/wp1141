@@ -8,6 +8,7 @@ interface FloatingToolbarProps {
   onFormatText: (format: 'bold' | 'italic' | 'underline' | 'strikethrough') => void;
   onAddLink: () => void;
   onAddComment: () => void;
+  onAddToTheme?: (text: string) => void;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
@@ -21,6 +22,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onFormatText,
   onAddLink,
   onAddComment,
+  onAddToTheme,
   textareaRef,
 }) => {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
@@ -278,6 +280,26 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             />
           </svg>
         </button>
+
+        {/* Theme button */}
+        {onAddToTheme && (
+          <button
+            className="floating-toolbar__btn"
+            onClick={() => onAddToTheme(selection?.text || '')}
+            title="Add to Theme"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 1L10.5 5.5L15.5 6L12 9.5L13 14.5L8 12L3 14.5L4 9.5L0.5 6L5.5 5.5L8 1Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

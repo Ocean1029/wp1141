@@ -1,0 +1,64 @@
+/* Navigation component styles */
+
+.navigation {
+  display: flex;
+  align-items: center;
+  margin-right: 2rem;
+}
+
+.navigation__tabs {
+  display: flex;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.navigation__tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.navigation__tab:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-tertiary);
+}
+
+.navigation__tab--active {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+}
+
+.navigation__tab svg {
+  flex-shrink: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .navigation {
+    margin-right: 1rem;
+  }
+  
+  .navigation__tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+  
+  .navigation__tab svg {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -3,19 +3,28 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { Diary, DiaryFormData } from '../types/diary';
+import type { Theme } from '../types/theme';
 import FloatingToolbar from './FloatingToolbar';
 import MarkdownRenderer from './MarkdownRenderer';
+import ThemeSelectionDialog from './ThemeSelectionDialog';
+import CreateThemeDialog from './CreateThemeDialog';
 import '../styles/DiaryForm.css';
 
 interface DiaryFormProps {
   diary?: Diary | null;
   onAutoSave: (data: DiaryFormData) => Promise<void>;
+  onCreateSegment?: (segmentData: { content: string; themeId: string; diaryId: string }) => Promise<void>;
+  onCreateTheme?: (themeData: { name: string; description: string; color_hex: string }) => Promise<void>;
+  themes?: Theme[];
   isLoading?: boolean;
 }
 
 const DiaryForm: React.FC<DiaryFormProps> = ({
   diary,
   onAutoSave,
+  onCreateSegment,
+  onCreateTheme,
+  themes = [],
   isLoading = false,
 }) => {
   const [title, setTitle] = useState(diary?.title || '');
@@ -24,6 +33,9 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isThemeSelectionOpen, setIsThemeSelectionOpen] = useState(false);
+  const [isCreateThemeOpen, setIsCreateThemeOpen] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -228,6 +240,41 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
     }, 0);
   }, [debouncedAutoSave]);
 
+  // Handle text selection for theme creation
+  const handleTextSelection = useCallback((text: string) => {
+    if (text.trim() && onCreateSegment && diary?.id) {
+      setSelectedText(text.trim());
+      setIsThemeSelectionOpen(true);
+    }
+  }, [onCreateSegment, diary?.id]);
+
+  // Handle theme selection for segment creation
+  const handleThemeSelect = useCallback(async (theme: Theme) => {
+    if (onCreateSegment && diary?.id && selectedText) {
+      try {
+        await onCreateSegment({
+          content: selectedText,
+          themeId: theme.id,
+          diaryId: diary.id,
+        });
+        setSelectedText('');
+      } catch (error) {
+        console.error('Failed to create segment:', error);
+      }
+    }
+  }, [onCreateSegment, diary?.id, selectedText]);
+
+  // Handle theme creation
+  const handleCreateTheme = useCallback(async (themeData: { name: string; description: string; color_hex: string }) => {
+    if (onCreateTheme) {
+      try {
+        await onCreateTheme(themeData);
+      } catch (error) {
+        console.error('Failed to create theme:', error);
+      }
+    }
+  }, [onCreateTheme]);
+
   // Toggle preview mode
   const togglePreviewMode = useCallback(() => {
     setIsPreviewMode(prev => !prev);
@@ -323,7 +370,25 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
         onFormatText={handleFormatText}
         onAddLink={handleAddLink}
         onAddComment={handleAddComment}
+        onAddToTheme={handleTextSelection}
         textareaRef={contentTextareaRef}
+      />
+
+      {/* Theme Selection Dialog */}
+      <ThemeSelectionDialog
+        isOpen={isThemeSelectionOpen}
+        onClose={() => setIsThemeSelectionOpen(false)}
+        onSelectTheme={handleThemeSelect}
+        onCreateTheme={() => setIsCreateThemeOpen(true)}
+        themes={themes}
+        selectedText={selectedText}
+      />
+
+      {/* Create Theme Dialog */}
+      <CreateThemeDialog
+        isOpen={isCreateThemeOpen}
+        onClose={() => setIsCreateThemeOpen(false)}
+        onCreateTheme={handleCreateTheme}
       />
     </div>
   );
