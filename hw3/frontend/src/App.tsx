@@ -267,6 +267,7 @@ function App() {
             handleCreateFolder();
           }}
           onDeleteDiary={handleDeleteClick}
+          onSearchChange={setSearchQuery}
           isLoading={isLoading}
           searchQuery={searchQuery}
         />

@@ -24,6 +24,7 @@ interface DiarySidebarProps {
   onCreateNew: (folderId: string) => void;
   onCreateFolder: (parentId?: string) => void;
   onDeleteDiary: (diary: Diary) => void;
+  onSearchChange: (query: string) => void;
   isLoading?: boolean;
   searchQuery?: string;
 }
@@ -36,6 +37,7 @@ const DiarySidebar: React.FC<DiarySidebarProps> = ({
   onCreateNew,
   onCreateFolder,
   onDeleteDiary,
+  onSearchChange,
   isLoading = false,
   searchQuery = '',
 }) => {
@@ -252,9 +254,7 @@ const DiarySidebar: React.FC<DiarySidebarProps> = ({
           className="diary-sidebar__search-input"
           placeholder="Search diaries..."
           value={searchQuery}
-          onChange={(e) => {
-            // This will be handled by parent component
-          }}
+          onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
 
