@@ -55,6 +55,7 @@ services:
       WDS_SOCKET_PORT: 3000
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
+      DISABLE_ESLINT_PLUGIN: "true"
     depends_on:
       backend:
         condition: service_started

@@ -12,6 +12,7 @@ help:
 	@echo "==============================================================="
 	@echo ""
 	@echo "🐳 Docker Development:"
+	@echo "  make install          - Install dependencies for both backend and frontend in local machine"
 	@echo "  make dev              - Start all services with Docker"
 	@echo "  make stop             - Stop all Docker services"
 	@echo "  make build            - Force rebuild Docker containers"
@@ -61,7 +62,7 @@ stop:
 
 build:
 	@echo "🔨 Rebuilding all Docker containers..."
-	docker compose up --build
+	docker compose build --no-cache && docker compose up
 
 logs:
 	@echo "📜 Showing container logs..."

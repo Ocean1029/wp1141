@@ -1,5 +1,5 @@
 # Use Node.js LTS version
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install pnpm globally
 RUN npm install -g pnpm@latest && npm cache clean --force
