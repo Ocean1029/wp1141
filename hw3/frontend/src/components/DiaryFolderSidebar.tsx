@@ -36,7 +36,7 @@ const DiaryFolderSidebar: React.FC<DiaryFolderSidebarProps> = ({
   const [folders, setFolders] = useState<DiaryFolder[]>([
     {
       id: 'root',
-      name: 'All Diaries',
+      name: 'All Notes',
       diaries: diaries,
       isExpanded: true,
     },

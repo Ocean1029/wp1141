@@ -131,40 +131,38 @@ const DiarySidebar: React.FC<DiarySidebarProps> = ({
           </button>
 
           {/* Folder Icon */}
-          <svg className="diary-sidebar__folder-icon" width="16" height="16" viewBox="-1 -1 18 18" fill="none">
-            <path d="M2 4h4l2 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <svg className="diary-sidebar__folder-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8l-2-2H2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
 
           <span className="diary-sidebar__folder-name">
             {folder.name}
           </span>
 
-          {/* Action buttons on hover */}
-          {hoveredFolderId === folder.id && (
-            <div className="diary-sidebar__folder-actions">
-              <button
-                className="diary-sidebar__action-btn"
-                onClick={() => onCreateNew(folder.id)}
-                type="button"
-                aria-label={`Add new diary to ${folder.name}`}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </button>
+          {/* Action buttons - always visible */}
+          <div className="diary-sidebar__folder-actions">
+            <button
+              className="diary-sidebar__action-btn diary-sidebar__action-btn--visible"
+              onClick={() => onCreateNew(folder.id)}
+              type="button"
+              aria-label={`Add new diary to ${folder.name}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
 
-              <button
-                className="diary-sidebar__action-btn"
-                onClick={() => onCreateFolder(folder.id)}
-                type="button"
-                aria-label="Create new folder"
-              >
-                <svg width="14" height="14" viewBox="-1 -1 12 12" fill="none">
-                  <path d="M2 4h4l2 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          )}
+            <button
+              className="diary-sidebar__action-btn diary-sidebar__action-btn--visible"
+              onClick={() => onCreateFolder(folder.id)}
+              type="button"
+              aria-label="Create new folder"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M2 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8l-2-2H2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Folder Content */}

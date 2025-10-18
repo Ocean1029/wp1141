@@ -29,7 +29,7 @@ const ThemeNav: React.FC<ThemeNavProps> = ({
         type="button"
       >
         <span className="theme-nav__item-dot" style={{ backgroundColor: '#6b7280' }} />
-        <span className="theme-nav__item-name">All Diaries</span>
+        <span className="theme-nav__item-name">All Notes</span>
       </button>
 
       <div className="theme-nav__divider" />

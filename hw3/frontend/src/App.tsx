@@ -243,7 +243,7 @@ function DiaryApp() {
   const [folders, setFolders] = useState<Array<{id: string, name: string, diaries: Diary[], parentId?: string, level: number}>>([
     {
       id: 'root',
-      name: 'All Diaries',
+      name: 'All Notes',
       diaries: [],
       level: 0,
     },
