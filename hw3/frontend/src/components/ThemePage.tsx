@@ -10,6 +10,7 @@ interface ThemePageProps {
   onSegmentClick?: (segment: ThemeSegment) => void;
   onEditTheme?: (theme: Theme) => void;
   onDeleteTheme?: (theme: Theme) => void;
+  onBackToThemes?: () => void;
 }
 
 const ThemePage: React.FC<ThemePageProps> = ({
@@ -18,6 +19,7 @@ const ThemePage: React.FC<ThemePageProps> = ({
   onSegmentClick,
   onEditTheme,
   onDeleteTheme,
+  onBackToThemes,
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -76,6 +78,33 @@ const ThemePage: React.FC<ThemePageProps> = ({
     <div className="theme-page">
       {/* Theme Header */}
       <div className="theme-page__header">
+        {/* Back to Themes Button */}
+        {onBackToThemes && (
+          <button 
+            className="theme-page__back-btn" 
+            onClick={onBackToThemes}
+            title="Back to Themes"
+            type="button"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path 
+                d="M9 14l-4-4 4-4" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+              <path 
+                d="M5 10h10a4 4 0 0 1 0 8h-2" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
+        
         <div className="theme-page__content">
           {/* Theme Title */}
           <div className="theme-page__title-section">
@@ -128,16 +157,7 @@ const ThemePage: React.FC<ThemePageProps> = ({
           {/* Theme Properties */}
           <div className="theme-page__properties">
             <div className="theme-page__property">
-              <div className="theme-page__property-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path 
-                    d="M8 1L10.5 5.5L15.5 6L12 9.5L13 14.5L8 12L3 14.5L4 9.5L0.5 6L5.5 5.5L8 1Z" 
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
               <div className="theme-page__property-content">
-                <span className="theme-page__property-label">Color</span>
                 <div className="theme-page__property-value">
                   <div 
                     className="theme-page__color-dot"
@@ -158,7 +178,6 @@ const ThemePage: React.FC<ThemePageProps> = ({
                 </svg>
               </div>
               <div className="theme-page__property-content">
-                <span className="theme-page__property-label">Segments</span>
                 <span className="theme-page__property-value">{segments.length}</span>
               </div>
             </div>
@@ -179,7 +198,6 @@ const ThemePage: React.FC<ThemePageProps> = ({
                 </svg>
               </div>
               <div className="theme-page__property-content">
-                <span className="theme-page__property-label">Created</span>
                 <span className="theme-page__property-value">
                   {new Date(theme.created_at).toLocaleDateString()}
                 </span>
@@ -193,9 +211,6 @@ const ThemePage: React.FC<ThemePageProps> = ({
       <div className="theme-page__segments">
         <div className="theme-page__segments-header">
           <h2 className="theme-page__segments-title">Segments</h2>
-          <div className="theme-page__segments-count">
-            {segments.length} segment{segments.length !== 1 ? 's' : ''}
-          </div>
         </div>
 
         <div className="theme-page__segments-list">

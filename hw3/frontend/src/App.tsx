@@ -150,6 +150,10 @@ function ThemeApp() {
     // TODO: Implement theme creation
   };
 
+  const handleBackToThemes = () => {
+    navigate('/theme');
+  };
+
   if (isLoading) {
     return (
       <div className="app">
@@ -205,6 +209,7 @@ function ThemeApp() {
               onSegmentClick={handleSegmentClick}
               onEditTheme={handleEditTheme}
               onDeleteTheme={handleDeleteTheme}
+              onBackToThemes={handleBackToThemes}
             />
           </div>
         </div>

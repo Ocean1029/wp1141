@@ -10,9 +10,44 @@
 
 /* Theme Header */
 .theme-page__header {
+  position: relative;
   margin-bottom: 3rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--color-border-light);
+}
+
+/* Back Button */
+.theme-page__back-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-page__back-btn:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.theme-page__back-btn:active {
+  transform: scale(1);
+}
+
+.theme-page__back-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .theme-page__content {

@@ -81,15 +81,12 @@ const ThemeList: React.FC<ThemeListProps> = ({
                 {/* Theme Header */}
                 <div className="theme-card__header">
                   <div className="theme-card__title-section">
-                    <h3 className="theme-card__title">{theme.name}</h3>
-                    <div className="theme-card__color-indicator">
+                    <div className="theme-card__title-with-color">
                       <div 
                         className="theme-card__color-dot"
                         style={{ backgroundColor: theme.color_hex || '#6366f1' }}
                       />
-                      <span className="theme-card__color-name">
-                        {theme.color_name || 'Default'}
-                      </span>
+                      <h3 className="theme-card__title">{theme.name}</h3>
                     </div>
                   </div>
                   <div className="theme-card__actions">
