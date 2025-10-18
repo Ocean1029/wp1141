@@ -4,7 +4,7 @@
   width: 320px;
   height: 100vh;
   background-color: var(--color-bg-primary);
-  border-right: 1px solid var(--color-border);
+  border-right: 1.5px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -83,7 +83,7 @@
 }
 
 .diary-sidebar__folder-header:hover {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-primary);
 }
 
 .diary-sidebar__folder-toggle {
@@ -185,7 +185,7 @@
 }
 
 .diary-sidebar__diary:hover {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-primary);
 }
 
 .diary-sidebar__diary--selected {
