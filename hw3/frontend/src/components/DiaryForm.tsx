@@ -1,11 +1,10 @@
 // DiaryForm component - auto-saving form for creating and editing diary entries
-// Similar to Apple Notes behavior with Notion-style floating toolbar and Markdown preview
+// Similar to Apple Notes behavior with Notion-style floating toolbar
 
 import React, { useState, useEffect, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { Diary, DiaryFormData } from '../types/diary';
 import type { Theme } from '../types/theme';
 import FloatingToolbar from './FloatingToolbar';
-import MarkdownRenderer from './MarkdownRenderer';
 import ThemeSelectionDialog from './ThemeSelectionDialog';
 import CreateThemeDialog from './CreateThemeDialog';
 import '../styles/DiaryForm.css';
@@ -37,7 +36,6 @@ const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isThemeSelectionOpen, setIsThemeSelectionOpen] = useState(false);
   const [isCreateThemeOpen, setIsCreateThemeOpen] = useState(false);
   const [selectedText, setSelectedText] = useState('');
@@ -207,10 +205,6 @@ const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
     }
   }, [onCreateTheme]);
 
-  // Toggle preview mode
-  const togglePreviewMode = useCallback(() => {
-    setIsPreviewMode(prev => !prev);
-  }, []);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -242,26 +236,6 @@ const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
       </div>
 
       <div className="diary-form__content">
-        {/* Preview Mode Toggle */}
-        <div className="diary-form__toolbar">
-          <button
-            type="button"
-            className={`diary-form__toolbar-btn ${isPreviewMode ? 'diary-form__toolbar-btn--active' : ''}`}
-            onClick={togglePreviewMode}
-            disabled={isLoading}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M8 2C4.5 2 1.73 4.11 1 7c.73 2.89 3.5 5 7 5s6.27-2.11 7-5c-.73-2.89-3.5-5-7-5zM8 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {isPreviewMode ? 'Edit' : 'Preview'}
-          </button>
-        </div>
 
         <div className="diary-form__field">
           <input
@@ -278,22 +252,16 @@ const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
         </div>
 
         <div className="diary-form__field">
-          {isPreviewMode ? (
-            <div className="diary-form__preview">
-              <MarkdownRenderer content={content} />
-            </div>
-          ) : (
-            <textarea
-              ref={contentTextareaRef}
-              className="diary-form__textarea"
-              placeholder="Start writing your thoughts..."
-              value={content}
-              onChange={handleContentChange}
-              disabled={isLoading}
-              rows={25}
-              autoFocus={!title}
-            />
-          )}
+          <textarea
+            ref={contentTextareaRef}
+            className="diary-form__textarea"
+            placeholder="Start writing your thoughts..."
+            value={content}
+            onChange={handleContentChange}
+            disabled={isLoading}
+            rows={25}
+            autoFocus={!title}
+          />
         </div>
       </div>
 
