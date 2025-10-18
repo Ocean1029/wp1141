@@ -1,7 +1,7 @@
 // DiaryForm component - auto-saving form for creating and editing diary entries
 // Similar to Apple Notes behavior with Notion-style floating toolbar and Markdown preview
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { Diary, DiaryFormData } from '../types/diary';
 import type { Theme } from '../types/theme';
 import FloatingToolbar from './FloatingToolbar';
@@ -19,14 +19,19 @@ interface DiaryFormProps {
   isLoading?: boolean;
 }
 
-const DiaryForm: React.FC<DiaryFormProps> = ({
+export interface DiaryFormRef {
+  saveChanges: () => Promise<void>;
+  hasUnsavedChanges: boolean;
+}
+
+const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
   diary,
   onAutoSave,
   onCreateSegment,
   onCreateTheme,
   themes = [],
   isLoading = false,
-}) => {
+}, ref) => {
   const [title, setTitle] = useState(diary?.title || '');
   const [content, setContent] = useState(diary?.content || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -130,6 +135,24 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
       autoSave();
     }, 1000); // Save after 1 second of inactivity
   }, [autoSave]);
+
+  // Manual save function for navigation
+  const manualSave = useCallback(async () => {
+    if (hasUnsavedChanges) {
+      // Clear any pending debounced save
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      // Force immediate save
+      await autoSave();
+    }
+  }, [hasUnsavedChanges, autoSave]);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    saveChanges: manualSave,
+    hasUnsavedChanges,
+  }), [manualSave, hasUnsavedChanges]);
 
   // Handle title change
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,7 +321,9 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
       />
     </div>
   );
-};
+});
+
+DiaryForm.displayName = 'DiaryForm';
 
 export default DiaryForm;
 

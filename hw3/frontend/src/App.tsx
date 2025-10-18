@@ -1,11 +1,11 @@
 // Main App component - diary reflection application
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import type { Diary } from './types/diary';
 import type { Theme, ThemeSegment } from './types/theme';
 import diaryService from './services/diaryService';
-import DiaryForm from './components/DiaryForm';
+import DiaryForm, { DiaryFormRef } from './components/DiaryForm';
 import ThemePage from './components/ThemePage';
 import ThemeList from './components/ThemeList';
 import ThemeSidebar from './components/ThemeSidebar';
@@ -240,6 +240,7 @@ function DiaryApp() {
   const [deleteConfirmDiary, setDeleteConfirmDiary] = useState<Diary | null>(null);
   const [isCreateFolderDialogOpen, setIsCreateFolderDialogOpen] = useState(false);
   const [pendingParentId, setPendingParentId] = useState<string>('root');
+  const diaryFormRef = useRef<DiaryFormRef>(null);
   const [folders, setFolders] = useState<Array<{id: string, name: string, diaries: Diary[], parentId?: string, level: number}>>([
     {
       id: 'root',
@@ -399,7 +400,17 @@ function DiaryApp() {
   };
 
   // Handle diary click - navigate to diary page
-  const handleDiaryClick = (diary: Diary) => {
+  const handleDiaryClick = async (diary: Diary) => {
+    // Save current changes before switching
+    if (diaryFormRef.current?.hasUnsavedChanges) {
+      try {
+        await diaryFormRef.current.saveChanges();
+      } catch (err) {
+        console.error('Failed to save changes before navigation:', err);
+        // Continue with navigation even if save fails
+      }
+    }
+
     // Check if current selected diary is an empty temporary diary
     if (selectedDiary) {
       cleanupEmptyTempDiary(selectedDiary);
@@ -516,7 +527,18 @@ function DiaryApp() {
           </div>
           
           <div className="app__header-actions">
-            <Navigation onNavigateAway={() => selectedDiary && cleanupEmptyTempDiary(selectedDiary)} />
+            <Navigation onNavigateAway={async () => {
+              if (diaryFormRef.current?.hasUnsavedChanges) {
+                try {
+                  await diaryFormRef.current.saveChanges();
+                } catch (err) {
+                  console.error('Failed to save changes before navigation:', err);
+                }
+              }
+              if (selectedDiary) {
+                cleanupEmptyTempDiary(selectedDiary);
+              }
+            }} />
             <DataModeToggle />
           </div>
         </div>
@@ -554,6 +576,7 @@ function DiaryApp() {
 
             {/* Diary Editor */}
             <DiaryForm
+              ref={diaryFormRef}
               diary={selectedDiary}
               onAutoSave={handleAutoSave}
               onCreateSegment={handleCreateSegment}
