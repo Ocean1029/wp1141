@@ -70,6 +70,11 @@ body {
   align-items: center;
 }
 
+.app__container--centered {
+  justify-content: center;
+  gap: 1rem;
+}
+
 /* Empty State */
 .app__empty-state {
   display: flex;

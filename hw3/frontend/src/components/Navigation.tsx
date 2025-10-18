@@ -48,7 +48,7 @@ const Navigation: React.FC<NavigationProps> = ({ className = '', onNavigateAway 
               strokeLinejoin="round"
             />
           </svg>
-          <span>Diaries</span>
+          <span>Notes</span>
         </button>
         
         <button

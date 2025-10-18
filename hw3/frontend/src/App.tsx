@@ -59,16 +59,9 @@ function ThemeListApp() {
     <div className="app">
       {/* Header */}
       <header className="app__header">
-        <div className="app__container">
-          <div className="app__brand">
-            <h1 className="app__title">Diary Reflection</h1>
-            <p className="app__subtitle">Organize your thoughts by themes</p>
-          </div>
-          
-          <div className="app__header-actions">
-            <Navigation />
-            <DataModeToggle />
-          </div>
+        <div className="app__container app__container--centered">
+          <Navigation />
+          <DataModeToggle />
         </div>
       </header>
 
@@ -184,15 +177,9 @@ function ThemeApp() {
     <div className="app">
       {/* Header */}
       <header className="app__header">
-        <div className="app__container">
-          <div className="app__brand">
-            <h1 className="app__title">Diary Reflection</h1>
-            <p className="app__subtitle">Organize your thoughts by themes</p>
-          </div>
-          <div className="app__header-actions">
-            <Navigation />
-            <DataModeToggle />
-          </div>
+        <div className="app__container app__container--centered">
+          <Navigation />
+          <DataModeToggle />
         </div>
       </header>
 
@@ -520,27 +507,20 @@ function DiaryApp() {
     <div className="app">
       {/* Header */}
       <header className="app__header">
-        <div className="app__container">
-          <div className="app__brand">
-            <h1 className="app__title">Diary Reflection</h1>
-            <p className="app__subtitle">Your personal space for thoughts and memories</p>
-          </div>
-          
-          <div className="app__header-actions">
-            <Navigation onNavigateAway={async () => {
-              if (diaryFormRef.current?.hasUnsavedChanges) {
-                try {
-                  await diaryFormRef.current.saveChanges();
-                } catch (err) {
-                  console.error('Failed to save changes before navigation:', err);
-                }
+        <div className="app__container app__container--centered">
+          <Navigation onNavigateAway={async () => {
+            if (diaryFormRef.current?.hasUnsavedChanges) {
+              try {
+                await diaryFormRef.current.saveChanges();
+              } catch (err) {
+                console.error('Failed to save changes before navigation:', err);
               }
-              if (selectedDiary) {
-                cleanupEmptyTempDiary(selectedDiary);
-              }
-            }} />
-            <DataModeToggle />
-          </div>
+            }
+            if (selectedDiary) {
+              cleanupEmptyTempDiary(selectedDiary);
+            }
+          }} />
+          <DataModeToggle />
         </div>
       </header>
 
