@@ -5,6 +5,9 @@ import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import type { Diary } from './types/diary';
 import type { Theme, ThemeSegment } from './types/theme';
 import diaryService from './services/diaryService';
+import themeService from './services/themeService';
+import segmentService from './services/segmentService';
+import colorService from './services/colorService';
 import DiaryForm, { DiaryFormRef } from './components/DiaryForm';
 import ThemePage from './components/ThemePage';
 import ThemeList from './components/ThemeList';
@@ -14,45 +17,73 @@ import ConfirmDialog from './components/ConfirmDialog';
 import DataModeToggle from './components/DataModeToggle';
 import DiarySidebar from './components/DiarySidebar';
 import CreateFolderDialog from './components/CreateFolderDialog';
-import { mockThemes, mockSegments } from './data/mockData';
 import './App.css';
 
 // Theme list page component
 function ThemeListApp() {
   const navigate = useNavigate();
+  const [themes, setThemes] = useState<Theme[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredThemes, setFilteredThemes] = useState<Theme[]>(mockThemes);
-  
-  // Filter themes based on search query
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load themes from API
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredThemes(mockThemes);
-    } else {
-      const filtered = mockThemes.filter(theme =>
-        theme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (theme.description && theme.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-      setFilteredThemes(filtered);
-    }
-  }, [searchQuery]);
+    const loadThemes = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const themesData = await themeService.getAllThemes();
+        setThemes(themesData);
+      } catch (err) {
+        console.error('Failed to load themes:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load themes');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadThemes();
+  }, []);
+
+  // Filter themes based on search query
+  const filteredThemes = themes.filter(theme =>
+    theme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (theme.description && theme.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
   
   const handleThemeClick = (theme: Theme) => {
     navigate(`/theme/${theme.id}`);
   };
 
-  const handleEditTheme = (theme: Theme) => {
-    console.log('Edit theme:', theme);
-    // TODO: Implement theme editing
+  const handleEditTheme = async (theme: Theme) => {
+    try {
+      // TODO: Open edit dialog
+      console.log('Edit theme:', theme);
+    } catch (err) {
+      console.error('Failed to edit theme:', err);
+    }
   };
 
-  const handleDeleteTheme = (theme: Theme) => {
-    console.log('Delete theme:', theme);
-    // TODO: Implement theme deletion
+  const handleDeleteTheme = async (theme: Theme) => {
+    try {
+      if (window.confirm(`Are you sure you want to delete "${theme.name}"?`)) {
+        await themeService.deleteTheme(theme.id);
+        setThemes(prev => prev.filter(t => t.id !== theme.id));
+      }
+    } catch (err) {
+      console.error('Failed to delete theme:', err);
+      alert('Failed to delete theme');
+    }
   };
 
-  const handleCreateTheme = () => {
-    console.log('Create new theme');
-    // TODO: Implement theme creation
+  const handleCreateTheme = async () => {
+    try {
+      // TODO: Open create dialog
+      console.log('Create new theme');
+    } catch (err) {
+      console.error('Failed to create theme:', err);
+    }
   };
 
   return (
@@ -70,12 +101,12 @@ function ThemeListApp() {
         <div className="app__layout">
           {/* Left Sidebar - Theme List */}
           <ThemeSidebar
-            themes={mockThemes}
+            themes={themes}
             selectedThemeId={null}
             onThemeSelect={handleThemeClick}
             onCreateTheme={handleCreateTheme}
             onSearchChange={setSearchQuery}
-            isLoading={false}
+            isLoading={isLoading}
             searchQuery={searchQuery}
           />
 
@@ -100,27 +131,35 @@ function ThemeApp() {
   
   const [theme, setTheme] = useState<Theme | null>(null);
   const [segments, setSegments] = useState<ThemeSegment[]>([]);
+  const [themes, setThemes] = useState<Theme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadThemeData = () => {
-      setIsLoading(true);
+    const loadThemeData = async () => {
+      if (!themeId) return;
       
-      // Find theme from mock data
-      const foundTheme = mockThemes.find(t => t.id === themeId);
-      if (foundTheme) {
-        setTheme(foundTheme);
+      try {
+        setIsLoading(true);
+        setError(null);
         
-        // Find segments for this theme
-        const themeSegments = mockSegments.filter(s => s.theme_id === themeId);
-        setSegments(themeSegments);
-      } else {
-        // Theme not found, redirect to home
-        navigate('/');
+        // Load all themes for sidebar
+        const allThemes = await themeService.getAllThemes();
+        setThemes(allThemes);
+        
+        // Load specific theme with segments
+        const themeData = await themeService.getThemeById(themeId);
+        setTheme(themeData);
+        setSegments(themeData.segments);
+      } catch (err) {
+        console.error('Failed to load theme:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load theme');
+        // Redirect to theme list if theme not found
+        navigate('/theme');
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
 
     loadThemeData();
@@ -131,23 +170,38 @@ function ThemeApp() {
     navigate(`/diary/${segment.diary_id}`);
   };
 
-  const handleEditTheme = (theme: Theme) => {
-    console.log('Edit theme:', theme);
-    // TODO: Implement theme editing
+  const handleEditTheme = async (theme: Theme) => {
+    try {
+      // TODO: Open edit dialog
+      console.log('Edit theme:', theme);
+    } catch (err) {
+      console.error('Failed to edit theme:', err);
+    }
   };
 
-  const handleDeleteTheme = (theme: Theme) => {
-    console.log('Delete theme:', theme);
-    // TODO: Implement theme deletion
+  const handleDeleteTheme = async (theme: Theme) => {
+    try {
+      if (window.confirm(`Are you sure you want to delete "${theme.name}"?`)) {
+        await themeService.deleteTheme(theme.id);
+        navigate('/theme');
+      }
+    } catch (err) {
+      console.error('Failed to delete theme:', err);
+      alert('Failed to delete theme');
+    }
   };
 
   const handleThemeClick = (theme: Theme) => {
     navigate(`/theme/${theme.id}`);
   };
 
-  const handleCreateTheme = () => {
-    console.log('Create new theme');
-    // TODO: Implement theme creation
+  const handleCreateTheme = async () => {
+    try {
+      // TODO: Open create dialog
+      console.log('Create new theme');
+    } catch (err) {
+      console.error('Failed to create theme:', err);
+    }
   };
 
   const handleBackToThemes = () => {
@@ -192,12 +246,12 @@ function ThemeApp() {
         <div className="app__layout">
           {/* Left Sidebar - Theme List */}
           <ThemeSidebar
-            themes={mockThemes}
+            themes={themes}
             selectedThemeId={themeId}
             onThemeSelect={handleThemeClick}
             onCreateTheme={handleCreateTheme}
             onSearchChange={setSearchQuery}
-            isLoading={false}
+            isLoading={isLoading}
             searchQuery={searchQuery}
           />
 
@@ -226,6 +280,7 @@ function DiaryApp() {
   // State management
   const [filteredDiaries, setFilteredDiaries] = useState<Diary[]>([]);
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
+  const [themes, setThemes] = useState<Theme[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -242,14 +297,20 @@ function DiaryApp() {
     },
   ]);
 
-  // Fetch all diaries on component mount
-  const fetchDiaries = useCallback(async (query?: string) => {
+  // Fetch all diaries and themes on component mount
+  const fetchData = useCallback(async (query?: string) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const fetchedDiaries = await diaryService.getAllDiaries(query);
+      // Fetch diaries and themes in parallel
+      const [fetchedDiaries, fetchedThemes] = await Promise.all([
+        diaryService.getAllDiaries(query),
+        themeService.getAllThemes()
+      ]);
+      
       setFilteredDiaries(fetchedDiaries);
+      setThemes(fetchedThemes);
       
       // Update root folder with all diaries
       setFolders(prevFolders => 
@@ -259,17 +320,16 @@ function DiaryApp() {
             : folder
         )
       );
-      setFilteredDiaries(fetchedDiaries);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch diaries');
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchDiaries();
-  }, [fetchDiaries]);
+    fetchData();
+  }, [fetchData]);
 
   // Helper function to clean up empty temporary diaries
   const cleanupEmptyTempDiary = (tempDiary: Diary) => {
@@ -423,7 +483,7 @@ function DiaryApp() {
 
     try {
       await diaryService.deleteDiary(deleteConfirmDiary.id);
-      await fetchDiaries(searchQuery);
+      await fetchData(searchQuery);
       setDeleteConfirmDiary(null);
       
       // If currently viewing the deleted diary, navigate to home
@@ -479,7 +539,7 @@ function DiaryApp() {
       }
       
       // Refresh the diary list to show updates
-      await fetchDiaries(searchQuery);
+      await fetchData(searchQuery);
     } catch (err) {
       console.error('Auto-save failed:', err);
       throw err;
@@ -489,10 +549,21 @@ function DiaryApp() {
   // Handle segment creation
   const handleCreateSegment = async (segmentData: { content: string; themeId: string; diaryId: string }) => {
     try {
-      // TODO: Implement segment creation API call
-      console.log('Creating segment:', segmentData);
-      // Segment created successfully - no popup needed
+      // Create segment using API
+      const newSegment = await segmentService.createSegment({
+        diary_id: segmentData.diaryId,
+        theme_id: segmentData.themeId,
+        content: segmentData.content,
+        segment_order: 0, // Will be updated by backend
+      });
+      
+      console.log('Segment created successfully:', newSegment);
+      
+      // Show success message (optional)
+      // You could add a toast notification here
+      
     } catch (err) {
+      console.error('Failed to create segment:', err);
       setError(err instanceof Error ? err.message : 'Failed to create segment');
     }
   };
@@ -500,10 +571,39 @@ function DiaryApp() {
   // Handle theme creation
   const handleCreateTheme = async (themeData: { name: string; description: string; color_hex: string }) => {
     try {
-      // TODO: Implement theme creation API call
-      console.log('Creating theme:', themeData);
-      // Theme created successfully - no popup needed
+      // Find color by hex code or create a new one
+      let colorId: number | undefined;
+      
+      // Try to find existing color by hex code
+      const colors = await colorService.getAllColors();
+      const existingColor = colors.find(color => color.hex_code === themeData.color_hex);
+      
+      if (existingColor) {
+        colorId = existingColor.id;
+      } else {
+        // Create new color
+        const newColor = await colorService.createColor({
+          hexCode: themeData.color_hex,
+          name: `Color ${themeData.color_hex}`,
+          meaning: `Color for ${themeData.name} theme`,
+        });
+        colorId = newColor.id;
+      }
+      
+      // Create theme using API
+      const newTheme = await themeService.createTheme({
+        name: themeData.name,
+        description: themeData.description,
+        color_id: colorId,
+      });
+      
+      console.log('Theme created successfully:', newTheme);
+      
+      // Update themes list
+      setThemes(prev => [...prev, newTheme]);
+      
     } catch (err) {
+      console.error('Failed to create theme:', err);
       setError(err instanceof Error ? err.message : 'Failed to create theme');
     }
   };
@@ -566,7 +666,7 @@ function DiaryApp() {
               onAutoSave={handleAutoSave}
               onCreateSegment={handleCreateSegment}
               onCreateTheme={handleCreateTheme}
-              themes={mockThemes}
+              themes={themes}
               isLoading={isLoading}
             />
 
