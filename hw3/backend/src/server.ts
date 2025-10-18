@@ -6,6 +6,9 @@ import { env } from './config/env';
 import { swaggerSpec } from './config/swagger';
 import { errorHandler } from './shared/middleware/errorHandler';
 import diaryRoutes from './modules/diaries/diary.routes';
+import themeRoutes from './modules/themes/theme.routes';
+import segmentRoutes from './modules/segments/segment.routes';
+import colorRoutes from './modules/colors/color.routes';
 
 const app = express();
 
@@ -37,8 +40,9 @@ app.get('/', (_req: Request, res: Response) => {
       health: '/health',
       api: '/api',
       diaries: '/api/diaries',
-      themes: '/api/themes (coming soon)',
-      segments: '/api/segments (coming soon)',
+      themes: '/api/themes',
+      segments: '/api/segments',
+      colors: '/api/colors',
     },
     features: [
       'TypeScript with strict mode',
@@ -74,6 +78,9 @@ app.get('/api-docs.json', (_req: Request, res: Response) => {
 
 // API routes
 app.use('/api/diaries', diaryRoutes);
+app.use('/api/themes', themeRoutes);
+app.use('/api/segments', segmentRoutes);
+app.use('/api/colors', colorRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
