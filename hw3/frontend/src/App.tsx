@@ -278,19 +278,62 @@ function DiaryApp() {
     fetchDiaries();
   }, [fetchDiaries]);
 
+  // Helper function to clean up empty temporary diaries
+  const cleanupEmptyTempDiary = (tempDiary: Diary) => {
+    if (tempDiary.id.startsWith('temp-') && 
+        (!tempDiary.title || tempDiary.title.trim() === '') && 
+        (!tempDiary.content || tempDiary.content.trim() === '')) {
+      
+      // Remove the empty temporary diary from folders
+      setFolders(prevFolders => 
+        prevFolders.map(folder => ({
+          ...folder,
+          diaries: folder.diaries.filter(d => d.id !== tempDiary.id)
+        }))
+      );
+      
+      // Remove from filtered diaries
+      setFilteredDiaries(prevDiaries => 
+        prevDiaries.filter(d => d.id !== tempDiary.id)
+      );
+    }
+  };
+
   // Load diary from URL parameter
   useEffect(() => {
     const loadDiaryFromUrl = async () => {
       if (diaryId && diaryId !== 'new') {
-        try {
-          const diary = await diaryService.getDiaryById(diaryId);
-          setSelectedDiary(diary);
-        } catch (err) {
-          console.error('Failed to load diary from URL:', err);
-          setSelectedDiary(null);
-          navigate('/');
+        // Check if we're switching to a different diary (not the current one)
+        if (selectedDiary && selectedDiary.id !== diaryId) {
+          cleanupEmptyTempDiary(selectedDiary);
+        }
+
+        // Check if this is a temporary diary ID
+        if (diaryId.startsWith('temp-')) {
+          // For temporary diaries, find it in our local state
+          const tempDiary = filteredDiaries.find(d => d.id === diaryId);
+          if (tempDiary) {
+            setSelectedDiary(tempDiary);
+          } else {
+            // If temp diary not found in state, navigate to home
+            navigate('/');
+          }
+        } else {
+          // For regular diaries, fetch from service
+          try {
+            const diary = await diaryService.getDiaryById(diaryId);
+            setSelectedDiary(diary);
+          } catch (err) {
+            console.error('Failed to load diary from URL:', err);
+            setSelectedDiary(null);
+            navigate('/');
+          }
         }
       } else if (diaryId === 'new') {
+        // Check if we're switching away from a diary
+        if (selectedDiary) {
+          cleanupEmptyTempDiary(selectedDiary);
+        }
         setSelectedDiary(null);
       }
     };
@@ -300,8 +343,30 @@ function DiaryApp() {
 
   // Handle create new diary
   const handleCreateNew = (folderId: string) => {
-    setSelectedDiary(null);
-    navigate('/diary/new');
+    // Create a temporary diary entry immediately
+    const tempDiary: Diary = {
+      id: `temp-${Date.now()}`,
+      title: null,
+      content: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Add the temporary diary to the appropriate folder
+    setFolders(prevFolders => 
+      prevFolders.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, diaries: [tempDiary, ...folder.diaries] }
+          : folder
+      )
+    );
+
+    // Update filtered diaries to include the new entry
+    setFilteredDiaries(prevDiaries => [tempDiary, ...prevDiaries]);
+
+    // Set as selected diary and navigate to it
+    setSelectedDiary(tempDiary);
+    navigate(`/diary/${tempDiary.id}`);
   };
 
   // Handle create folder
@@ -335,6 +400,11 @@ function DiaryApp() {
 
   // Handle diary click - navigate to diary page
   const handleDiaryClick = (diary: Diary) => {
+    // Check if current selected diary is an empty temporary diary
+    if (selectedDiary) {
+      cleanupEmptyTempDiary(selectedDiary);
+    }
+    
     navigate(`/diary/${diary.id}`);
   };
 
@@ -368,9 +438,37 @@ function DiaryApp() {
   const handleAutoSave = async (data: { title?: string; content: string }) => {
     try {
       if (selectedDiary) {
-        // Update existing diary
-        const updatedDiary = await diaryService.updateDiary(selectedDiary.id, data);
-        setSelectedDiary(updatedDiary);
+        // Check if this is a temporary diary (starts with 'temp-')
+        if (selectedDiary.id.startsWith('temp-')) {
+          // Create new diary for temporary entries
+          const newDiary = await diaryService.createDiary(data);
+          
+          // Update folders to replace temporary diary with real one
+          setFolders(prevFolders => 
+            prevFolders.map(folder => ({
+              ...folder,
+              diaries: folder.diaries.map(diary => 
+                diary.id === selectedDiary.id ? newDiary : diary
+              )
+            }))
+          );
+          
+          // Update filtered diaries
+          setFilteredDiaries(prevDiaries => 
+            prevDiaries.map(diary => 
+              diary.id === selectedDiary.id ? newDiary : diary
+            )
+          );
+          
+          setSelectedDiary(newDiary);
+          
+          // Update URL to reflect the new diary ID
+          navigate(`/diary/${newDiary.id}`, { replace: true });
+        } else {
+          // Update existing diary
+          const updatedDiary = await diaryService.updateDiary(selectedDiary.id, data);
+          setSelectedDiary(updatedDiary);
+        }
       } else {
         // Create new diary
         const newDiary = await diaryService.createDiary(data);
@@ -418,7 +516,7 @@ function DiaryApp() {
           </div>
           
           <div className="app__header-actions">
-            <Navigation />
+            <Navigation onNavigateAway={() => selectedDiary && cleanupEmptyTempDiary(selectedDiary)} />
             <DataModeToggle />
           </div>
         </div>

@@ -5,9 +5,10 @@ import '../styles/Navigation.css';
 
 interface NavigationProps {
   className?: string;
+  onNavigateAway?: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
+const Navigation: React.FC<NavigationProps> = ({ className = '', onNavigateAway }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -15,10 +16,12 @@ const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
   const isThemeActive = location.pathname.startsWith('/theme');
 
   const handleDiaryClick = () => {
+    onNavigateAway?.();
     navigate('/');
   };
 
   const handleThemeClick = () => {
+    onNavigateAway?.();
     navigate('/theme');
   };
 
