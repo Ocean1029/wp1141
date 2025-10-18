@@ -217,23 +217,6 @@ const DiaryForm = forwardRef<DiaryFormRef, DiaryFormProps>(({
 
   return (
     <div className="diary-form">
-      {/* Save Status Indicator - Fixed Position */}
-      <div className="diary-form__status">
-        {isSaving ? (
-          <div className="diary-form__status-saving">
-            <div className="spinner-small"></div>
-            <span>Saving...</span>
-          </div>
-        ) : hasUnsavedChanges ? (
-          <div className="diary-form__status-unsaved">
-            <span>Unsaved changes</span>
-          </div>
-        ) : lastSaved ? (
-          <div className="diary-form__status-saved">
-            <span>Saved</span>
-          </div>
-        ) : null}
-      </div>
 
       <div className="diary-form__content">
 
