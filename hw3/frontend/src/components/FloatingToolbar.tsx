@@ -14,6 +14,8 @@ interface SelectionInfo {
   text: string;
   rect: DOMRect;
   isVisible: boolean;
+  mouseX?: number;
+  mouseY?: number;
 }
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -22,6 +24,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 }) => {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const lastMousePosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleSelectionChange = () => {
@@ -48,14 +51,21 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           text,
           rect,
           isVisible: true,
+          mouseX: lastMousePosition.current.x,
+          mouseY: lastMousePosition.current.y,
         });
       } else {
         setSelection(null);
       }
     };
 
-    const handleTextareaSelection = () => {
+    const handleTextareaSelection = (event?: MouseEvent) => {
       if (!textareaRef?.current) return;
+
+      // Store mouse position when available
+      if (event) {
+        lastMousePosition.current = { x: event.clientX, y: event.clientY };
+      }
 
       const textarea = textareaRef.current;
       const start = textarea.selectionStart;
@@ -85,6 +95,8 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           height: lineHeight,
         } as DOMRect,
         isVisible: true,
+        mouseX: lastMousePosition.current.x,
+        mouseY: lastMousePosition.current.y,
       });
     };
 
@@ -98,11 +110,17 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       }
     };
 
+    // Track mouse movement globally
+    const handleMouseMove = (e: MouseEvent) => {
+      lastMousePosition.current = { x: e.clientX, y: e.clientY };
+    };
+
     // Add event listeners
     document.addEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener('mousemove', handleMouseMove);
     if (textareaRef?.current) {
-      textareaRef.current.addEventListener('mouseup', handleTextareaSelection);
-      textareaRef.current.addEventListener('keyup', handleTextareaSelection);
+      textareaRef.current.addEventListener('mouseup', handleTextareaSelection as EventListener);
+      textareaRef.current.addEventListener('keyup', () => handleTextareaSelection());
     }
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', (e) => {
@@ -113,27 +131,48 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
     return () => {
       document.removeEventListener('selectionchange', handleSelectionChange);
+      document.removeEventListener('mousemove', handleMouseMove);
       // Capture the current textarea reference to avoid stale closure warning
       const currentTextarea = textareaRef?.current;
       if (currentTextarea) {
-        currentTextarea.removeEventListener('mouseup', handleTextareaSelection);
-        currentTextarea.removeEventListener('keyup', handleTextareaSelection);
+        currentTextarea.removeEventListener('mouseup', handleTextareaSelection as EventListener);
+        currentTextarea.removeEventListener('keyup', () => handleTextareaSelection());
       }
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [textareaRef]);
 
-  // Position the toolbar above the selection
+  // Position the toolbar near the mouse cursor where selection ended
   const getToolbarStyle = (): React.CSSProperties => {
     if (!selection) return { display: 'none' };
 
     const toolbarHeight = 40; // Approximate toolbar height
-    const offset = 8; // Distance from selection
+    const offset = 12; // Distance from mouse cursor
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const toolbarWidth = 48; // Approximate toolbar width (single button)
+
+    // Use mouse position if available, otherwise fall back to selection rect
+    let left = selection.mouseX ?? selection.rect.left + selection.rect.width / 2;
+    let top = (selection.mouseY ?? selection.rect.top) - toolbarHeight - offset;
+
+    // Ensure toolbar stays within viewport bounds
+    // Horizontal bounds
+    if (left - toolbarWidth / 2 < 10) {
+      left = toolbarWidth / 2 + 10;
+    } else if (left + toolbarWidth / 2 > viewportWidth - 10) {
+      left = viewportWidth - toolbarWidth / 2 - 10;
+    }
+
+    // Vertical bounds - if toolbar would be above viewport, show it below the cursor
+    if (top < 10) {
+      top = (selection.mouseY ?? selection.rect.bottom) + offset;
+    }
 
     return {
       position: 'fixed',
-      left: `${selection.rect.left + selection.rect.width / 2}px`,
-      top: `${selection.rect.top - toolbarHeight - offset}px`,
+      left: `${left}px`,
+      top: `${top}px`,
       transform: 'translateX(-50%)',
       zIndex: 1000,
       display: selection.isVisible ? 'flex' : 'none',
