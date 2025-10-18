@@ -1,13 +1,11 @@
-// FloatingToolbar component - Notion-style text selection toolbar
+// FloatingToolbar component - Simplified text selection toolbar
 // Appears when user selects text in the diary content area
+// Only shows "Add to Theme" (star) functionality
 
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/FloatingToolbar.css';
 
 interface FloatingToolbarProps {
-  onFormatText: (format: 'bold' | 'italic' | 'underline' | 'strikethrough') => void;
-  onAddLink: () => void;
-  onAddComment: () => void;
   onAddToTheme?: (text: string) => void;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 }
@@ -19,9 +17,6 @@ interface SelectionInfo {
 }
 
 const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
-  onFormatText,
-  onAddLink,
-  onAddComment,
   onAddToTheme,
   textareaRef,
 }) => {
@@ -145,25 +140,6 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     };
   };
 
-  const handleFormatClick = (format: 'bold' | 'italic' | 'underline' | 'strikethrough') => {
-    onFormatText(format);
-    // Clear selection after formatting
-    window.getSelection()?.removeAllRanges();
-    setSelection(null);
-  };
-
-  const handleLinkClick = () => {
-    onAddLink();
-    window.getSelection()?.removeAllRanges();
-    setSelection(null);
-  };
-
-  const handleCommentClick = () => {
-    onAddComment();
-    window.getSelection()?.removeAllRanges();
-    setSelection(null);
-  };
-
   if (!selection) return null;
 
   return (
@@ -173,115 +149,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       style={getToolbarStyle()}
     >
       <div className="floating-toolbar__content">
-        {/* Format buttons */}
-        <button
-          className="floating-toolbar__btn"
-          onClick={() => handleFormatClick('bold')}
-          title="Bold"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M4 2.5h3.5a3 3 0 0 1 0 6H4V2.5zM4 8.5h3a2 2 0 0 1 0 4H4v-4z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        <button
-          className="floating-toolbar__btn"
-          onClick={() => handleFormatClick('italic')}
-          title="Italic"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M6 2.5h4M6 13.5h4M8 2.5v11"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        <button
-          className="floating-toolbar__btn"
-          onClick={() => handleFormatClick('underline')}
-          title="Underline"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M4 13h8M6 13V4a2 2 0 0 1 4 0v9"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        <button
-          className="floating-toolbar__btn"
-          onClick={() => handleFormatClick('strikethrough')}
-          title="Strikethrough"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M4 8h8M6 8V4a2 2 0 0 1 4 0v4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        {/* Divider */}
-        <div className="floating-toolbar__divider" />
-
-        {/* Link button */}
-        <button
-          className="floating-toolbar__btn"
-          onClick={handleLinkClick}
-          title="Add Link"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M7 13a3 3 0 0 0 3-3V7a3 3 0 0 0-6 0v3a3 3 0 0 0 3 3zM13 7a3 3 0 0 0-3-3M3 7a3 3 0 0 0 3 3"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        {/* Comment button */}
-        <button
-          className="floating-toolbar__btn"
-          onClick={handleCommentClick}
-          title="Add Comment"
-          type="button"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M3 8a5 5 0 0 1 10 0v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8zM8 8h0M8 11h0"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-
-        {/* Theme button */}
+        {/* Theme button - Add selected text to segment */}
         {onAddToTheme && (
           <button
             className="floating-toolbar__btn"

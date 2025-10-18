@@ -149,97 +149,6 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
     debouncedAutoSave();
   };
 
-  // Handle text formatting
-  const handleFormatText = useCallback((format: 'bold' | 'italic' | 'underline' | 'strikethrough') => {
-    const textarea = contentTextareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    
-    if (start === end) return;
-
-    const selectedText = textarea.value.substring(start, end);
-    
-    let formattedText = '';
-    switch (format) {
-      case 'bold':
-        formattedText = `**${selectedText}**`;
-        break;
-      case 'italic':
-        formattedText = `*${selectedText}*`;
-        break;
-      case 'underline':
-        formattedText = `<u>${selectedText}</u>`;
-        break;
-      case 'strikethrough':
-        formattedText = `~~${selectedText}~~`;
-        break;
-    }
-
-    // Replace selected text with formatted text
-    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-    setContent(newContent);
-    latestValuesRef.current.content = newContent;
-    setHasUnsavedChanges(true);
-    debouncedAutoSave();
-
-    // Update cursor position
-    setTimeout(() => {
-      const newStart = start + formattedText.length;
-      textarea.setSelectionRange(newStart, newStart);
-    }, 0);
-  }, [debouncedAutoSave]);
-
-  const handleAddLink = useCallback(() => {
-    const textarea = contentTextareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    
-    if (start === end) return;
-
-    const selectedText = textarea.value.substring(start, end);
-    const linkText = selectedText || 'Link';
-    const formattedText = `[${linkText}](url)`;
-
-    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-    setContent(newContent);
-    latestValuesRef.current.content = newContent;
-    setHasUnsavedChanges(true);
-    debouncedAutoSave();
-
-    setTimeout(() => {
-      const newStart = start + formattedText.length;
-      textarea.setSelectionRange(newStart, newStart);
-    }, 0);
-  }, [debouncedAutoSave]);
-
-  const handleAddComment = useCallback(() => {
-    const textarea = contentTextareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    
-    if (start === end) return;
-
-    const selectedText = textarea.value.substring(start, end);
-    const formattedText = `<!-- ${selectedText} -->`;
-
-    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-    setContent(newContent);
-    latestValuesRef.current.content = newContent;
-    setHasUnsavedChanges(true);
-    debouncedAutoSave();
-
-    setTimeout(() => {
-      const newStart = start + formattedText.length;
-      textarea.setSelectionRange(newStart, newStart);
-    }, 0);
-  }, [debouncedAutoSave]);
-
   // Handle text selection for theme creation
   const handleTextSelection = useCallback((text: string) => {
     if (text.trim() && onCreateSegment && diary?.id) {
@@ -365,11 +274,8 @@ const DiaryForm: React.FC<DiaryFormProps> = ({
         </div>
       </div>
 
-      {/* Floating Toolbar for text formatting */}
+      {/* Floating Toolbar for adding text to themes */}
       <FloatingToolbar
-        onFormatText={handleFormatText}
-        onAddLink={handleAddLink}
-        onAddComment={handleAddComment}
         onAddToTheme={handleTextSelection}
         textareaRef={contentTextareaRef}
       />
