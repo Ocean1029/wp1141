@@ -1,0 +1,75 @@
+/* TimelinePanel styles */
+
+.timeline-panel {
+  height: 100%;
+  padding: 1rem;
+  background-color: white;
+  overflow: auto;
+}
+
+/* FullCalendar customization */
+.timeline-panel :global(.fc) {
+  height: 100%;
+}
+
+.timeline-panel :global(.fc-toolbar-title) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.timeline-panel :global(.fc-button) {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  text-transform: capitalize;
+}
+
+.timeline-panel :global(.fc-button:hover) {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.timeline-panel :global(.fc-button:active) {
+  background-color: #4338ca;
+  border-color: #4338ca;
+}
+
+.timeline-panel :global(.fc-button-active) {
+  background-color: #4338ca !important;
+  border-color: #4338ca !important;
+}
+
+.timeline-panel :global(.fc-event) {
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.timeline-panel :global(.fc-event:hover) {
+  opacity: 0.9;
+}
+
+.timeline-panel :global(.fc-daygrid-event) {
+  padding: 2px 4px;
+}
+
+.timeline-panel :global(.fc-timegrid-event) {
+  padding: 4px;
+}
+
+@media (max-width: 768px) {
+  .timeline-panel {
+    padding: 0.5rem;
+  }
+
+  .timeline-panel :global(.fc-toolbar) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .timeline-panel :global(.fc-toolbar-chunk) {
+    display: flex;
+    justify-content: center;
+  }
+}
+

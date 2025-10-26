@@ -1,0 +1,122 @@
+// Prisma schema for TripTimeline Maps
+// Modern ORM approach with type safety
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User accounts
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  places Place[]
+  events Event[]
+  tags   Tag[]
+
+  @@index([email])
+  @@map("users")
+}
+
+// User-defined tags for places
+model Tag {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user   User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  places PlaceTag[]
+
+  @@unique([createdBy, name])
+  @@index([createdBy])
+  @@map("tags")
+}
+
+// Places (locations on the map)
+model Place {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String   @db.VarChar(255)
+  lat       Float    @db.DoublePrecision
+  lng       Float    @db.DoublePrecision
+  address   String?  @db.Text
+  notes     String?  @db.Text
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user   User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  tags   PlaceTag[]
+  events EventPlace[]
+
+  @@index([createdBy])
+  @@index([lat, lng])
+  @@map("places")
+}
+
+// Many-to-Many: Place <-> Tag
+model PlaceTag {
+  id      String @id @default(uuid()) @db.Uuid
+  placeId String @map("place_id") @db.Uuid
+  tagId   String @map("tag_id") @db.Uuid
+
+  // Relations
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([placeId, tagId])
+  @@index([placeId])
+  @@index([tagId])
+  @@map("place_tags")
+}
+
+// Events on the timeline
+model Event {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String   @db.VarChar(255)
+  startTime DateTime @map("start_time") @db.Timestamptz
+  endTime   DateTime @map("end_time") @db.Timestamptz
+  notes     String?  @db.Text
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user   User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  places EventPlace[]
+
+  @@index([createdBy])
+  @@index([startTime, endTime])
+  @@map("events")
+}
+
+// Many-to-Many: Event <-> Place
+model EventPlace {
+  id      String @id @default(uuid()) @db.Uuid
+  eventId String @map("event_id") @db.Uuid
+  placeId String @map("place_id") @db.Uuid
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, placeId])
+  @@index([eventId])
+  @@index([placeId])
+  @@map("event_places")
+}
+
