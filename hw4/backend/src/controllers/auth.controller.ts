@@ -31,7 +31,7 @@ export class AuthController {
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: env.COOKIE_SECURE,
-      sameSite: 'lax',
+      sameSite: 'lax',  // lax means the cookie is only sent in a same-site context
       maxAge: ACCESS_TOKEN_EXPIRES_MS,
       domain: env.COOKIE_DOMAIN,
     });
@@ -78,6 +78,9 @@ export class AuthController {
       maxAge: ACCESS_TOKEN_EXPIRES_MS,
       domain: env.COOKIE_DOMAIN,
     });
+
+    // Ideally, we would also set a new refresh token cookie here, but we don't have one yet
+    // TODO: Set new refresh token cookie here
 
     res.json({
       success: true,

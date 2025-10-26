@@ -1,5 +1,5 @@
 // Environment configuration with Zod validation
-import { z } from 'zod';
+import { z } from 'zod'; // Zod is a schema validation library for TypeScript
 import dotenv from 'dotenv';
 
 dotenv.config();

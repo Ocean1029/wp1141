@@ -8,17 +8,11 @@ app.listen(PORT, () => {
   console.log(`
 🚀 TripTimeline Maps API Server
 ================================
-📡 Environment: ${env.NODE_ENV}
-🔗 Listening on port ${PORT}
-🌐 API: http://localhost:${PORT}
-📚 Swagger UI: http://localhost:${PORT}/api-docs
-💚 Health check: http://localhost:${PORT}/health
-
-🗺️  Features enabled:
-  - JWT Authentication (Access + Refresh tokens)
-  - Google Maps API (Geocoding & Places)
-  - Tag-based place organization
-  - Timeline event scheduling
+Environment: ${env.NODE_ENV}
+Listening on port ${PORT}
+API: http://localhost:${PORT}
+Swagger UI: http://localhost:${PORT}/api-docs
+Health check: http://localhost:${PORT}/health
 
 Ready to accept requests!
   `);

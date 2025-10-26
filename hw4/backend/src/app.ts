@@ -18,7 +18,7 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: [env.FRONTEND_URL, 'http://127.0.0.1:5173'],
+  origin: [env.FRONTEND_URL],
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -44,7 +44,7 @@ app.get('/', (_req, res) => {
     name: 'TripTimeline Maps API',
     version: '1.0.0',
     description: 'Map-first trip planning with timeline scheduling',
-    documentation: '/api-docs',
+    documentation: 'docs',
     endpoints: {
       health: '/health',
       auth: '/auth/*',
@@ -52,22 +52,13 @@ app.get('/', (_req, res) => {
       places: '/api/places',
       events: '/api/events',
       maps: '/maps/*',
-    },
-    features: [
-      'JWT Authentication with HTTP-only cookies',
-      'Google Maps JavaScript API integration',
-      'Server-side Geocoding & Places API',
-      'Tag-based place organization',
-      'Timeline event scheduling',
-      'Full CRUD operations',
-    ],
+    }
   });
 });
 
 // API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'TripTimeline Maps API Documentation',
 }));
 
 // Routes
