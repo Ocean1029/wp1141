@@ -51,6 +51,22 @@ export class MapsController {
     const result = await mapsService.searchPlaces(req.query as any);
     res.json(result);
   }
+
+  /**
+   * GET /maps/place-details
+   * Get detailed information about a place by place_id
+   */
+  async getPlaceDetails(req: Request, res: Response) {
+    if (!(req as any).user) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+      });
+      return;
+    }
+
+    const result = await mapsService.getPlaceDetails(req.query as any);
+    res.json(result);
+  }
 }
 
 // Singleton instance

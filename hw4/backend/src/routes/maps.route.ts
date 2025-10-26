@@ -4,7 +4,7 @@ import { mapsController } from '../controllers/maps.controller';
 import { asyncHandler } from '../middlewares/asyncHandler';
 import { validate } from '../middlewares/validate.middleware';
 import { authGuard } from '../middlewares/auth.middleware';
-import { geocodeQuerySchema, reverseGeocodeQuerySchema, placesSearchQuerySchema } from '../schemas/maps.schema';
+import { geocodeQuerySchema, reverseGeocodeQuerySchema, placesSearchQuerySchema, placeDetailsQuerySchema } from '../schemas/maps.schema';
 
 const router = Router();
 
@@ -112,6 +112,38 @@ router.get(
   '/search',
   validate(placesSearchQuerySchema, 'query'),
   asyncHandler(mapsController.searchPlaces.bind(mapsController))
+);
+
+/**
+ * @swagger
+ * /maps/place-details:
+ *   get:
+ *     summary: Get detailed information about a place
+ *     tags: [Maps]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: placeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Google Place ID
+ *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
+ *       - in: query
+ *         name: fields
+ *         schema:
+ *           type: string
+ *         description: Comma-separated list of fields to return
+ *         example: name,formatted_address,geometry,phone,website
+ *     responses:
+ *       200:
+ *         description: Place details
+ */
+router.get(
+  '/place-details',
+  validate(placeDetailsQuerySchema, 'query'),
+  asyncHandler(mapsController.getPlaceDetails.bind(mapsController))
 );
 
 export default router;

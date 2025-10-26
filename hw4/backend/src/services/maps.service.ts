@@ -1,9 +1,18 @@
 // Maps service - Google Maps API integration (server-side)
 import { Client } from '@googlemaps/google-maps-services-js';
 import { env } from '../env';
-import type { GeocodeQueryDto, ReverseGeocodeQueryDto, PlacesSearchQueryDto } from '../schemas/maps.schema';
+import type { GeocodeQueryDto, ReverseGeocodeQueryDto, PlacesSearchQueryDto, PlaceDetailsQueryDto } from '../schemas/maps.schema';
+import https from 'https';
+import axios from 'axios';
 
-const mapsClient = new Client({});
+// Create axios instance with SSL configuration
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false // Only for development
+  })
+});
+
+const mapsClient = new Client({ axiosInstance });
 
 export class MapsService {
   /**
@@ -138,6 +147,62 @@ export class MapsService {
         success: false,
         error: error.message || 'Places search failed',
         results: [],
+      };
+    }
+  }
+
+  /**
+   * Get place details by place_id
+   */
+  async getPlaceDetails(query: PlaceDetailsQueryDto) {
+    try {
+      const response = await mapsClient.placeDetails({
+        params: {
+          place_id: query.placeId,
+          fields: query.fields?.split(',').map(f => f.trim()) || ['name', 'formatted_address', 'geometry', 'place_id', 'rating'],
+          key: env.GOOGLE_MAPS_API_KEY,
+          language: 'zh-TW' as any,
+        },
+      });
+
+      if (response.data.status !== 'OK') {
+        return {
+          success: false,
+          error: `Place details failed: ${response.data.status}`,
+          data: null,
+        };
+      }
+
+      const place = response.data.result;
+      const result = {
+        name: place.name,
+        address: place.formatted_address,
+        place_id: place.place_id,
+        lat: place.geometry?.location.lat,
+        lng: place.geometry?.location.lng,
+        rating: place.rating,
+        types: place.types,
+        phone: place.international_phone_number || place.formatted_phone_number,
+        website: place.website,
+        openingHours: place.opening_hours?.weekday_text,
+        priceLevel: place.price_level,
+        photos: place.photos?.slice(0, 3).map((photo: any) => ({
+          photo_reference: photo.photo_reference,
+          height: photo.height,
+          width: photo.width,
+        })),
+      };
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error: any) {
+      console.error('Place details error:', error);
+      return {
+        success: false,
+        error: error.message || 'Place details failed',
+        data: null,
       };
     }
   }

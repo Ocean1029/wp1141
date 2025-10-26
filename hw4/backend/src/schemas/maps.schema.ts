@@ -17,7 +17,13 @@ export const placesSearchQuerySchema = z.object({
   radius: z.string().transform(Number).pipe(z.number().positive()).optional().default('5000'),
 });
 
+export const placeDetailsQuerySchema = z.object({
+  placeId: z.string().min(1, 'Place ID is required'),
+  fields: z.string().optional().default('name,formatted_address,geometry,place_id,rating'),
+});
+
 export type GeocodeQueryDto = z.infer<typeof geocodeQuerySchema>;
 export type ReverseGeocodeQueryDto = z.infer<typeof reverseGeocodeQuerySchema>;
 export type PlacesSearchQueryDto = z.infer<typeof placesSearchQuerySchema>;
+export type PlaceDetailsQueryDto = z.infer<typeof placeDetailsQuerySchema>;
 
