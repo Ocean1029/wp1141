@@ -27,16 +27,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-      DATABASE_URL: postgresql://trip_user:trip_password@db:5432/trip_timeline_db
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-production
-      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production
-      JWT_ACCESS_EXPIRES_IN: 15m
-      JWT_REFRESH_EXPIRES_IN: 7d
-      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-YOUR_API_KEY_HERE}
-      FRONTEND_URL: http://localhost:5173
+    env_file:
+      - ./backend/.env
     depends_on:
       db:
         condition: service_healthy
@@ -53,9 +45,8 @@ services:
     restart: unless-stopped
     ports:
       - "5173:5173"
-    environment:
-      VITE_API_URL: http://localhost:3000
-      VITE_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-YOUR_API_KEY_HERE}
+    env_file:
+      - ./frontend/.env
     depends_on:
       backend:
         condition: service_started
