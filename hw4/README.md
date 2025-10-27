@@ -2,32 +2,87 @@
 
 > Map-first trip planning application with timeline scheduling
 
-TripTimeline Maps 是一個以地圖為主的行程規劃應用，整合 Google Maps、標籤系統和時間軸功能，讓使用者在單一介面完成「找地點、貼標籤、排時間」的完整流程。
+## 1. 專案介紹（Project Overview）
 
-## ⚠️ 重要安全提醒
+TripTimeline 是一個**結合地圖與時間軸的旅行管理應用**，讓使用者能在互動式地圖上管理旅行地點，並在時間軸中安排行程，形成地點與時間同步的旅程規劃方式。
 
-**本專案需要 Google Maps API 金鑰才能運行，請務必：**
+這是一個 **全端分離架構**（React + Node.js + PostgreSQL），並整合 Google Maps Platform 提供地圖視覺化與地點資料能力。
 
-1. **不要提交真實的 API 金鑰到版本控制系統**
-2. **設置 API 金鑰限制**：
-   - 瀏覽器金鑰（frontend）：限制網域為 `http://localhost:5173/*` 和 `http://127.0.0.1:5173/*`
-   - 伺服器金鑰（backend）：本地開發可無 IP 限制
-3. **評分者需自行申請並替換金鑰**
-4. 獲取金鑰：https://console.cloud.google.com/apis/credentials
+## 2. 問題背景與動機（Problem & Motivation）
 
-**所需啟用的 Google APIs：**
-- Maps JavaScript API（前端）
-- Geocoding API（後端）
-- Places API（後端）
+傳統規劃行程的方式常依賴 Google 文件與 Maps 交互切換，造成以下痛點：
 
----
+* 需要多開頁面或分頁整理資訊，**沒有統一的行程視覺化界面**。
+* 地點與時間是分離的資訊，不便管理整體旅行節奏。
+* 地點資訊重複搜尋、貼連結，不方便團隊共同規劃或視覺理解。
+* 缺少**快速查看地點距離與相對位置**的方式。
 
-## 🚀 快速開始
+## 3. 目標使用者（Target Users）
+
+| 使用者類型        | 使用情境                    |
+| ------------ | ----------------------- |
+| 小團體旅行規劃者     | 規劃 2–5 人旅遊行程，視覺化安排天數與路線 |
+| 個人出遊      | 設定景點與餐廳，檢視距離以避免舟車勞頓     |
+
+## 4. 核心功能（Core Features）
+
+### 地圖與標記管理（Places 系統）
+
+* 使用 Google Maps 顯示地圖
+* 新增地點（可以從地圖點擊或搜尋加入）
+* 每個地點必須至少有**一個 Tag**
+* 支援自訂分類（Tag）
+
+### 行程管理（Events 系統）
+
+* 支援時間區間的行程安排
+* 使用 FullCalendar 顯示時間軸
+* 行程與地點可關聯
+* 點擊行程可在地圖聚焦顯示相關地點
+
+### 授權管理（Auth）
+
+* Email/password 註冊登入
+* 支援 JWT + HttpOnly Cookies
+
+```
+使用者登入 → 進入地圖頁面 → 建立地點 → 依 Tag 分類呈現 → 建立行程 → 將地點加入行程 → 顯示地圖與時間軸連動
+```
+
+## 6. 系統架構概述（System Architecture）
+
+```
+Frontend (React + Vite + TS)
+    ├── Google Maps JS SDK (地圖顯示)
+    ├── FullCalendar (時間軸)
+    └── Axios → 呼叫 Backend API
+Backend (Node.js + Express + Swagger)
+    ├── Auth / Places / Tags / Events REST API
+    ├── JWT 驗證 + Session via HttpOnly Cookie
+    ├── Google Maps API Call Proxy
+    └── Prisma ORM + PostgreSQL
+Database (PostgreSQL)
+    ├── users / places / tags / place_tags
+    ├── events / event_places
+    └── 每個使用者擁有自己的規劃資料
+```
+
+
+## 7. Google Maps Integration（整合設計）
+
+| 使用場景     | Google API          | 說明            |
+| -------- | ------------------- | ------------- |
+| 地圖顯示     | Maps JavaScript API | 顯示地圖 / Marker |
+| 搜尋地點     | Places API          | 用於找地點         |
+| 地址轉座標    | Geocoding API       | 儲存地點用         |
+
+## 8. 快速開始
 
 ### 前置需求
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Google Maps API Key](https://console.cloud.google.com/apis/credentials)
+- makes
 
 ### 步驟一：設置環境變數
 
@@ -49,10 +104,6 @@ cp frontend/.env.example frontend/.env
 make dev
 ```
 
-或使用 Docker Compose：
-```bash
-docker compose up
-```
 
 ### 步驟三：訪問應用
 
@@ -61,7 +112,7 @@ docker compose up
 - API 文檔：http://localhost:3000/api-docs
 - 測試帳號：
   - Email: demo@example.com
-  - Password: Demo1234
+  - Password: Demo1234s
 
 ---
 
