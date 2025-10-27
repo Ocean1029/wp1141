@@ -92,13 +92,14 @@ export function MapCanvas({
     markers.forEach(marker => marker.setMap(null));
     const newMarkers = new Map<string, google.maps.Marker>();
 
-    // Create new markers
+    // Create new markers with labels
     places.forEach(place => {
       // Get color from first tag, or use default
       const tagColor = place.tags.length > 0 
         ? getTagColor(place.tags[0].name)
         : '#6b7280'; // default gray
       
+      // Create custom overlay for label
       const marker = new google.maps.Marker({
         position: { lat: place.lat, lng: place.lng },
         map,
@@ -108,6 +109,14 @@ export function MapCanvas({
           url: createMarkerIcon(tagColor),
           scaledSize: new google.maps.Size(32, 42),
           anchor: new google.maps.Point(16, 42),
+          labelOrigin: new google.maps.Point(100, 30), // Position label above the marker
+        },
+        label: {
+          text: place.title,
+          color: '#1f2937',
+          fontSize: '13px',
+          fontWeight: '600',
+          className: 'marker-label',
         },
       });
 

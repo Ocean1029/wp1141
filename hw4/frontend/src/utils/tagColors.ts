@@ -3,6 +3,7 @@
 export const getTagColor = (tagName: string): string => {
   const colors = [
     '#ef4444', // red
+    '#f97316', // orange
     '#f59e0b', // amber
     '#84cc16', // lime
     '#10b981', // emerald
