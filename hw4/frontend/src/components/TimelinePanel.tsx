@@ -1,5 +1,5 @@
 // TimelinePanel - FullCalendar integration for event timeline
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -25,18 +25,25 @@ export function TimelinePanel({
   const calendarRef = useRef<FullCalendar>(null);
 
   // Convert events to FullCalendar format
-  const calendarEvents = events.map(event => ({
-    id: event.id,
-    title: event.title,
-    start: event.startTime,
-    end: event.endTime,
-    extendedProps: {
-      notes: event.notes,
-      places: event.places,
-    },
-    backgroundColor: highlightedEventId === event.id ? '#fbbf24' : '#6366f1',
-    borderColor: highlightedEventId === event.id ? '#f59e0b' : '#4f46e5',
-  }));
+  const calendarEvents = useMemo(() => {
+    return events.map(event => {
+      const isHighlighted = highlightedEventId === event.id;
+      return {
+        id: event.id,
+        title: event.title,
+        start: event.startTime,
+        end: event.endTime,
+        extendedProps: {
+          notes: event.notes,
+          places: event.places,
+        },
+        backgroundColor: isHighlighted ? '#fbbf24' : '#bfdbfe',
+        borderColor: isHighlighted ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.2)',
+        textColor: isHighlighted ? '#78350f' : '#1e3a8a',
+        classNames: isHighlighted ? ['highlighted-event'] : [],
+      };
+    });
+  }, [events, highlightedEventId]);
 
   useEffect(() => {
     // Scroll to highlighted event
@@ -54,11 +61,22 @@ export function TimelinePanel({
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
+        initialView="timeGridThreeDay"
         headerToolbar={{
-          left: 'prev,next today',
+          left: 'prev',
           center: 'title',
-          right: 'timeGridWeek,timeGridDay',
+          right: 'next',
+        }}
+        footerToolbar={{
+          center: 'today',
+        }}
+        views={{
+          timeGridThreeDay: {
+            type: 'timeGrid',
+            duration: { days: 3 },
+            dateIncrement: { days: 1 },
+            buttonText: '3 days',
+          },
         }}
         events={calendarEvents}
         editable={true}

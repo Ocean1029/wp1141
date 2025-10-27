@@ -205,19 +205,21 @@
 .map-page__main {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
 }
 
 .map-page__map {
-  flex: 3;
+  flex: 2;
   min-height: 0;
+  min-width: 0;
 }
 
 .map-page__timeline {
-  flex: 2;
+  flex: 1;
   min-height: 0;
-  border-top: 1px solid #e5e7eb;
+  min-width: 400px;
+  border-left: 1px solid #e5e7eb;
   background: white;
 }
 
@@ -261,15 +263,20 @@
 
   .map-page__main {
     flex: 1;
+    flex-direction: column;
   }
 
   .map-page__map {
     flex: 1;
+    min-height: 300px;
   }
 
   .map-page__timeline {
     flex: 1;
     min-height: 300px;
+    min-width: 0;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
   }
 }
 
