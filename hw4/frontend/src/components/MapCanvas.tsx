@@ -71,9 +71,10 @@ export function MapCanvas({
 
         setMap(mapInstance);
         setIsLoading(false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error loading Google Maps:', err);
-        setError(`Failed to load Google Maps: ${err.message || 'Unknown error'}`);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        setError(`Failed to load Google Maps: ${errorMessage}`);
         setIsLoading(false);
       }
     };
@@ -117,7 +118,16 @@ export function MapCanvas({
         bounds.extend({ lat: place.lat, lng: place.lng });
       });
       map.fitBounds(bounds);
+      
+      // Limit max zoom level (especially for single marker)
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom && currentZoom > 15) {
+          map.setZoom(15);
+        }
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, places, onMarkerClick]);
 
   // Handle selected/highlighted place
