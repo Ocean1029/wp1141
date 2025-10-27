@@ -6,7 +6,7 @@ export const createEventSchema = z.object({
   startTime: z.string().datetime('Invalid start time format (ISO 8601 required)'),
   endTime: z.string().datetime('Invalid end time format (ISO 8601 required)'),
   notes: z.string().optional(),
-  placeIds: z.array(z.string().uuid('Invalid place ID')).optional().default([]),
+  placeIds: z.array(z.string().min(1, 'Place ID is required')).optional().default([]),
 }).refine(
   (data) => new Date(data.startTime) < new Date(data.endTime),
   { message: 'Start time must be before end time', path: ['startTime'] }
@@ -30,7 +30,7 @@ export const updateEventSchema = z.object({
 export const eventQuerySchema = z.object({
   from: z.string().datetime('Invalid from date').optional(),
   to: z.string().datetime('Invalid to date').optional(),
-  placeId: z.string().uuid('Invalid place ID').optional(),
+  placeId: z.string().min(1, 'Place ID is required').optional(),
 });
 
 export type CreateEventDto = z.infer<typeof createEventSchema>;

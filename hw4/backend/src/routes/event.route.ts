@@ -38,7 +38,7 @@ router.use(authGuard);
  *         name: placeId
  *         schema:
  *           type: string
- *         description: Filter events associated with a specific place
+ *         description: Filter by Google Place ID
  *     responses:
  *       200:
  *         description: List of events
@@ -63,7 +63,9 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
- *         description: Event ID
+ *           format: uuid
+ *           example: 41d21368-a23d-46b8-8d1a-8a0779687ba7
+ *         description: Event ID (UUID)
  *     responses:
  *       200:
  *         description: Event details with associated places
@@ -77,6 +79,7 @@ router.get('/:id', asyncHandler(eventController.getEventById.bind(eventControlle
  * /api/events:
  *   post:
  *     summary: Create a new event
+ *     description: Create an event with optional place associations (using Google Place IDs)
  *     tags: [Events]
  *     security:
  *       - cookieAuth: []
@@ -93,29 +96,31 @@ router.get('/:id', asyncHandler(eventController.getEventById.bind(eventControlle
  *             properties:
  *               title:
  *                 type: string
- *                 example: Visit Taipei 101
+ *                 example: Dinner at Night Market
  *               startTime:
  *                 type: string
  *                 format: date-time
- *                 example: 2025-01-15T09:00:00Z
+ *                 example: 2025-03-15T18:00:00Z
  *               endTime:
  *                 type: string
  *                 format: date-time
- *                 example: 2025-01-15T11:00:00Z
+ *                 example: 2025-03-15T20:00:00Z
  *               notes:
  *                 type: string
- *                 example: Remember to bring camera
+ *                 example: Try the street food
  *               placeIds:
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: Places to associate with this event
- *                 example: ["place-id-1", "place-id-2"]
+ *                 description: Google Place IDs to associate with this event
+ *                 example: ["ChIJaXPV9ZSyjogRP2jKp2mopF4"]
  *     responses:
  *       201:
  *         description: Event created successfully
  *       400:
- *         description: Validation error (e.g., startTime >= endTime)
+ *         description: Validation error (startTime must be before endTime)
+ *       404:
+ *         description: One or more places not found
  */
 router.post(
   '/',
@@ -128,6 +133,7 @@ router.post(
  * /api/events/{id}:
  *   patch:
  *     summary: Update an event
+ *     description: Update event details (cannot change place associations via this endpoint)
  *     tags: [Events]
  *     security:
  *       - cookieAuth: []
@@ -137,7 +143,9 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
- *         description: Event ID
+ *           format: uuid
+ *           example: 41d21368-a23d-46b8-8d1a-8a0779687ba7
+ *         description: Event ID (UUID)
  *     requestBody:
  *       required: true
  *       content:
@@ -147,6 +155,7 @@ router.post(
  *             properties:
  *               title:
  *                 type: string
+ *                 example: Updated Event Title
  *               startTime:
  *                 type: string
  *                 format: date-time
@@ -204,12 +213,15 @@ router.delete('/:id', asyncHandler(eventController.deleteEvent.bind(eventControl
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
+ *           example: 41d21368-a23d-46b8-8d1a-8a0779687ba7
  *         description: Event ID
  *       - in: path
  *         name: placeId
  *         required: true
  *         schema:
  *           type: string
+ *           example: ChIJl8D1EepqpogRu4XN9F9l7o8
  *         description: Place ID
  *     responses:
  *       200:

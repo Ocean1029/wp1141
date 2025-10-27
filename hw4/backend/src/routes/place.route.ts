@@ -60,7 +60,7 @@ router.get(
  *         schema:
  *           type: string
  *         description: Google Place ID
- *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
+ *         example: ChIJaXPV9ZSyjogRP2jKp2mopF4
  *     responses:
  *       200:
  *         description: Place details with tags and events
@@ -147,7 +147,7 @@ router.post(
  *         schema:
  *           type: string
  *         description: Google Place ID
- *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
+ *         example: ChIJaXPV9ZSyjogRP2jKp2mopF4
  *     requestBody:
  *       required: true
  *       content:
@@ -195,7 +195,7 @@ router.patch(
  *         schema:
  *           type: string
  *         description: Google Place ID
- *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
+ *         example: ChIJaXPV9ZSyjogRP2jKp2mopF4
  *     responses:
  *       200:
  *         description: Place deleted successfully
@@ -218,12 +218,14 @@ router.delete('/:id', asyncHandler(placeController.deletePlace.bind(placeControl
  *         required: true
  *         schema:
  *           type: string
+ *           example: ChIJaXPV9ZSyjogRP2jKp2mopF4
  *         description: Place ID
  *       - in: path
  *         name: tagName
  *         required: true
  *         schema:
  *           type: string
+ *           example: Sights
  *         description: Tag name
  *     responses:
  *       200:

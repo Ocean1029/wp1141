@@ -73,15 +73,6 @@ async function main() {
 
     const places = [
       {
-        id: 'ChIJJ5eIcCqpQjQROgRLBhQBw7U', // Google Place ID for Taipei 101
-        title: 'Taipei 101',
-        lat: 25.0330,
-        lng: 121.5654,
-        address: 'No. 7, Section 5, Xinyi Road, Xinyi District, Taipei City, Taiwan',
-        notes: 'Iconic skyscraper with observation deck',
-        tagNames: ['Sights', 'Favorite'],
-      },
-      {
         id: 'ChIJaXPV9ZSyjogRP2jKp2mopF4', // Example Google Place ID for Din Tai Fung
         title: 'Din Tai Fung (Xinyi)',
         lat: 25.0360,
@@ -162,6 +153,7 @@ async function main() {
 
     const events = [
       {
+        id: '41d21368-a23d-46b8-8d1a-8a0779687ba7',
         title: 'Lunch at Din Tai Fung',
         startTime: new Date('2025-02-01T12:00:00Z'),
         endTime: new Date('2025-02-01T13:30:00Z'),

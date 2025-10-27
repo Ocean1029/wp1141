@@ -51,6 +51,7 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
+ *           example: Sights
  *         description: Tag name
  *     responses:
  *       200:
@@ -109,6 +110,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
+ *           example: Sights
  *         description: Tag name
  *     requestBody:
  *       required: true
@@ -119,8 +121,10 @@ router.post(
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Sights
  *               description:
  *                 type: string
+ *                 example: Sightseeing spots
  *     responses:
  *       200:
  *         description: Tag updated successfully
