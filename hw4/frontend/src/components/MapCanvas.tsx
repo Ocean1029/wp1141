@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import type { Place } from '../types/place';
+import { getTagColor, createMarkerIcon } from '../utils/tagColors';
 import '../styles/MapCanvas.css';
 
 interface MapCanvasProps {
@@ -82,6 +83,7 @@ export function MapCanvas({
     initMap();
   }, [onMapClick]);
 
+
   // Update markers when places change
   useEffect(() => {
     if (!map) return;
@@ -92,11 +94,21 @@ export function MapCanvas({
 
     // Create new markers
     places.forEach(place => {
+      // Get color from first tag, or use default
+      const tagColor = place.tags.length > 0 
+        ? getTagColor(place.tags[0].name)
+        : '#6b7280'; // default gray
+      
       const marker = new google.maps.Marker({
         position: { lat: place.lat, lng: place.lng },
         map,
         title: place.title,
         animation: google.maps.Animation.DROP,
+        icon: {
+          url: createMarkerIcon(tagColor),
+          scaledSize: new google.maps.Size(32, 42),
+          anchor: new google.maps.Point(16, 42),
+        },
       });
 
       // Add click listener

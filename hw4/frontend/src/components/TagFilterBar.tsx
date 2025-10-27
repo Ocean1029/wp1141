@@ -1,6 +1,7 @@
 // TagFilterBar - Multi-select tag filter component
 import { useState } from 'react';
 import type { Tag } from '../types/tag';
+import { getTagColor } from '../utils/tagColors';
 import '../styles/TagFilterBar.css';
 
 interface TagFilterBarProps {
@@ -82,6 +83,7 @@ export function TagFilterBar({
                     disabled={disabled}
                     className={`tag-filter-bar__tag ${isSelected ? 'tag-filter-bar__tag--selected' : ''}`}
                   >
+                    <div className="tag-filter-bar__tag-color" style={{ backgroundColor: getTagColor(tag.name) }} />
                     <div className="tag-filter-bar__tag-info">
                       <span className="tag-filter-bar__tag-name">{tag.name}</span>
                       {tag._count && tag._count.places > 0 && (
