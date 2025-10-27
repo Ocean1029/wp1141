@@ -60,14 +60,14 @@
 
 .timeline-panel .fc-button-active,
 .timeline-panel .fc-button-active:hover {
-  background: #93c5fd !important;
-  border-color: #93c5fd !important;
-  color: #1e3a8a !important;
-  box-shadow: 0 4px 12px rgba(147, 197, 253, 0.3) !important;
+  background: #1f2937 !important;
+  border-color: #1f2937 !important;
+  color: white !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 .timeline-panel .fc-button:focus {
-  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.2) !important;
 }
 
 .timeline-panel .fc-button:disabled {
@@ -139,59 +139,60 @@
 
 /* ====== EVENTS ====== */
 .timeline-panel .fc-timegrid-event {
-  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 10px !important;
   padding: 0.75rem !important;
-  box-shadow: 0 2px 8px rgba(147, 197, 253, 0.3) !important;
-  background: #bfdbfe !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  background: #f9fafb !important;
   cursor: pointer !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .timeline-panel .fc-timegrid-event:hover {
-  transform: translateY(-2px) !important;
-  background: #93c5fd !important;
-  border-color: rgba(59, 130, 246, 0.35) !important;
-  box-shadow: 0 4px 12px rgba(147, 197, 253, 0.4) !important;
+  transform: translateY(-1px) !important;
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
 
 .timeline-panel .fc-timegrid-event .fc-event-main {
-  color: #1e3a8a !important;
+  color: #374151 !important;
 }
 
 .timeline-panel .fc-timegrid-event .fc-event-time {
   font-size: 0.6875rem !important;
   font-weight: 500 !important;
-  opacity: 0.8 !important;
+  opacity: 0.7 !important;
   margin-bottom: 0.25rem !important;
-  color: #1e3a8a !important;
+  color: #6b7280 !important;
 }
 
 .timeline-panel .fc-timegrid-event .fc-event-title {
   font-size: 0.875rem !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
-  color: #1e3a8a !important;
+  color: #1f2937 !important;
 }
 
 /* ====== HIGHLIGHTED EVENT ====== */
 .timeline-panel .fc-timegrid-event.highlighted-event {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-  border-color: rgba(245, 158, 11, 0.3) !important;
-  box-shadow: 0 8px 24px rgba(251, 191, 36, 0.45) !important;
+  background: #fef3c7 !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.25) !important;
 }
 
 .timeline-panel .fc-timegrid-event.highlighted-event:hover {
-  border-color: rgba(245, 158, 11, 0.5) !important;
-  box-shadow: 0 12px 32px rgba(251, 191, 36, 0.55) !important;
+  background: #fde68a !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 3px 10px rgba(251, 191, 36, 0.3) !important;
 }
 
 .timeline-panel .fc-timegrid-event.highlighted-event .fc-event-main {
-  color: #78350f !important;
+  color: #92400e !important;
 }
 
 .timeline-panel .fc-timegrid-event.highlighted-event .fc-event-time {
-  color: #78350f !important;
+  color: #b45309 !important;
   opacity: 0.8 !important;
 }
 
@@ -201,28 +202,28 @@
 
 /* ====== SELECTION ====== */
 .timeline-panel .fc-highlight {
-  background: rgba(147, 197, 253, 0.15) !important;
+  background: rgba(156, 163, 175, 0.1) !important;
   border-radius: 8px !important;
 }
 
 /* ====== TODAY ====== */
 .timeline-panel .fc-day-today {
-  background: rgba(191, 219, 254, 0.15) !important;
+  background: rgba(243, 244, 246, 0.5) !important;
 }
 
 .timeline-panel .fc-day-today .fc-col-header-cell-cushion {
-  color: #3b82f6 !important;
+  color: #1f2937 !important;
   font-weight: 700 !important;
 }
 
 /* ====== NOW INDICATOR ====== */
 .timeline-panel .fc-timegrid-now-indicator-line {
-  border-color: #3b82f6 !important;
+  border-color: #6b7280 !important;
   border-width: 2px !important;
 }
 
 .timeline-panel .fc-timegrid-now-indicator-arrow {
-  border-color: #3b82f6 !important;
+  border-color: #6b7280 !important;
 }
 
 /* ====== SCROLLBAR ====== */

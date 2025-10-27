@@ -37,9 +37,9 @@ export function TimelinePanel({
           notes: event.notes,
           places: event.places,
         },
-        backgroundColor: isHighlighted ? '#fbbf24' : '#bfdbfe',
-        borderColor: isHighlighted ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.2)',
-        textColor: isHighlighted ? '#78350f' : '#1e3a8a',
+        backgroundColor: isHighlighted ? '#fef3c7' : '#f9fafb',
+        borderColor: isHighlighted ? '#fbbf24' : '#e5e7eb',
+        textColor: isHighlighted ? '#78350f' : '#1f2937',
         classNames: isHighlighted ? ['highlighted-event'] : [],
       };
     });

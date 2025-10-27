@@ -120,13 +120,22 @@ export function MapPage() {
 
   const handleEventDrop = async (eventId: string, start: Date, end: Date) => {
     try {
-      await eventsApi.update(eventId, {
+      // Update the event on the server
+      const updatedEvent = await eventsApi.update(eventId, {
         startTime: start.toISOString(),
         endTime: end.toISOString(),
       });
-      await loadData();
+      
+      // Update local state without reloading all data
+      setEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === eventId ? updatedEvent : event
+        )
+      );
     } catch (error) {
       console.error('Failed to update event:', error);
+      // If update fails, reload data to ensure consistency
+      await loadData();
     }
   };
 
