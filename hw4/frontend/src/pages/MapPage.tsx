@@ -1,5 +1,5 @@
 // MapPage - Main application page with map and timeline
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MapCanvas } from '../components/MapCanvas';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { TagFilterBar } from '../components/TagFilterBar';
@@ -10,8 +10,8 @@ import { useAuth } from '../hooks/useAuth';
 import { placesApi } from '../api/places.api';
 import { eventsApi } from '../api/events.api';
 import { tagsApi } from '../api/tags.api';
-import type { Place } from '../types/place';
-import type { Event } from '../types/event';
+import type { Place, PlaceFormData } from '../types/place';
+import type { Event, EventFormData } from '../types/event';
 import type { Tag } from '../types/tag';
 import '../styles/MapPage.css';
 
@@ -72,17 +72,19 @@ export function MapPage() {
     }
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
+  const handleMapClick = useCallback((lat: number, lng: number) => {
     console.log('[MapPage] handleMapClick called:', lat, lng);
     setClickedCoords({ lat, lng });
+    setSelectedPlace(null); // Clear selected place when creating new one
     setIsPlaceFormOpen(true);
-  };
+  }, []);
 
-  const handleMarkerClick = (place: Place) => {
+  const handleMarkerClick = useCallback((place: Place) => {
     setSelectedPlace(place);
-  };
+    setIsPlaceFormOpen(true);
+  }, []);
 
-  const handleEventClick = (event: Event) => {
+  const handleEventClick = useCallback((event: Event) => {
     if (event.places && event.places.length > 0) {
       const place = places.find(p => p.id === event.places[0].place.id);
       if (place) {
@@ -90,12 +92,12 @@ export function MapPage() {
       }
     }
     setHighlightedEventId(event.id);
-  };
+  }, [places]);
 
-  const handleDateSelect = (start: Date, end: Date) => {
+  const handleDateSelect = useCallback((start: Date, end: Date) => {
     setSelectedTimeRange({ start, end });
     setIsEventFormOpen(true);
-  };
+  }, []);
 
   const handleEventDrop = async (eventId: string, start: Date, end: Date) => {
     try {
@@ -109,10 +111,35 @@ export function MapPage() {
     }
   };
 
-  const handlePlaceSubmit = async (data: any) => {
-    await placesApi.create(data);
+  const handlePlaceSubmit = async (data: PlaceFormData) => {
+    if (selectedPlace) {
+      // Update existing place
+      const { tags, title, lat, lng, address, notes } = data;
+      await placesApi.update(selectedPlace.id, { title, lat, lng, address, notes });
+      
+      // Handle tag changes
+      const oldTagNames = selectedPlace.tags.map(t => t.name);
+      const newTagNames = tags;
+      
+      // Add new tags
+      const tagsToAdd = newTagNames.filter(name => !oldTagNames.includes(name));
+      for (const tagName of tagsToAdd) {
+        await placesApi.addTag(selectedPlace.id, tagName);
+      }
+      
+      // Remove old tags
+      const tagsToRemove = oldTagNames.filter(name => !newTagNames.includes(name));
+      for (const tagName of tagsToRemove) {
+        await placesApi.removeTag(selectedPlace.id, tagName);
+      }
+    } else {
+      // Create new place
+      await placesApi.create(data);
+    }
+    
     await loadData();
     setClickedCoords(null);
+    setSelectedPlace(null);
   };
 
   const handleTagSubmit = async (data: { name: string; description?: string }) => {
@@ -120,7 +147,7 @@ export function MapPage() {
     await loadData();
   };
 
-  const handleEventSubmit = async (data: any) => {
+  const handleEventSubmit = async (data: EventFormData) => {
     await eventsApi.create(data);
     await loadData();
     setSelectedTimeRange(null);
@@ -201,10 +228,12 @@ export function MapPage() {
         onClose={() => {
           setIsPlaceFormOpen(false);
           setClickedCoords(null);
-        }}
+          setSelectedPlace(null);
+          }}
         onSubmit={handlePlaceSubmit}
         tags={tags}
         initialData={clickedCoords}
+        editingPlace={selectedPlace}
       />
 
       <TagForm
