@@ -84,9 +84,9 @@ export function TimelinePanel({
         views={{
           timeGridThreeDay: {
             type: 'timeGrid',
-            duration: { days: 3 },
+            duration: { days: 2 },
             dateIncrement: { days: 1 },
-            buttonText: '3 days',
+            buttonText: '2 days',
           },
         }}
         events={calendarEvents}
@@ -121,6 +121,9 @@ export function TimelinePanel({
               <div className="fc-event-custom-content">
                 <div className="fc-event-time">{arg.timeText}</div>
                 <div className="fc-event-title">{arg.event.title}</div>
+                {event?.notes && (
+                  <div className="fc-event-notes">{event.notes}</div>
+                )}
               </div>
               <button
                 className="fc-event-edit-btn"
