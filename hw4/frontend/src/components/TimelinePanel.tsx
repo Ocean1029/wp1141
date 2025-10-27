@@ -46,12 +46,20 @@ export function TimelinePanel({
   }, [events, highlightedEventId]);
 
   useEffect(() => {
-    // Scroll to highlighted event
+    // Scroll to highlighted event without changing the view date
     if (highlightedEventId && calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const event = calendarApi.getEventById(highlightedEventId);
-      if (event) {
-        calendarApi.gotoDate(event.start!);
+      if (event && event.start) {
+        // Check if the event is within the current view
+        const currentStart = calendarApi.view.currentStart;
+        const currentEnd = calendarApi.view.currentEnd;
+        const eventDate = event.start;
+        
+        // Only navigate if the event is outside the current view
+        if (eventDate < currentStart || eventDate >= currentEnd) {
+          calendarApi.gotoDate(eventDate);
+        }
       }
     }
   }, [highlightedEventId]);
