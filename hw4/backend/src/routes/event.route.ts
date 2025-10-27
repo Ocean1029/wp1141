@@ -33,7 +33,7 @@ router.use(authGuard);
  *           type: string
  *           format: date-time
  *         description: Filter events ending before this time (ISO 8601)
- *         example: 2025-01-31T23:59:59Z
+ *         example: 2025-12-31T23:59:59Z
  *       - in: query
  *         name: placeId
  *         schema:
