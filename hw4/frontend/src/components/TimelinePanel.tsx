@@ -28,6 +28,7 @@ export function TimelinePanel({
   const calendarEvents = useMemo(() => {
     return events.map(event => {
       const isHighlighted = highlightedEventId === event.id;
+      
       return {
         id: event.id,
         title: event.title,
@@ -96,7 +97,12 @@ export function TimelinePanel({
         timeZone="local"
         slotMinTime="06:00:00"
         slotMaxTime="24:00:00"
+        slotDuration="00:15:00"
+        slotLabelInterval="01:00:00"
         allDaySlot={false}
+        forceEventDuration={true}
+        displayEventTime={true}
+        displayEventEnd={true}
         
         // Event handlers
         select={(info) => {
