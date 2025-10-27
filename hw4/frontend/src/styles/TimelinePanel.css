@@ -155,12 +155,63 @@
 .timeline-panel .fc-timegrid-event {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   margin: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   background: #f9fafb;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-panel .fc-event-custom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.timeline-panel .fc-event-custom-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-panel .fc-event-edit-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  color: #6b7280;
+}
+
+.timeline-panel .fc-timegrid-event:hover .fc-event-edit-btn {
+  opacity: 1;
+}
+
+.timeline-panel .fc-event-edit-btn:hover {
+  background: white;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-panel .highlighted-event .fc-event-edit-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #92400e;
+}
+
+.timeline-panel .highlighted-event .fc-event-edit-btn:hover {
+  background: white;
+  color: #78350f;
 }
 
 .timeline-panel .fc-timegrid-event:hover {
@@ -174,7 +225,7 @@
   color: #374151;
 }
 
-.timeline-panel .fc-timegrid-event .fc-event-time {
+.timeline-panel .fc-event-time {
   font-size: 0.6875rem;
   font-weight: 500;
   opacity: 0.7;
@@ -182,11 +233,14 @@
   color: #6b7280;
 }
 
-.timeline-panel .fc-timegrid-event .fc-event-title {
+.timeline-panel .fc-event-title {
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.4;
   color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ====== HIGHLIGHTED EVENT ====== */
@@ -206,12 +260,12 @@
   color: #92400e;
 }
 
-.timeline-panel .fc-timegrid-event.highlighted-event .fc-event-time {
+.timeline-panel .highlighted-event .fc-event-time {
   color: #b45309;
   opacity: 0.8;
 }
 
-.timeline-panel .fc-timegrid-event.highlighted-event .fc-event-title {
+.timeline-panel .highlighted-event .fc-event-title {
   color: #78350f;
 }
 

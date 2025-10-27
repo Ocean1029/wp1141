@@ -10,6 +10,7 @@ import '../styles/TimelinePanel.css';
 interface TimelinePanelProps {
   events: Event[];
   onEventClick?: (event: Event) => void;
+  onEventEdit?: (event: Event) => void;
   onDateSelect?: (start: Date, end: Date) => void;
   onEventDrop?: (eventId: string, start: Date, end: Date) => void;
   highlightedEventId?: string | null;
@@ -18,6 +19,7 @@ interface TimelinePanelProps {
 export function TimelinePanel({
   events,
   onEventClick,
+  onEventEdit,
   onDateSelect,
   onEventDrop,
   highlightedEventId,
@@ -109,6 +111,34 @@ export function TimelinePanel({
           if (onDateSelect) {
             onDateSelect(info.start, info.end);
           }
+        }}
+        eventContent={(arg) => {
+          const eventId = arg.event.id;
+          const event = events.find(e => e.id === eventId);
+          
+          return (
+            <div className="fc-event-custom">
+              <div className="fc-event-custom-content">
+                <div className="fc-event-time">{arg.timeText}</div>
+                <div className="fc-event-title">{arg.event.title}</div>
+              </div>
+              <button
+                className="fc-event-edit-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (event && onEventEdit) {
+                    onEventEdit(event);
+                  }
+                }}
+                title="Edit event"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            </div>
+          );
         }}
         eventClick={(info) => {
           const eventId = info.event.id;

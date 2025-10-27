@@ -36,6 +36,7 @@ export function MapPage() {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load initial data
@@ -113,6 +114,11 @@ export function MapPage() {
     }
   }, [places, highlightedEventId]);
 
+  const handleEventEdit = useCallback((event: Event) => {
+    setEditingEvent(event);
+    setIsEventFormOpen(true);
+  }, []);
+
   const handleDateSelect = useCallback((start: Date, end: Date) => {
     setSelectedTimeRange({ start, end });
     setIsEventFormOpen(true);
@@ -176,8 +182,20 @@ export function MapPage() {
   };
 
   const handleEventSubmit = async (data: EventFormData) => {
-    await eventsApi.create(data);
-    await loadData();
+    if (editingEvent) {
+      // Update existing event
+      const updatedEvent = await eventsApi.update(editingEvent.id, data);
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === editingEvent.id ? updatedEvent : event
+        )
+      );
+      setEditingEvent(null);
+    } else {
+      // Create new event
+      await eventsApi.create(data);
+      await loadData();
+    }
     setSelectedTimeRange(null);
   };
 
@@ -264,6 +282,7 @@ export function MapPage() {
             <TimelinePanel
               events={events}
               onEventClick={handleEventClick}
+              onEventEdit={handleEventEdit}
               onDateSelect={handleDateSelect}
               onEventDrop={handleEventDrop}
               highlightedEventId={highlightedEventId}
@@ -296,10 +315,12 @@ export function MapPage() {
         onClose={() => {
           setIsEventFormOpen(false);
           setSelectedTimeRange(null);
+          setEditingEvent(null);
         }}
         onSubmit={handleEventSubmit}
         places={places}
         initialTimeRange={selectedTimeRange}
+        editingEvent={editingEvent}
       />
     </div>
   );
