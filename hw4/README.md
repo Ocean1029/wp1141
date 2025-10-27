@@ -26,12 +26,21 @@ TripTimeline 是一個**結合地圖與時間軸的旅行管理應用**，讓使
 
 ## 4. 核心功能（Core Features）
 
+### 登入功能
+
+![Picture1.png](Picture1.png)
+
+後端用 JWT 實現登入。
+
 ### 地圖與標記管理（Places 系統）
 
 * 使用 Google Maps 顯示地圖
 * 新增地點（可以從地圖點擊或搜尋加入）
 * 每個地點必須至少有**一個 Tag**
 * 支援自訂分類（Tag）
+
+![Picture2.png](Picture2.png)
+![Picture3.png](Picture3.png)
 
 ### 行程管理（Events 系統）
 
@@ -40,10 +49,7 @@ TripTimeline 是一個**結合地圖與時間軸的旅行管理應用**，讓使
 * 行程與地點可關聯
 * 點擊行程可在地圖聚焦顯示相關地點
 
-### 授權管理（Auth）
-
-* Email/password 註冊登入
-* 支援 JWT + HttpOnly Cookies
+![Picture4.png](Picture4.png)
 
 ```
 使用者登入 → 進入地圖頁面 → 建立地點 → 依 Tag 分類呈現 → 建立行程 → 將地點加入行程 → 顯示地圖與時間軸連動
@@ -98,14 +104,45 @@ cp frontend/.env.example frontend/.env
 # 編輯並填入你的 Google Maps API 瀏覽器金鑰
 ```
 
-### 步驟二：啟動服務
+### 步驟二：產生假資料
+
+```bash
+make seed
+```
+
+服務會在資料庫產生：
+
+```
+👤 Creating demo user...
+  ✓ Demo user created: demo@example.com
+
+🏷️  Creating default tags...
+  ✓ Favorite tag created
+  ✓ Tag created: Food
+  ✓ Tag created: Sights
+  ✓ Tag created: Shopping
+
+📍 Creating demo places...
+  ✓ Place created: Din Tai Fung (Xinyi) (2 tags)
+  ✓ Place created: National Palace Museum (1 tags)
+
+📅 Creating demo events...
+  ✓ Event created: Lunch at Din Tai Fung (1 places)
+
+📊 Database Summary:
+  Users: 1
+  Tags: 5
+  Places: 8
+  Events: 9
+```
+
+### 步驟三：啟動服務
 
 ```bash
 make dev
 ```
 
-
-### 步驟三：訪問應用
+### 步驟四：訪問應用
 
 - 前端：http://localhost:5173
 - 後端 API：http://localhost:3000
