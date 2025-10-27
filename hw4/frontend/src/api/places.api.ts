@@ -6,11 +6,11 @@ export const placesApi = {
   /**
    * Get all places
    */
-  async getAll(params?: { search?: string; tagIds?: string[] }): Promise<Place[]> {
+  async getAll(params?: { search?: string; tagNames?: string[] }): Promise<Place[]> {
     const queryParams: any = {};
     if (params?.search) queryParams.search = params.search;
-    if (params?.tagIds && params.tagIds.length > 0) {
-      queryParams.tagIds = params.tagIds;
+    if (params?.tagNames && params.tagNames.length > 0) {
+      queryParams.tagNames = params.tagNames;
     }
     
     const response = await axiosClient.get<PlaceListResponse>('/api/places', { params: queryParams });
@@ -18,15 +18,15 @@ export const placesApi = {
   },
 
   /**
-   * Get place by ID
+   * Get place by Google Place ID
    */
   async getById(id: string): Promise<Place> {
-    const response = await axiosClient.get<PlaceResponse>(`/api/places/${id}`);
+    const response = await axiosClient.get<PlaceResponse>(`/api/places/${encodeURIComponent(id)}`);
     return response.data.data;
   },
 
   /**
-   * Create a new place
+   * Create a new place with Google Place ID
    */
   async create(data: PlaceFormData): Promise<Place> {
     const response = await axiosClient.post<PlaceResponse>('/api/places', data);
@@ -36,8 +36,8 @@ export const placesApi = {
   /**
    * Update a place
    */
-  async update(id: string, data: Partial<Omit<PlaceFormData, 'tags'>>): Promise<Place> {
-    const response = await axiosClient.patch<PlaceResponse>(`/api/places/${id}`, data);
+  async update(id: string, data: Partial<Omit<PlaceFormData, 'id' | 'tags'>>): Promise<Place> {
+    const response = await axiosClient.patch<PlaceResponse>(`/api/places/${encodeURIComponent(id)}`, data);
     return response.data.data;
   },
 
@@ -45,21 +45,21 @@ export const placesApi = {
    * Delete a place
    */
   async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/places/${id}`);
+    await axiosClient.delete(`/api/places/${encodeURIComponent(id)}`);
   },
 
   /**
    * Add a tag to a place
    */
-  async addTag(placeId: string, tagId: string): Promise<void> {
-    await axiosClient.post(`/api/places/${placeId}/tags/${tagId}`);
+  async addTag(placeId: string, tagName: string): Promise<void> {
+    await axiosClient.post(`/api/places/${encodeURIComponent(placeId)}/tags/${encodeURIComponent(tagName)}`);
   },
 
   /**
    * Remove a tag from a place
    */
-  async removeTag(placeId: string, tagId: string): Promise<void> {
-    await axiosClient.delete(`/api/places/${placeId}/tags/${tagId}`);
+  async removeTag(placeId: string, tagName: string): Promise<void> {
+    await axiosClient.delete(`/api/places/${encodeURIComponent(placeId)}/tags/${encodeURIComponent(tagName)}`);
   },
 };
 

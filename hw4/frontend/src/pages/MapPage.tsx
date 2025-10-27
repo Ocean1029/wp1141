@@ -22,7 +22,7 @@ export function MapPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   
   // Filter states
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   
   // UI states
@@ -39,15 +39,15 @@ export function MapPage() {
 
   // Apply tag filter
   useEffect(() => {
-    if (selectedTagIds.length === 0) {
+    if (selectedTagNames.length === 0) {
       setFilteredPlaces(places);
     } else {
       const filtered = places.filter(place =>
-        place.tags.some(pt => selectedTagIds.includes(pt.tag.id))
+        place.tags.some(tag => selectedTagNames.includes(tag.name))
       );
       setFilteredPlaces(filtered);
     }
-  }, [places, selectedTagIds]);
+  }, [places, selectedTagNames]);
 
   const loadData = async () => {
     try {
@@ -109,11 +109,11 @@ export function MapPage() {
     setClickedCoords(null);
   };
 
-  const handleTagToggle = (tagId: string) => {
-    setSelectedTagIds(prev =>
-      prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
+  const handleTagToggle = (tagName: string) => {
+    setSelectedTagNames(prev =>
+      prev.includes(tagName)
+        ? prev.filter(name => name !== tagName)
+        : [...prev, tagName]
     );
   };
 
@@ -149,9 +149,9 @@ export function MapPage() {
         <aside className="map-page__sidebar">
           <TagFilterBar
             tags={tags}
-            selectedTagIds={selectedTagIds}
+            selectedTagIds={selectedTagNames}
             onTagToggle={handleTagToggle}
-            onClearAll={() => setSelectedTagIds([])}
+            onClearAll={() => setSelectedTagNames([])}
             onCreateTag={() => console.log('Create tag')}
           />
         </aside>

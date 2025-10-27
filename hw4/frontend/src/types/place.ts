@@ -1,6 +1,6 @@
 // Place type definitions
 export interface Place {
-  id: string;
+  id: string; // Google Place ID
   title: string;
   lat: number;
   lng: number;
@@ -16,23 +16,18 @@ export interface Place {
 }
 
 export interface PlaceTag {
-  id: string;
-  placeId: string;
-  tagId: string;
-  tag: {
-    id: string;
-    name: string;
-    description: string | null;
-  };
+  name: string;
+  description: string | null;
 }
 
 export interface PlaceFormData {
+  id: string; // Google Place ID (required)
   title: string;
   lat: number;
   lng: number;
   address?: string;
   notes?: string;
-  tags: string[]; // Tag IDs
+  tags: string[]; // Tag names (not IDs)
 }
 
 export interface PlaceListResponse {

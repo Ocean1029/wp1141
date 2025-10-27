@@ -1,9 +1,7 @@
 // Tag type definitions
 export interface Tag {
-  id: string;
-  name: string;
+  name: string; // Primary key (with userId)
   description: string | null;
-  createdBy: string;
   createdAt: string;
   updatedAt: string;
   _count?: {

@@ -25,12 +25,20 @@ export function MapCanvas({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('[MapCanvas] Component rendered, isLoading:', isLoading, 'error:', error);
+
   // Initialize map
   useEffect(() => {
+    console.log('[MapCanvas] useEffect triggered, mapRef.current:', !!mapRef.current);
     const initMap = async () => {
-      if (!mapRef.current) return;
+      if (!mapRef.current) {
+        console.log('[MapCanvas] mapRef.current is null, skipping initialization');
+        return;
+      }
 
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      
+      console.log('[MapCanvas] Initializing map with API key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'MISSING');
       
       if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
         setError('Google Maps API key not configured. Please set VITE_GOOGLE_MAPS_API_KEY in .env');
@@ -39,13 +47,16 @@ export function MapCanvas({
       }
 
       try {
+        console.log('[MapCanvas] Creating Google Maps Loader...');
         const loader = new Loader({
           apiKey,
           version: 'weekly',
           libraries: ['places'],
         });
 
+        console.log('[MapCanvas] Loading Google Maps API...');
         await loader.load();
+        console.log('[MapCanvas] Google Maps API loaded successfully');
 
         const mapInstance = new google.maps.Map(mapRef.current, {
           center: { lat: 25.0330, lng: 121.5654 }, // Taipei default
@@ -54,6 +65,7 @@ export function MapCanvas({
           fullscreenControl: true,
           streetViewControl: true,
         });
+        console.log('[MapCanvas] Map instance created');
 
         // Add click listener
         if (onMapClick) {
@@ -66,9 +78,11 @@ export function MapCanvas({
 
         setMap(mapInstance);
         setIsLoading(false);
+        console.log('[MapCanvas] Map initialization complete');
       } catch (err: any) {
-        console.error('Error loading Google Maps:', err);
-        setError('Failed to load Google Maps');
+        console.error('[MapCanvas] Error loading Google Maps:', err);
+        console.error('[MapCanvas] Error details:', err.message, err.stack);
+        setError(`Failed to load Google Maps: ${err.message || 'Unknown error'}`);
         setIsLoading(false);
       }
     };
@@ -134,36 +148,38 @@ export function MapCanvas({
     }
   }, [map, selectedPlace, highlightedPlaceId, markers, places]);
 
-  if (isLoading) {
-    return (
-      <div className="map-canvas map-canvas--loading">
-        <div className="map-loading">
-          <div className="spinner"></div>
-          <p>Loading map...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="map-canvas map-canvas--error">
-        <div className="map-error">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-            <line x1="12" y1="8" x2="12" y2="12" strokeWidth="2"/>
-            <line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2"/>
-          </svg>
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="map-canvas">
-      <div ref={mapRef} className="map-canvas__container" />
-      {places.length === 0 && (
+      {/* Always render the map container so ref is available */}
+      <div 
+        ref={mapRef} 
+        className="map-canvas__container"
+        style={{ display: isLoading || error ? 'none' : 'block' }}
+      />
+      
+      {isLoading && (
+        <div className="map-canvas__overlay map-canvas--loading">
+          <div className="map-loading">
+            <div className="spinner"></div>
+            <p>Loading map...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="map-canvas__overlay map-canvas--error">
+          <div className="map-error">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+              <line x1="12" y1="8" x2="12" y2="12" strokeWidth="2"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="2"/>
+            </svg>
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
+
+      {!isLoading && !error && places.length === 0 && (
         <div className="map-overlay">
           <div className="map-hint">
             <p>Click on the map to add a place</p>

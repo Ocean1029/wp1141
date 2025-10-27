@@ -13,10 +13,10 @@ export const tagsApi = {
   },
 
   /**
-   * Get tag by ID
+   * Get tag by name
    */
-  async getById(id: string): Promise<Tag> {
-    const response = await axiosClient.get<TagResponse>(`/api/tags/${id}`);
+  async getByName(name: string): Promise<Tag> {
+    const response = await axiosClient.get<TagResponse>(`/api/tags/${encodeURIComponent(name)}`);
     return response.data.data;
   },
 
@@ -31,16 +31,16 @@ export const tagsApi = {
   /**
    * Update a tag
    */
-  async update(id: string, data: Partial<TagFormData>): Promise<Tag> {
-    const response = await axiosClient.patch<TagResponse>(`/api/tags/${id}`, data);
+  async update(name: string, data: Partial<TagFormData>): Promise<Tag> {
+    const response = await axiosClient.patch<TagResponse>(`/api/tags/${encodeURIComponent(name)}`, data);
     return response.data.data;
   },
 
   /**
    * Delete a tag
    */
-  async delete(id: string): Promise<void> {
-    await axiosClient.delete(`/api/tags/${id}`);
+  async delete(name: string): Promise<void> {
+    await axiosClient.delete(`/api/tags/${encodeURIComponent(name)}`);
   },
 };
 

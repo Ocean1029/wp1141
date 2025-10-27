@@ -5,8 +5,8 @@ import '../styles/TagFilterBar.css';
 
 interface TagFilterBarProps {
   tags: Tag[];
-  selectedTagIds: string[];
-  onTagToggle: (tagId: string) => void;
+  selectedTagIds: string[]; // Now contains tag names
+  onTagToggle: (tagName: string) => void;
   onClearAll: () => void;
   onCreateTag: () => void;
 }
@@ -67,11 +67,11 @@ export function TagFilterBar({
           ) : (
             <div className="tag-filter-bar__list">
               {tags.map(tag => {
-                const isSelected = selectedTagIds.includes(tag.id);
+                const isSelected = selectedTagIds.includes(tag.name);
                 return (
                   <button
-                    key={tag.id}
-                    onClick={() => onTagToggle(tag.id)}
+                    key={tag.name}
+                    onClick={() => onTagToggle(tag.name)}
                     className={`tag-filter-bar__tag ${isSelected ? 'tag-filter-bar__tag--selected' : ''}`}
                   >
                     <div className="tag-filter-bar__tag-info">

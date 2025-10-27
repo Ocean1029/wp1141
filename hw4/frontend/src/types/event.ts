@@ -14,9 +14,9 @@ export interface Event {
 export interface EventPlace {
   id: string;
   eventId: string;
-  placeId: string;
+  placeId: string; // Google Place ID
   place: {
-    id: string;
+    id: string; // Google Place ID
     title: string;
     lat: number;
     lng: number;
@@ -29,7 +29,7 @@ export interface EventFormData {
   startTime: string; // ISO 8601 format
   endTime: string;   // ISO 8601 format
   notes?: string;
-  placeIds?: string[];
+  placeIds?: string[]; // Google Place IDs
 }
 
 export interface EventListResponse {

@@ -12,12 +12,17 @@
   height: 100%;
 }
 
-.map-canvas--loading,
-.map-canvas--error {
+.map-canvas__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f3f4f6;
+  z-index: 1000;
 }
 
 .map-loading,
