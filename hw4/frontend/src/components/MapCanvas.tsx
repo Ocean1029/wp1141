@@ -25,20 +25,14 @@ export function MapCanvas({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('[MapCanvas] Component rendered, isLoading:', isLoading, 'error:', error);
-
   // Initialize map
   useEffect(() => {
-    console.log('[MapCanvas] useEffect triggered, mapRef.current:', !!mapRef.current);
     const initMap = async () => {
       if (!mapRef.current) {
-        console.log('[MapCanvas] mapRef.current is null, skipping initialization');
         return;
       }
 
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      
-      console.log('[MapCanvas] Initializing map with API key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'MISSING');
       
       if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
         setError('Google Maps API key not configured. Please set VITE_GOOGLE_MAPS_API_KEY in .env');
@@ -47,16 +41,13 @@ export function MapCanvas({
       }
 
       try {
-        console.log('[MapCanvas] Creating Google Maps Loader...');
         const loader = new Loader({
           apiKey,
           version: 'weekly',
           libraries: ['places'],
         });
 
-        console.log('[MapCanvas] Loading Google Maps API...');
         await loader.load();
-        console.log('[MapCanvas] Google Maps API loaded successfully');
 
         const mapInstance = new google.maps.Map(mapRef.current, {
           center: { lat: 25.0330, lng: 121.5654 }, // Taipei default
@@ -65,7 +56,6 @@ export function MapCanvas({
           fullscreenControl: true,
           streetViewControl: true,
         });
-        console.log('[MapCanvas] Map instance created');
 
         // Add click listener
         if (onMapClick) {
@@ -78,10 +68,8 @@ export function MapCanvas({
 
         setMap(mapInstance);
         setIsLoading(false);
-        console.log('[MapCanvas] Map initialization complete');
       } catch (err: any) {
-        console.error('[MapCanvas] Error loading Google Maps:', err);
-        console.error('[MapCanvas] Error details:', err.message, err.stack);
+        console.error('Error loading Google Maps:', err);
         setError(`Failed to load Google Maps: ${err.message || 'Unknown error'}`);
         setIsLoading(false);
       }

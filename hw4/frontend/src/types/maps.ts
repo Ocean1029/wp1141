@@ -17,6 +17,20 @@ export interface PlaceSearchResult {
   rating?: number;
 }
 
+export interface PlaceDetails {
+  name: string;
+  formatted_address: string;
+  place_id: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  rating?: number;
+  types?: string[];
+}
+
 export interface GeocodeResponse {
   success: boolean;
   count?: number;
@@ -28,6 +42,12 @@ export interface PlacesSearchResponse {
   success: boolean;
   count?: number;
   data?: PlaceSearchResult[];
+  error?: string;
+}
+
+export interface PlaceDetailsResponse {
+  success: boolean;
+  data?: PlaceDetails;
   error?: string;
 }
 

@@ -4,6 +4,7 @@ import { MapCanvas } from '../components/MapCanvas';
 import { TimelinePanel } from '../components/TimelinePanel';
 import { TagFilterBar } from '../components/TagFilterBar';
 import { PlaceForm } from '../components/PlaceForm';
+import { TagForm } from '../components/TagForm';
 import { useAuth } from '../hooks/useAuth';
 import { placesApi } from '../api/places.api';
 import { eventsApi } from '../api/events.api';
@@ -27,6 +28,7 @@ export function MapPage() {
   
   // UI states
   const [isPlaceFormOpen, setIsPlaceFormOpen] = useState(false);
+  const [isTagFormOpen, setIsTagFormOpen] = useState(false);
   const [clickedCoords, setClickedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
@@ -109,6 +111,11 @@ export function MapPage() {
     setClickedCoords(null);
   };
 
+  const handleTagSubmit = async (data: { name: string; description?: string }) => {
+    await tagsApi.create(data);
+    await loadData();
+  };
+
   const handleTagToggle = (tagName: string) => {
     setSelectedTagNames(prev =>
       prev.includes(tagName)
@@ -152,7 +159,7 @@ export function MapPage() {
             selectedTagIds={selectedTagNames}
             onTagToggle={handleTagToggle}
             onClearAll={() => setSelectedTagNames([])}
-            onCreateTag={() => console.log('Create tag')}
+            onCreateTag={() => setIsTagFormOpen(true)}
           />
         </aside>
 
@@ -188,6 +195,12 @@ export function MapPage() {
         onSubmit={handlePlaceSubmit}
         tags={tags}
         initialData={clickedCoords}
+      />
+
+      <TagForm
+        isOpen={isTagFormOpen}
+        onClose={() => setIsTagFormOpen(false)}
+        onSubmit={handleTagSubmit}
       />
     </div>
   );
