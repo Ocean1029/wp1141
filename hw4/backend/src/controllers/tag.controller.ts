@@ -26,10 +26,10 @@ export class TagController {
   }
 
   /**
-   * GET /api/tags/:id
-   * Get tag by ID
+   * GET /api/tags/:name
+   * Get tag by name
    */
-  async getTagById(req: Request, res: Response) {
+  async getTagByName(req: Request, res: Response) {
     if (!(req as any).user) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         error: { code: 'UNAUTHORIZED', message: 'Authentication required' },
@@ -37,7 +37,7 @@ export class TagController {
       return;
     }
 
-    const tag = await tagService.getTagById(req.params.id, (req as any).user.userId);
+    const tag = await tagService.getTagByName(req.params.name, (req as any).user.userId);
 
     res.json({
       success: true,
@@ -67,7 +67,7 @@ export class TagController {
   }
 
   /**
-   * PATCH /api/tags/:id
+   * PATCH /api/tags/:name
    * Update a tag
    */
   async updateTag(req: Request, res: Response) {
@@ -78,7 +78,7 @@ export class TagController {
       return;
     }
 
-    const tag = await tagService.updateTag(req.params.id, req.body, (req as any).user.userId);
+    const tag = await tagService.updateTag(req.params.name, req.body, (req as any).user.userId);
 
     res.json({
       success: true,
@@ -88,7 +88,7 @@ export class TagController {
   }
 
   /**
-   * DELETE /api/tags/:id
+   * DELETE /api/tags/:name
    * Delete a tag (validates place invariant)
    */
   async deleteTag(req: Request, res: Response) {
@@ -99,7 +99,7 @@ export class TagController {
       return;
     }
 
-    await tagService.deleteTag(req.params.id, (req as any).user.userId);
+    await tagService.deleteTag(req.params.name, (req as any).user.userId);
 
     res.json({
       success: true,

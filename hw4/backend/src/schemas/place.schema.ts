@@ -8,7 +8,7 @@ export const createPlaceSchema = z.object({
   lng: z.number().min(-180).max(180, 'Longitude must be between -180 and 180'),
   address: z.string().optional(),
   notes: z.string().optional(),
-  tags: z.array(z.string().uuid('Invalid tag ID')).min(1, 'At least one tag is required'),
+  tags: z.array(z.string().min(1, 'Tag name is required').max(100, 'Tag name too long')).min(1, 'At least one tag is required'),
 });
 
 export const updatePlaceSchema = z.object({
@@ -21,9 +21,9 @@ export const updatePlaceSchema = z.object({
 
 export const placeQuerySchema = z.object({
   search: z.string().optional(),
-  tagIds: z.union([
-    z.string().uuid(),
-    z.array(z.string().uuid())
+  tagNames: z.union([
+    z.string().min(1),
+    z.array(z.string().min(1))
   ]).optional().transform(val => {
     if (!val) return undefined;
     return Array.isArray(val) ? val : [val];
@@ -31,7 +31,7 @@ export const placeQuerySchema = z.object({
 });
 
 export const addTagToPlaceSchema = z.object({
-  tagId: z.string().uuid('Invalid tag ID'),
+  tagName: z.string().min(1, 'Tag name is required').max(100, 'Tag name too long'),
 });
 
 export type CreatePlaceDto = z.infer<typeof createPlaceSchema>;

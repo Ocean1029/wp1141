@@ -39,26 +39,26 @@ router.get(
 
 /**
  * @swagger
- * /api/tags/{id}:
+ * /api/tags/{name}:
  *   get:
- *     summary: Get tag by ID
+ *     summary: Get tag by name
  *     tags: [Tags]
  *     security:
  *       - cookieAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         description: Tag ID
+ *         description: Tag name
  *     responses:
  *       200:
  *         description: Tag details
  *       404:
  *         description: Tag not found
  */
-router.get('/:id', asyncHandler(tagController.getTagById.bind(tagController)));
+router.get('/:name', asyncHandler(tagController.getTagByName.bind(tagController)));
 
 /**
  * @swagger
@@ -79,10 +79,10 @@ router.get('/:id', asyncHandler(tagController.getTagById.bind(tagController)));
  *             properties:
  *               name:
  *                 type: string
- *                 example: Food
+ *                 example: Accommodation
  *               description:
  *                 type: string
- *                 example: Restaurants and cafes
+ *                 example: Hotels and accommodations
  *     responses:
  *       201:
  *         description: Tag created successfully
@@ -97,7 +97,7 @@ router.post(
 
 /**
  * @swagger
- * /api/tags/{id}:
+ * /api/tags/{name}:
  *   patch:
  *     summary: Update a tag
  *     tags: [Tags]
@@ -105,11 +105,11 @@ router.post(
  *       - cookieAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         description: Tag ID
+ *         description: Tag name
  *     requestBody:
  *       required: true
  *       content:
@@ -128,14 +128,14 @@ router.post(
  *         description: Tag not found
  */
 router.patch(
-  '/:id',
+  '/:name',
   validate(updateTagSchema, 'body'),
   asyncHandler(tagController.updateTag.bind(tagController))
 );
 
 /**
  * @swagger
- * /api/tags/{id}:
+ * /api/tags/{name}:
  *   delete:
  *     summary: Delete a tag
  *     description: Deletes a tag. Will fail if any places would be left without tags.
@@ -144,18 +144,18 @@ router.patch(
  *       - cookieAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         description: Tag ID
+ *         description: Tag name
  *     responses:
  *       200:
  *         description: Tag deleted successfully
  *       422:
  *         description: Cannot delete - places would be left without tags
  */
-router.delete('/:id', asyncHandler(tagController.deleteTag.bind(tagController)));
+router.delete('/:name', asyncHandler(tagController.deleteTag.bind(tagController)));
 
 export default router;
 

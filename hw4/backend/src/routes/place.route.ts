@@ -26,15 +26,15 @@ router.use(authGuard);
  *           type: string
  *         description: Search places by title, address, or notes
  *       - in: query
- *         name: tagIds
+ *         name: tagNames
  *         schema:
  *           oneOf:
  *             - type: string
  *             - type: array
  *               items:
  *                 type: string
- *         description: Filter by tag IDs (single ID or array)
- *         example: ["tag-id-1", "tag-id-2"]
+ *         description: Filter by tag names (single name or array)
+ *         example: ["Food", "Sights"]
  *     responses:
  *       200:
  *         description: List of places
@@ -49,7 +49,7 @@ router.get(
  * @swagger
  * /api/places/{id}:
  *   get:
- *     summary: Get place by ID
+ *     summary: Get place by Google Place ID
  *     tags: [Places]
  *     security:
  *       - cookieAuth: []
@@ -59,7 +59,8 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
- *         description: Place ID
+ *         description: Google Place ID
+ *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
  *     responses:
  *       200:
  *         description: Place details with tags and events
@@ -73,6 +74,7 @@ router.get('/:id', asyncHandler(placeController.getPlaceById.bind(placeControlle
  * /api/places:
  *   post:
  *     summary: Create a new place
+ *     description: Creates a place using Google Place ID as the primary key
  *     tags: [Places]
  *     security:
  *       - cookieAuth: []
@@ -83,11 +85,16 @@ router.get('/:id', asyncHandler(placeController.getPlaceById.bind(placeControlle
  *           schema:
  *             type: object
  *             required:
+ *               - id
  *               - title
  *               - lat
  *               - lng
  *               - tags
  *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Google Place ID (used as primary key)
+ *                 example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
  *               title:
  *                 type: string
  *                 example: Taipei 101
@@ -108,13 +115,15 @@ router.get('/:id', asyncHandler(placeController.getPlaceById.bind(placeControlle
  *                 items:
  *                   type: string
  *                 minItems: 1
- *                 description: At least one tag is required
- *                 example: ["tag-id-1", "tag-id-2"]
+ *                 description: Tag names (at least one required, tags must exist)
+ *                 example: ["Favorite", "Sights"]
  *     responses:
  *       201:
  *         description: Place created successfully
  *       400:
- *         description: Validation error (missing tags or invalid data)
+ *         description: Validation error (missing required fields or invalid data)
+ *       404:
+ *         description: One or more tags not found
  */
 router.post(
   '/',
@@ -127,6 +136,7 @@ router.post(
  * /api/places/{id}:
  *   patch:
  *     summary: Update a place
+ *     description: Update place details (cannot change Place ID or tags via this endpoint)
  *     tags: [Places]
  *     security:
  *       - cookieAuth: []
@@ -136,7 +146,8 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
- *         description: Place ID
+ *         description: Google Place ID
+ *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
  *     requestBody:
  *       required: true
  *       content:
@@ -146,10 +157,13 @@ router.post(
  *             properties:
  *               title:
  *                 type: string
+ *                 example: Taipei 101 Observatory
  *               lat:
  *                 type: number
+ *                 example: 25.0330
  *               lng:
  *                 type: number
+ *                 example: 121.5654
  *               address:
  *                 type: string
  *               notes:
@@ -180,7 +194,8 @@ router.patch(
  *         required: true
  *         schema:
  *           type: string
- *         description: Place ID
+ *         description: Google Place ID
+ *         example: ChIJJ5eIcCqpQjQROgRLBhQBw7U
  *     responses:
  *       200:
  *         description: Place deleted successfully
@@ -191,7 +206,7 @@ router.delete('/:id', asyncHandler(placeController.deletePlace.bind(placeControl
 
 /**
  * @swagger
- * /api/places/{id}/tags/{tagId}:
+ * /api/places/{id}/tags/{tagName}:
  *   post:
  *     summary: Add a tag to a place
  *     tags: [Places]
@@ -205,20 +220,20 @@ router.delete('/:id', asyncHandler(placeController.deletePlace.bind(placeControl
  *           type: string
  *         description: Place ID
  *       - in: path
- *         name: tagId
+ *         name: tagName
  *         required: true
  *         schema:
  *           type: string
- *         description: Tag ID
+ *         description: Tag name
  *     responses:
  *       200:
  *         description: Tag added successfully
  */
-router.post('/:id/tags/:tagId', asyncHandler(placeController.addTagToPlace.bind(placeController)));
+router.post('/:id/tags/:tagName', asyncHandler(placeController.addTagToPlace.bind(placeController)));
 
 /**
  * @swagger
- * /api/places/{id}/tags/{tagId}:
+ * /api/places/{id}/tags/{tagName}:
  *   delete:
  *     summary: Remove a tag from a place
  *     description: Removes a tag. Will fail if place would be left without tags.
@@ -233,18 +248,18 @@ router.post('/:id/tags/:tagId', asyncHandler(placeController.addTagToPlace.bind(
  *           type: string
  *         description: Place ID
  *       - in: path
- *         name: tagId
+ *         name: tagName
  *         required: true
  *         schema:
  *           type: string
- *         description: Tag ID
+ *         description: Tag name
  *     responses:
  *       200:
  *         description: Tag removed successfully
  *       422:
  *         description: Cannot remove - place must have at least one tag
  */
-router.delete('/:id/tags/:tagId', asyncHandler(placeController.removeTagFromPlace.bind(placeController)));
+router.delete('/:id/tags/:tagName', asyncHandler(placeController.removeTagFromPlace.bind(placeController)));
 
 export default router;
 

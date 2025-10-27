@@ -30,10 +30,9 @@ model User {
 
 // User-defined tags for places
 model Tag {
-  id          String   @id @default(uuid()) @db.Uuid
+  createdBy   String   @map("created_by") @db.Uuid
   name        String   @db.VarChar(100)
   description String?  @db.Text
-  createdBy   String   @map("created_by") @db.Uuid
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -41,8 +40,7 @@ model Tag {
   user   User       @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   places PlaceTag[]
 
-  @@unique([createdBy, name])
-  @@index([createdBy])
+  @@id([createdBy, name])
   @@map("tags")
 }
 
@@ -70,17 +68,18 @@ model Place {
 
 // Many-to-Many: Place <-> Tag
 model PlaceTag {
-  id      String @id @default(uuid()) @db.Uuid
-  placeId String @map("place_id")
-  tagId   String @map("tag_id") @db.Uuid
+  id            String @id @default(uuid()) @db.Uuid
+  placeId       String @map("place_id")
+  tagCreatedBy  String @map("tag_created_by") @db.Uuid
+  tagName       String @map("tag_name") @db.VarChar(100)
 
   // Relations
   place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
-  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagCreatedBy, tagName], references: [createdBy, name], onDelete: Cascade)
 
-  @@unique([placeId, tagId])
+  @@unique([placeId, tagCreatedBy, tagName])
   @@index([placeId])
-  @@index([tagId])
+  @@index([tagCreatedBy, tagName])
   @@map("place_tags")
 }
 

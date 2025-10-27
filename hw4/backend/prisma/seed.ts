@@ -68,14 +68,6 @@ async function main() {
       console.log(`  ✓ Tag created: ${tag.name}`);
     }
 
-    // Get all tags for creating places
-    const allTags = await prisma.tag.findMany({
-      where: { createdBy: demoUser.id },
-    });
-
-    const foodTag = allTags.find(t => t.name === 'Food');
-    const sightsTag = allTags.find(t => t.name === 'Sights');
-
     // Create demo places
     console.log('\n📍 Creating demo places...');
 
@@ -87,7 +79,7 @@ async function main() {
         lng: 121.5654,
         address: 'No. 7, Section 5, Xinyi Road, Xinyi District, Taipei City, Taiwan',
         notes: 'Iconic skyscraper with observation deck',
-        tagIds: [sightsTag!.id, favoriteTag.id],
+        tagNames: ['Sights', 'Favorite'],
       },
       {
         id: 'ChIJaXPV9ZSyjogRP2jKp2mopF4', // Example Google Place ID for Din Tai Fung
@@ -96,7 +88,7 @@ async function main() {
         lng: 121.5645,
         address: 'Basement, No. 11, Lane 8, Section 5, Xinyi Road, Xinyi District',
         notes: 'Famous xiaolongbao restaurant',
-        tagIds: [foodTag!.id, favoriteTag.id],
+        tagNames: ['Food', 'Favorite'],
       },
       {
         id: 'ChIJl8D1EepqpogRu4XN9F9l7o8', // Example Google Place ID for Palace Museum
@@ -105,12 +97,12 @@ async function main() {
         lng: 121.5485,
         address: 'No. 221, Section 2, Zhishan Road, Shilin District, Taipei City',
         notes: 'Museum with Chinese imperial artifacts',
-        tagIds: [sightsTag!.id],
+        tagNames: ['Sights'],
       },
     ];
 
     for (const placeData of places) {
-      const { tagIds, ...placeInfo } = placeData;
+      const { tagNames, ...placeInfo } = placeData;
       
       const place = await prisma.place.upsert({
         where: { id: placeInfo.id },
@@ -118,9 +110,14 @@ async function main() {
           ...placeInfo,
           tags: {
             deleteMany: {},
-            create: tagIds.map(tagId => ({
+            create: tagNames.map(tagName => ({
               tag: {
-                connect: { id: tagId },
+                connect: {
+                  createdBy_name: {
+                    createdBy: demoUser.id,
+                    name: tagName,
+                  },
+                },
               },
             })),
           },
@@ -129,9 +126,14 @@ async function main() {
           ...placeInfo,
           createdBy: demoUser.id,
           tags: {
-            create: tagIds.map(tagId => ({
+            create: tagNames.map(tagName => ({
               tag: {
-                connect: { id: tagId },
+                connect: {
+                  createdBy_name: {
+                    createdBy: demoUser.id,
+                    name: tagName,
+                  },
+                },
               },
             })),
           },
@@ -159,13 +161,6 @@ async function main() {
     const dintaifung = allPlaces.find(p => p.title.includes('Din Tai Fung'));
 
     const events = [
-      {
-        title: 'Visit Taipei 101',
-        startTime: new Date('2025-02-01T09:00:00Z'),
-        endTime: new Date('2025-02-01T11:00:00Z'),
-        notes: 'Visit observatory and mall',
-        placeIds: taipei101 ? [taipei101.id] : [],
-      },
       {
         title: 'Lunch at Din Tai Fung',
         startTime: new Date('2025-02-01T12:00:00Z'),

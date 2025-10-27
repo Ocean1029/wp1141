@@ -3,6 +3,14 @@ import prisma from '../utils/prisma';
 import { NotFoundError, ForbiddenError, InvariantViolationError } from '../types/errors';
 import type { CreatePlaceDto, UpdatePlaceDto, PlaceQueryDto } from '../schemas/place.schema';
 
+// Helper function to transform place with tags
+function transformPlace(place: any) {
+  return {
+    ...place,
+    tags: place.tags?.map((pt: any) => pt.tag) || [],
+  };
+}
+
 export class PlaceService {
   /**
    * Get all places for a user with optional filtering
@@ -13,11 +21,14 @@ export class PlaceService {
     };
 
     // Filter by tags if provided
-    if (query.tagIds && query.tagIds.length > 0) {
+    if (query.tagNames && query.tagNames.length > 0) {
       where.tags = {
         some: {
-          tagId: {
-            in: query.tagIds,
+          tag: {
+            createdBy: userId,
+            name: {
+              in: query.tagNames,
+            },
           },
         },
       };
@@ -32,14 +43,13 @@ export class PlaceService {
       ];
     }
 
-    return prisma.place.findMany({
+    const places = await prisma.place.findMany({
       where,
       include: {
         tags: {
           include: {
             tag: {
               select: {
-                id: true,
                 name: true,
                 description: true,
               },
@@ -56,6 +66,8 @@ export class PlaceService {
         createdAt: 'desc',
       },
     });
+
+    return places.map(transformPlace);
   }
 
   /**
@@ -69,7 +81,7 @@ export class PlaceService {
           include: {
             tag: {
               select: {
-                id: true,
+                createdBy: true,
                 name: true,
                 description: true,
               },
@@ -99,7 +111,7 @@ export class PlaceService {
       throw new ForbiddenError('You do not have access to this place');
     }
 
-    return place;
+    return transformPlace(place);
   }
 
   /**
@@ -110,8 +122,8 @@ export class PlaceService {
     // Verify all tags exist and belong to user
     const tags = await prisma.tag.findMany({
       where: {
-        id: { in: data.tags },
         createdBy: userId,
+        name: { in: data.tags },
       },
     });
 
@@ -120,7 +132,7 @@ export class PlaceService {
     }
 
     // Create place with tag associations
-    return prisma.place.create({
+    const place = await prisma.place.create({
       data: {
         id: data.id, // Google Place ID
         title: data.title,
@@ -130,9 +142,14 @@ export class PlaceService {
         notes: data.notes,
         createdBy: userId,
         tags: {
-          create: data.tags.map(tagId => ({
+          create: data.tags.map(tagName => ({
             tag: {
-              connect: { id: tagId },
+              connect: {
+                createdBy_name: {
+                  createdBy: userId,
+                  name: tagName,
+                },
+              },
             },
           })),
         },
@@ -142,7 +159,6 @@ export class PlaceService {
           include: {
             tag: {
               select: {
-                id: true,
                 name: true,
                 description: true,
               },
@@ -151,6 +167,8 @@ export class PlaceService {
         },
       },
     });
+
+    return transformPlace(place);
   }
 
   /**
@@ -170,7 +188,7 @@ export class PlaceService {
       throw new ForbiddenError('You do not have access to this place');
     }
 
-    return prisma.place.update({
+    const updatedPlace = await prisma.place.update({
       where: { id },
       data,
       include: {
@@ -178,7 +196,6 @@ export class PlaceService {
           include: {
             tag: {
               select: {
-                id: true,
                 name: true,
                 description: true,
               },
@@ -187,6 +204,8 @@ export class PlaceService {
         },
       },
     });
+
+    return transformPlace(updatedPlace);
   }
 
   /**
@@ -215,7 +234,7 @@ export class PlaceService {
   /**
    * Add a tag to a place
    */
-  async addTagToPlace(placeId: string, tagId: string, userId: string) {
+  async addTagToPlace(placeId: string, tagName: string, userId: string) {
     // Verify place exists and belongs to user
     const place = await prisma.place.findUnique({
       where: { id: placeId },
@@ -231,22 +250,26 @@ export class PlaceService {
 
     // Verify tag exists and belongs to user
     const tag = await prisma.tag.findUnique({
-      where: { id: tagId },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name: tagName,
+        },
+      },
     });
 
     if (!tag) {
       throw new NotFoundError('Tag');
     }
 
-    if (tag.createdBy !== userId) {
-      throw new ForbiddenError('You do not have access to this tag');
-    }
-
     // Check if association already exists
     const existing = await prisma.placeTag.findFirst({
       where: {
         placeId,
-        tagId,
+        tag: {
+          createdBy: userId,
+          name: tagName,
+        },
       },
     });
 
@@ -257,8 +280,17 @@ export class PlaceService {
     // Create association
     return prisma.placeTag.create({
       data: {
-        placeId,
-        tagId,
+        place: {
+          connect: { id: placeId },
+        },
+        tag: {
+          connect: {
+            createdBy_name: {
+              createdBy: userId,
+              name: tagName,
+            },
+          },
+        },
       },
     });
   }
@@ -267,7 +299,7 @@ export class PlaceService {
    * Remove a tag from a place
    * Validates invariant: place must have at least one tag
    */
-  async removeTagFromPlace(placeId: string, tagId: string, userId: string) {
+  async removeTagFromPlace(placeId: string, tagName: string, userId: string) {
     // Verify place exists and belongs to user
     const place = await prisma.place.findUnique({
       where: { id: placeId },
@@ -300,7 +332,10 @@ export class PlaceService {
     const association = await prisma.placeTag.findFirst({
       where: {
         placeId,
-        tagId,
+        tag: {
+          createdBy: userId,
+          name: tagName,
+        },
       },
     });
 

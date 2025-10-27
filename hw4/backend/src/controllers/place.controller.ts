@@ -108,7 +108,7 @@ export class PlaceController {
   }
 
   /**
-   * POST /api/places/:id/tags/:tagId
+   * POST /api/places/:id/tags/:tagName
    * Add a tag to a place
    */
   async addTagToPlace(req: Request, res: Response) {
@@ -121,7 +121,7 @@ export class PlaceController {
 
     await placeService.addTagToPlace(
       req.params.id,
-      req.params.tagId,
+      req.params.tagName,
       (req as any).user.userId
     );
 
@@ -132,7 +132,7 @@ export class PlaceController {
   }
 
   /**
-   * DELETE /api/places/:id/tags/:tagId
+   * DELETE /api/places/:id/tags/:tagName
    * Remove a tag from a place
    */
   async removeTagFromPlace(req: Request, res: Response) {
@@ -145,7 +145,7 @@ export class PlaceController {
 
     await placeService.removeTagFromPlace(
       req.params.id,
-      req.params.tagId,
+      req.params.tagName,
       (req as any).user.userId
     );
 

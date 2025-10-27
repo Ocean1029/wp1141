@@ -35,11 +35,16 @@ export class TagService {
   }
 
   /**
-   * Get tag by ID
+   * Get tag by name
    */
-  async getTagById(id: string, userId: string) {
+  async getTagByName(name: string, userId: string) {
     const tag = await prisma.tag.findUnique({
-      where: { id },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name,
+        },
+      },
       include: {
         _count: {
           select: {
@@ -51,10 +56,6 @@ export class TagService {
 
     if (!tag) {
       throw new NotFoundError('Tag');
-    }
-
-    if (tag.createdBy !== userId) {
-      throw new ForbiddenError('You do not have access to this tag');
     }
 
     return tag;
@@ -97,21 +98,22 @@ export class TagService {
   /**
    * Update a tag
    */
-  async updateTag(id: string, data: UpdateTagDto, userId: string) {
+  async updateTag(name: string, data: UpdateTagDto, userId: string) {
     // Check if tag exists and belongs to user
     const tag = await prisma.tag.findUnique({
-      where: { id },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name,
+        },
+      },
     });
 
     if (!tag) {
       throw new NotFoundError('Tag');
     }
 
-    if (tag.createdBy !== userId) {
-      throw new ForbiddenError('You do not have access to this tag');
-    }
-
-    // If updating name, check for conflicts
+    // If updating name, check for conflicts with new name
     if (data.name && data.name !== tag.name) {
       const existing = await prisma.tag.findUnique({
         where: {
@@ -128,7 +130,12 @@ export class TagService {
     }
 
     return prisma.tag.update({
-      where: { id },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name,
+        },
+      },
       data,
       include: {
         _count: {
@@ -144,10 +151,15 @@ export class TagService {
    * Delete a tag
    * Validates that no places will be left without tags
    */
-  async deleteTag(id: string, userId: string) {
+  async deleteTag(name: string, userId: string) {
     // Check if tag exists and belongs to user
     const tag = await prisma.tag.findUnique({
-      where: { id },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name,
+        },
+      },
       include: {
         places: {
           include: {
@@ -169,10 +181,6 @@ export class TagService {
       throw new NotFoundError('Tag');
     }
 
-    if (tag.createdBy !== userId) {
-      throw new ForbiddenError('You do not have access to this tag');
-    }
-
     // Check invariant: no place should be left without tags
     const placesWithOnlyThisTag = tag.places.filter(
       (pt) => pt.place._count.tags === 1
@@ -187,7 +195,12 @@ export class TagService {
 
     // Delete tag (cascade will remove PlaceTag associations)
     await prisma.tag.delete({
-      where: { id },
+      where: {
+        createdBy_name: {
+          createdBy: userId,
+          name,
+        },
+      },
     });
   }
 }

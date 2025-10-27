@@ -35,11 +35,18 @@ tag-based organization, and timeline scheduling in a single unified interface.
 All protected routes require authentication via HTTP-only cookies.
 Login at \`/auth/login\` to receive tokens automatically set as cookies.
 
+## Data Model
+
+- **Places**: Use Google Place ID as primary key
+- **Tags**: Use composite key (userId + tagName) for unique identification
+- **Events**: Use UUID as primary key
+
 ## Data Invariants
 
 1. **Places must have at least one tag** - Cannot create or leave a place without tags
 2. **Users can only access their own data** - All write operations enforce ownership
 3. **Events must have startTime < endTime** - Time validation enforced
+4. **Tags are identified by name** - Tag operations use tag names, not IDs
       `,
       contact: {
         name: 'API Support',
