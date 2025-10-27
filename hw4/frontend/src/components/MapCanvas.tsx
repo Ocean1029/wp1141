@@ -55,12 +55,15 @@ export function MapCanvas({
           mapTypeControl: true,
           fullscreenControl: true,
           streetViewControl: true,
+          gestureHandling: 'greedy', // Allow panning without holding Ctrl
+          clickableIcons: true,
         });
 
         // Add click listener
         if (onMapClick) {
           mapInstance.addListener('click', (e: google.maps.MapMouseEvent) => {
             if (e.latLng) {
+              console.log('[MapCanvas] Map clicked at:', e.latLng.lat(), e.latLng.lng());
               onMapClick(e.latLng.lat(), e.latLng.lng());
             }
           });

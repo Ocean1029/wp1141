@@ -5,6 +5,7 @@ import { TimelinePanel } from '../components/TimelinePanel';
 import { TagFilterBar } from '../components/TagFilterBar';
 import { PlaceForm } from '../components/PlaceForm';
 import { TagForm } from '../components/TagForm';
+import { EventForm } from '../components/EventForm';
 import { useAuth } from '../hooks/useAuth';
 import { placesApi } from '../api/places.api';
 import { eventsApi } from '../api/events.api';
@@ -29,9 +30,11 @@ export function MapPage() {
   // UI states
   const [isPlaceFormOpen, setIsPlaceFormOpen] = useState(false);
   const [isTagFormOpen, setIsTagFormOpen] = useState(false);
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   const [clickedCoords, setClickedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<{ start: Date; end: Date } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load initial data
@@ -70,6 +73,7 @@ export function MapPage() {
   };
 
   const handleMapClick = (lat: number, lng: number) => {
+    console.log('[MapPage] handleMapClick called:', lat, lng);
     setClickedCoords({ lat, lng });
     setIsPlaceFormOpen(true);
   };
@@ -89,8 +93,8 @@ export function MapPage() {
   };
 
   const handleDateSelect = (start: Date, end: Date) => {
-    // TODO: Open event creation form
-    console.log('Create event:', start, end);
+    setSelectedTimeRange({ start, end });
+    setIsEventFormOpen(true);
   };
 
   const handleEventDrop = async (eventId: string, start: Date, end: Date) => {
@@ -114,6 +118,12 @@ export function MapPage() {
   const handleTagSubmit = async (data: { name: string; description?: string }) => {
     await tagsApi.create(data);
     await loadData();
+  };
+
+  const handleEventSubmit = async (data: any) => {
+    await eventsApi.create(data);
+    await loadData();
+    setSelectedTimeRange(null);
   };
 
   const handleTagToggle = (tagName: string) => {
@@ -201,6 +211,17 @@ export function MapPage() {
         isOpen={isTagFormOpen}
         onClose={() => setIsTagFormOpen(false)}
         onSubmit={handleTagSubmit}
+      />
+
+      <EventForm
+        isOpen={isEventFormOpen}
+        onClose={() => {
+          setIsEventFormOpen(false);
+          setSelectedTimeRange(null);
+        }}
+        onSubmit={handleEventSubmit}
+        places={places}
+        initialTimeRange={selectedTimeRange}
       />
     </div>
   );
