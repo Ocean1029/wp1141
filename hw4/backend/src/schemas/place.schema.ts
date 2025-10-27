@@ -2,6 +2,7 @@
 import { z } from 'zod';
 
 export const createPlaceSchema = z.object({
+  id: z.string().min(1, 'Place ID is required'), // Google Place ID
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   lat: z.number().min(-90).max(90, 'Latitude must be between -90 and 90'),
   lng: z.number().min(-180).max(180, 'Longitude must be between -180 and 180'),

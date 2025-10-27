@@ -81,6 +81,7 @@ async function main() {
 
     const places = [
       {
+        id: 'ChIJJ5eIcCqpQjQROgRLBhQBw7U', // Google Place ID for Taipei 101
         title: 'Taipei 101',
         lat: 25.0330,
         lng: 121.5654,
@@ -89,6 +90,7 @@ async function main() {
         tagIds: [sightsTag!.id, favoriteTag.id],
       },
       {
+        id: 'ChIJaXPV9ZSyjogRP2jKp2mopF4', // Example Google Place ID for Din Tai Fung
         title: 'Din Tai Fung (Xinyi)',
         lat: 25.0360,
         lng: 121.5645,
@@ -97,6 +99,7 @@ async function main() {
         tagIds: [foodTag!.id, favoriteTag.id],
       },
       {
+        id: 'ChIJl8D1EepqpogRu4XN9F9l7o8', // Example Google Place ID for Palace Museum
         title: 'National Palace Museum',
         lat: 25.1023,
         lng: 121.5485,
@@ -109,8 +112,20 @@ async function main() {
     for (const placeData of places) {
       const { tagIds, ...placeInfo } = placeData;
       
-      const place = await prisma.place.create({
-        data: {
+      const place = await prisma.place.upsert({
+        where: { id: placeInfo.id },
+        update: {
+          ...placeInfo,
+          tags: {
+            deleteMany: {},
+            create: tagIds.map(tagId => ({
+              tag: {
+                connect: { id: tagId },
+              },
+            })),
+          },
+        },
+        create: {
           ...placeInfo,
           createdBy: demoUser.id,
           tags: {

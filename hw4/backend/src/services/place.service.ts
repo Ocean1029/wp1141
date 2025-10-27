@@ -122,6 +122,7 @@ export class PlaceService {
     // Create place with tag associations
     return prisma.place.create({
       data: {
+        id: data.id, // Google Place ID
         title: data.title,
         lat: data.lat,
         lng: data.lng,
