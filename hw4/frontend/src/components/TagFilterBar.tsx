@@ -9,6 +9,7 @@ interface TagFilterBarProps {
   onTagToggle: (tagName: string) => void;
   onClearAll: () => void;
   onCreateTag: () => void;
+  disabled?: boolean;
 }
 
 export function TagFilterBar({
@@ -17,13 +18,14 @@ export function TagFilterBar({
   onTagToggle,
   onClearAll,
   onCreateTag,
+  disabled = false,
 }: TagFilterBarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const hasSelection = selectedTagIds.length > 0;
 
   return (
-    <div className="tag-filter-bar">
+    <div className={`tag-filter-bar ${disabled ? 'tag-filter-bar--disabled' : ''}`}>
       <div className="tag-filter-bar__header">
         <button
           className="tag-filter-bar__toggle"
@@ -60,6 +62,11 @@ export function TagFilterBar({
 
       {isExpanded && (
         <div className="tag-filter-bar__content">
+          {disabled && (
+            <div className="tag-filter-bar__notice">
+              <p>Tag filter is disabled when filtering by event</p>
+            </div>
+          )}
           {tags.length === 0 ? (
             <div className="tag-filter-bar__empty">
               <p>No tags yet. Create your first tag!</p>
@@ -72,6 +79,7 @@ export function TagFilterBar({
                   <button
                     key={tag.name}
                     onClick={() => onTagToggle(tag.name)}
+                    disabled={disabled}
                     className={`tag-filter-bar__tag ${isSelected ? 'tag-filter-bar__tag--selected' : ''}`}
                   >
                     <div className="tag-filter-bar__tag-info">

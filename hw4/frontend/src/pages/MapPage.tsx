@@ -25,6 +25,7 @@ export function MapPage() {
   
   // Filter states
   const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [filteredPlaces, setFilteredPlaces] = useState<Place[]>([]);
   
   // UI states
@@ -42,17 +43,24 @@ export function MapPage() {
     loadData();
   }, []);
 
-  // Apply tag filter
+  // Apply filters (tags and event)
   useEffect(() => {
-    if (selectedTagNames.length === 0) {
-      setFilteredPlaces(places);
-    } else {
-      const filtered = places.filter(place =>
+    let filtered = places;
+    
+    // Apply event filter first (if an event is selected)
+    if (selectedEvent && selectedEvent.places.length > 0) {
+      const eventPlaceIds = selectedEvent.places.map(ep => ep.place.id);
+      filtered = filtered.filter(place => eventPlaceIds.includes(place.id));
+    }
+    // Apply tag filter (only if no event is selected)
+    else if (selectedTagNames.length > 0) {
+      filtered = filtered.filter(place =>
         place.tags.some(tag => selectedTagNames.includes(tag.name))
       );
-      setFilteredPlaces(filtered);
     }
-  }, [places, selectedTagNames]);
+    
+    setFilteredPlaces(filtered);
+  }, [places, selectedTagNames, selectedEvent]);
 
   const loadData = async () => {
     try {
@@ -85,14 +93,25 @@ export function MapPage() {
   }, []);
 
   const handleEventClick = useCallback((event: Event) => {
-    if (event.places && event.places.length > 0) {
-      const place = places.find(p => p.id === event.places[0].place.id);
-      if (place) {
-        setSelectedPlace(place);
+    // Toggle event selection - if clicking the same event, deselect it
+    if (highlightedEventId === event.id) {
+      setSelectedEvent(null);
+      setHighlightedEventId(null);
+      setSelectedPlace(null);
+    } else {
+      // Set selected event to filter places
+      setSelectedEvent(event);
+      setHighlightedEventId(event.id);
+      
+      // Focus on first place if exists
+      if (event.places && event.places.length > 0) {
+        const place = places.find(p => p.id === event.places[0].place.id);
+        if (place) {
+          setSelectedPlace(place);
+        }
       }
     }
-    setHighlightedEventId(event.id);
-  }, [places]);
+  }, [places, highlightedEventId]);
 
   const handleDateSelect = useCallback((start: Date, end: Date) => {
     setSelectedTimeRange({ start, end });
@@ -191,12 +210,33 @@ export function MapPage() {
 
       <div className="map-page__content">
         <aside className="map-page__sidebar">
+          {selectedEvent && (
+            <div className="event-filter-badge">
+              <div className="event-filter-badge__content">
+                <div className="event-filter-badge__icon">📅</div>
+                <div className="event-filter-badge__text">
+                  <div className="event-filter-badge__label">Filtering by Event</div>
+                  <div className="event-filter-badge__title">{selectedEvent.title}</div>
+                </div>
+              </div>
+              <button 
+                className="event-filter-badge__close"
+                onClick={() => setSelectedEvent(null)}
+                title="Clear event filter"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+          )}
           <TagFilterBar
             tags={tags}
             selectedTagIds={selectedTagNames}
             onTagToggle={handleTagToggle}
             onClearAll={() => setSelectedTagNames([])}
             onCreateTag={() => setIsTagFormOpen(true)}
+            disabled={!!selectedEvent}
           />
         </aside>
 
