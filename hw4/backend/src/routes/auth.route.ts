@@ -27,7 +27,7 @@ const router = Router();
  *               email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
+ *                 example: newuser@example.com
  *               password:
  *                 type: string
  *                 minLength: 8
@@ -64,8 +64,10 @@ router.post(
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: demo@example.com
  *               password:
  *                 type: string
+ *                 example: Demo1234
  *     responses:
  *       200:
  *         description: Login successful (cookies set)
