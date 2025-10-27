@@ -16,7 +16,7 @@ import type { Tag } from '../types/tag';
 import '../styles/MapPage.css';
 
 export function MapPage() {
-  const { user, logout } = useAuth();
+  useAuth(); // Keep auth context active
   
   // Data states
   const [places, setPlaces] = useState<Place[]>([]);
@@ -207,10 +207,6 @@ export function MapPage() {
     );
   };
 
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = '/login';
-  };
 
   if (isLoading) {
     return (
@@ -225,16 +221,6 @@ export function MapPage() {
 
   return (
     <div className="map-page">
-      <header className="map-page__header">
-        <div className="map-page__brand">
-          <h1 className="map-page__title">🗺️ TripTimeline Maps</h1>
-          <p className="map-page__user">Welcome, {user?.email}</p>
-        </div>
-        <button onClick={handleLogout} className="btn btn--secondary btn--sm">
-          Logout
-        </button>
-      </header>
-
       <div className="map-page__content">
         <aside className="map-page__sidebar">
           {selectedEvent && (
