@@ -20,7 +20,7 @@ export function MapPage() {
   
   // Data states
   const [places, setPlaces] = useState<Place[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);  
   const [tags, setTags] = useState<Tag[]>([]);
   
   // Filter states

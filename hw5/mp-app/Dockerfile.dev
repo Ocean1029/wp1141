@@ -1,0 +1,23 @@
+# Development Dockerfile with hot reload
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install OS dependencies (for node-gyp, Prisma, etc.)
+RUN apk add --no-cache libc6-compat
+
+# Copy only package files first to leverage caching
+COPY package.json package-lock.json* ./
+
+# Install dependencies (dev mode)
+RUN npm ci
+
+# Copy the rest of the source code
+COPY . .
+
+# Expose dev port
+EXPOSE 3000
+
+# Default command for development
+CMD ["npm", "run", "dev"]

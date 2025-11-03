@@ -1,0 +1,76 @@
+services:
+  # PostgreSQL for Development
+  db-dev:
+    image: postgres:16-alpine
+    container_name: Y-db-dev
+    restart: unless-stopped
+    env_file:
+      - .env.dev
+    ports:
+      - "${POSTGRES_PORT_DEV:-5432}:5432"
+    volumes:
+      - Y_postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["dev"]
+
+  # PostgreSQL for Production
+  db-prod:
+    image: postgres:16-alpine
+    container_name: Y-db-prod
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    volumes:
+      - Y_postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["prod"]
+
+  # Next.js App for Development
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: Y-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env.dev
+    depends_on:
+      db-dev:
+        condition: service_healthy
+    working_dir: /app
+    command: sh -c "npx prisma generate && npm run dev"
+    profiles: ["dev"]
+
+  # Next.js App for Production
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: Y-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env.prod
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    profiles: ["prod"]
+
+volumes:
+  Y_postgres_dev_data:
+  Y_postgres_prod_data:
