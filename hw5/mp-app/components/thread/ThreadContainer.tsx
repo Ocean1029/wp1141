@@ -6,30 +6,16 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PostCard } from "../post/PostCard";
+import type { Post } from "@/types";
 
-interface Post {
-  id: string;
-  author: {
-    userId: string;
-    name: string;
-    imageUrl?: string;
-  };
-  text: string;
-  createdAt: Date;
-  replyCount: number;
-  repostCount: number;
-  likeCount: number;
-}
-
-export function ThreadContainer({ postId }: { postId: Promise<{ id: string }> }) {
+export function ThreadContainer({ postId }: { postId: string }) {
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
   const [replies, setReplies] = useState<Post[]>([]);
 
   useEffect(() => {
     async function loadThread() {
-      await postId; // Resolve the promise
-      // TODO: Fetch post and replies from Server Action
+      // TODO: Fetch post and replies from Server Action using postId
     }
     loadThread();
   }, [postId]);

@@ -1,8 +1,9 @@
 import { PostCard } from "../post/PostCard";
+import type { Post } from "@/types";
 
 export async function FeedList() {
   // TODO: Fetch posts from Server Action
-  const posts: unknown[] = [];
+  const posts: Post[] = [];
 
   return (
     <div className="divide-y divide-gray-200">

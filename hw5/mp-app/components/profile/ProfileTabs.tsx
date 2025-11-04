@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-interface ProfileTabsProps {
-  user: {
-    userId: string;
-    postsCount: number;
-  };
-  isOwnProfile: boolean;
-}
+import type { ProfileTabsProps } from "@/types";
 
 export function ProfileTabs({ isOwnProfile }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<"posts" | "likes">("posts");

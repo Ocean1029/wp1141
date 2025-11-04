@@ -2,20 +2,7 @@
 
 import { useState } from "react";
 import { UserPlus, Check } from "lucide-react";
-
-interface ProfileHeaderProps {
-  user: {
-    userId: string;
-    name: string;
-    imageUrl?: string;
-    bannerUrl?: string;
-    bio?: string;
-    followersCount: number;
-    followingCount: number;
-    postsCount: number;
-  };
-  isOwnProfile: boolean;
-}
+import type { ProfileHeaderProps } from "@/types";
 
 export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
   const [following, setFollowing] = useState(false);

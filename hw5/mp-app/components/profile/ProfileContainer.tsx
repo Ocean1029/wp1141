@@ -7,16 +7,16 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileTabs } from "./ProfileTabs";
+import type { User } from "@/types";
 
-export function ProfileContainer({ userId }: { userId: Promise<{ userId: string }> }) {
+export function ProfileContainer({ userId }: { userId: string }) {
   const router = useRouter();
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
-      await userId;
-      // TODO: Fetch profile from Server Action
+      // TODO: Fetch profile from Server Action using userId
     }
     loadProfile();
   }, [userId]);

@@ -2,22 +2,7 @@
 
 import { useState } from "react";
 import { MessageCircle, Repeat2, Heart, Trash2 } from "lucide-react";
-
-interface PostCardProps {
-  post: {
-    id: string;
-    author: {
-      userId: string;
-      name: string;
-      imageUrl?: string;
-    };
-    text: string;
-    createdAt: Date;
-    replyCount: number;
-    repostCount: number;
-    likeCount: number;
-  };
-}
+import type { PostCardProps } from "@/types";
 
 export function PostCard({ post }: PostCardProps) {
   const [liked, setLiked] = useState(false);

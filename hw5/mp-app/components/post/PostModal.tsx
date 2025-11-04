@@ -4,12 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { validateTextLength } from "@/lib/utils/text-parser";
 import { createPost } from "@/lib/server/posts";
-
-interface PostModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  parentId?: string;
-}
+import type { PostModalProps } from "@/types";
 
 export function PostModal({ isOpen, onClose, parentId }: PostModalProps) {
   const [text, setText] = useState("");
