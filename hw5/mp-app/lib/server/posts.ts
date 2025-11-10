@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import type { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { pusher } from "@/lib/pusher";
 import type { Post as FeedPost } from "@/types";
 import { validateTextLength } from "@/lib/utils/text-parser";
 import { formatRelativeTime } from "@/lib/utils/time";
@@ -200,17 +201,42 @@ export async function createPost(
 
     if (!created.isDraft && created.parentId) {
       // Increment reply count for parent post
-      await prisma.post.update({
+      const updatedParent = await prisma.post.update({
         where: { id: created.parentId },
         data: {
           replyCount: {
             increment: 1,
           },
         },
+        select: { replyCount: true },
       });
+
+      // Send Pusher event for reply creation
+      try {
+        if (pusher) {
+          await pusher.trigger(`post-${created.parentId}`, "reply:created", {
+            postId: created.parentId,
+            replyId: created.id,
+            replyCount: updatedParent.replyCount,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
     }
 
     if (!created.isDraft) {
+      // Send Pusher event for new post on home feed
+      try {
+        if (pusher) {
+          await pusher.trigger("home-feed", "post:new", {
+            postId: created.id,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
+
       revalidatePath("/home");
       if (created.parentId) {
         revalidatePath(`/post/${created.parentId}`);

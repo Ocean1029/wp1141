@@ -9,6 +9,11 @@ export async function POST(req: NextRequest) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  // If Pusher is not configured, return error
+  if (!pusher) {
+    return new Response("Pusher is not configured", { status: 503 });
+  }
+
   const { socket_id, channel_name } = await req.json();
 
   const authResponse = pusher.authorizeChannel(socket_id, channel_name, {

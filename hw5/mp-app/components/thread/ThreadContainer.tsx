@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "../post/PostCard";
 import { ReplyPostCard } from "../post/ReplyPostCard";
 import { getPostWithReplies } from "@/lib/server/posts";
+import { usePusherChannel } from "@/lib/hooks/usePusher";
 import type { Post } from "@/types";
 import type { Session } from "next-auth";
 
@@ -22,7 +23,7 @@ export function ThreadContainer({ postId, session }: ThreadContainerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [shouldFocusReply, setShouldFocusReply] = useState(false);
 
-  const loadThread = async () => {
+  const loadThread = useCallback(async () => {
     setIsLoading(true);
     try {
       const result = await getPostWithReplies(postId);
@@ -33,11 +34,11 @@ export function ThreadContainer({ postId, session }: ThreadContainerProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [postId]);
 
   useEffect(() => {
     loadThread();
-  }, [postId]);
+  }, [loadThread]);
 
   // Check if focus=reply query parameter is present
   useEffect(() => {
@@ -49,10 +50,20 @@ export function ThreadContainer({ postId, session }: ThreadContainerProps) {
     }
   }, [searchParams, isLoading, post, postId, router]);
 
-  const handleReplySuccess = () => {
+  const handleReplySuccess = useCallback(() => {
     loadThread();
     setShouldFocusReply(false);
-  };
+  }, [loadThread]);
+
+  // Subscribe to Pusher events for real-time reply updates
+  const handleReplyCreated = useCallback(() => {
+    // Reload thread when a new reply is created
+    loadThread();
+  }, [loadThread]);
+
+  usePusherChannel(`post-${postId}`, {
+    "reply:created": handleReplyCreated,
+  });
 
   return (
     <div className="thread__container min-h-screen flex flex-col">

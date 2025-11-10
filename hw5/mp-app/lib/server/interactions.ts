@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { pusher } from "@/lib/pusher";
 
 /**
  * Server Action: Toggle like on a post
@@ -30,7 +31,7 @@ export async function toggleLike(postId: string) {
 
     if (existingLike) {
       // Unlike: delete like and decrement count
-      await prisma.$transaction([
+      const [, updatedPost] = await prisma.$transaction([
         prisma.like.delete({ 
           where: { 
             userId_postId: { 
@@ -42,8 +43,22 @@ export async function toggleLike(postId: string) {
         prisma.post.update({
           where: { id: postId },
           data: { likeCount: { decrement: 1 } },
+          select: { likeCount: true },
         }),
       ]);
+      
+      // Send Pusher event for real-time update
+      try {
+        if (pusher) {
+          await pusher.trigger(`post-${postId}`, "like:updated", {
+            postId,
+            likeCount: updatedPost.likeCount,
+            liked: false,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
       
       // Don't revalidate to avoid scrolling - optimistic update handles UI
       // revalidatePath('/home');
@@ -52,7 +67,7 @@ export async function toggleLike(postId: string) {
       return { success: true, liked: false };
     } else {
       // Like: create like and increment count
-      await prisma.$transaction([
+      const [, updatedPost] = await prisma.$transaction([
         prisma.like.create({ 
           data: { 
             userId, 
@@ -62,8 +77,22 @@ export async function toggleLike(postId: string) {
         prisma.post.update({
           where: { id: postId },
           data: { likeCount: { increment: 1 } },
+          select: { likeCount: true },
         }),
       ]);
+      
+      // Send Pusher event for real-time update
+      try {
+        if (pusher) {
+          await pusher.trigger(`post-${postId}`, "like:updated", {
+            postId,
+            likeCount: updatedPost.likeCount,
+            liked: true,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
       
       // Don't revalidate to avoid scrolling - optimistic update handles UI
       // revalidatePath('/home');
@@ -117,7 +146,7 @@ export async function toggleRepost(postId: string) {
 
     if (existingRepost) {
       // Unrepost: delete repost and decrement count
-      await prisma.$transaction([
+      const [, updatedPost] = await prisma.$transaction([
         prisma.repost.delete({
           where: {
             userId_postId: {
@@ -129,8 +158,22 @@ export async function toggleRepost(postId: string) {
         prisma.post.update({
           where: { id: postId },
           data: { repostCount: { decrement: 1 } },
+          select: { repostCount: true },
         }),
       ]);
+
+      // Send Pusher event for real-time update
+      try {
+        if (pusher) {
+          await pusher.trigger(`post-${postId}`, "repost:updated", {
+            postId,
+            repostCount: updatedPost.repostCount,
+            reposted: false,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
 
       // Don't revalidate to avoid scrolling - optimistic update handles UI
       // revalidatePath('/home');
@@ -139,7 +182,7 @@ export async function toggleRepost(postId: string) {
       return { success: true, reposted: false };
     } else {
       // Repost: create repost and increment count
-      await prisma.$transaction([
+      const [, updatedPost] = await prisma.$transaction([
         prisma.repost.create({
           data: {
             userId,
@@ -149,8 +192,22 @@ export async function toggleRepost(postId: string) {
         prisma.post.update({
           where: { id: postId },
           data: { repostCount: { increment: 1 } },
+          select: { repostCount: true },
         }),
       ]);
+
+      // Send Pusher event for real-time update
+      try {
+        if (pusher) {
+          await pusher.trigger(`post-${postId}`, "repost:updated", {
+            postId,
+            repostCount: updatedPost.repostCount,
+            reposted: true,
+          });
+        }
+      } catch (error) {
+        console.error("Error sending Pusher event:", error);
+      }
 
       // Don't revalidate to avoid scrolling - optimistic update handles UI
       // revalidatePath('/home');

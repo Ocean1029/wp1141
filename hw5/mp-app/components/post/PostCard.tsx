@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Repeat2, Heart, Trash2 } from "lucide-react";
 import { toggleLike, toggleRepost } from "@/lib/server/interactions";
 import { deletePost } from "@/lib/server/posts";
 import { ParsedTextDisplay } from "./ParsedTextDisplay";
+import { usePusherChannel } from "@/lib/hooks/usePusher";
 import type { PostCardProps } from "@/types";
 
 export function PostCard({ post }: PostCardProps) {
@@ -130,6 +131,36 @@ export function PostCard({ post }: PostCardProps) {
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
   };
+
+  // Subscribe to Pusher events for real-time updates
+  const handleLikeUpdate = useCallback((data: unknown) => {
+    const eventData = data as { postId: string; likeCount: number };
+    if (eventData.postId === post.id) {
+      setLikeCount(eventData.likeCount);
+    }
+  }, [post.id]);
+
+  const handleRepostUpdate = useCallback((data: unknown) => {
+    const eventData = data as { postId: string; repostCount: number };
+    if (eventData.postId === post.id) {
+      setRepostCount(eventData.repostCount);
+    }
+  }, [post.id]);
+
+  const handleReplyCreated = useCallback((data: unknown) => {
+    const eventData = data as { postId: string; replyCount: number };
+    if (eventData.postId === post.id) {
+      // Update reply count without re-fetching
+      // Note: We don't have a replyCount state, but we could add one if needed
+    }
+  }, [post.id]);
+
+  // Subscribe to post channel for real-time updates
+  usePusherChannel(`post-${post.id}`, {
+    "like:updated": handleLikeUpdate,
+    "repost:updated": handleRepostUpdate,
+    "reply:created": handleReplyCreated,
+  });
 
   return (
     <>
