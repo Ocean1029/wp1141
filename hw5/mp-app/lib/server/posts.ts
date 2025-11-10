@@ -571,3 +571,41 @@ export async function getLikedPosts(userId: string): Promise<FeedPost[]> {
   }
 }
 
+/**
+ * Server Action: Fetch posts containing a specific hashtag.
+ */
+export async function getHashtagPosts(hashtag: string): Promise<FeedPost[]> {
+  try {
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    const sanitizedTag = hashtag.replace(/^#/, "").trim();
+
+    if (!sanitizedTag) {
+      return [];
+    }
+
+    const posts = await prisma.post.findMany({
+      where: {
+        deletedAt: null,
+        isDraft: false,
+        parentId: null,
+        text: {
+          contains: `#${sanitizedTag}`,
+          mode: "insensitive",
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+      take: 30,
+    });
+
+    return mapPostsForFeed(posts, viewerId);
+  } catch (error) {
+    console.error("Error fetching hashtag posts:", error);
+    return [];
+  }
+}
+

@@ -5,18 +5,41 @@ export const runtime = "nodejs";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+  const isAuthenticated = !!req.auth;
+  const userID = req.auth?.user?.userID;
   
   // Public routes that don't require authentication
   const publicRoutes = ["/login", "/api/auth"];
   
-  // Handle /register route specifically
+  // Handle root path - always redirect unauthenticated users to /login
+  if (pathname === "/") {
+    if (!isAuthenticated) {
+      // Let app/page.tsx handle redirect to /login
+      return NextResponse.next();
+    }
+    // If authenticated, check userID status
+    const redirectTo = userID ? "/home" : "/register";
+    return NextResponse.redirect(new URL(redirectTo, req.url));
+  }
+  
+  // Handle /login route
+  if (pathname === "/login") {
+    // If authenticated, redirect based on userID status
+    if (isAuthenticated) {
+      const redirectTo = userID ? "/home" : "/register";
+      return NextResponse.redirect(new URL(redirectTo, req.url));
+    }
+    // If not authenticated, allow access to login page
+    return NextResponse.next();
+  }
+  
+  // Handle /register route - requires authentication
   if (pathname === "/register") {
     // If not authenticated, redirect to login
-    if (!req.auth) {
+    if (!isAuthenticated) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
     // If authenticated and has userID, redirect to home
-    const userID = req.auth.user?.userID;
     if (userID) {
       return NextResponse.redirect(new URL("/home", req.url));
     }
@@ -24,31 +47,22 @@ export default auth((req) => {
     return NextResponse.next();
   }
   
-  // If user is authenticated and trying to access login page, redirect to home/register
-  if (pathname === "/login" && req.auth) {
-    const userID = req.auth.user?.userID;
-    const redirectTo = userID ? "/home" : "/register";
-    return NextResponse.redirect(new URL(redirectTo, req.url));
-  }
-  
   // Allow public routes
   if (publicRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
   
-  // Protected routes - require authentication
-  if (!req.auth) {
+  // All other routes are protected - require authentication
+  if (!isAuthenticated) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
   
-  // Check if user has completed userID registration
-  const userID = req.auth.user?.userID;
-  
-  // If user hasn't registered userID, redirect to register
+  // If authenticated but hasn't registered userID, redirect to register
   if (!userID) {
     return NextResponse.redirect(new URL("/register", req.url));
   }
   
+  // Authenticated user with userID - allow access
   return NextResponse.next();
 });
 

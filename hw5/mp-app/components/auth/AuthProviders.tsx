@@ -4,7 +4,9 @@ import { signIn } from "next-auth/react";
 
 export function AuthProviders() {
   const handleOAuth = async (provider: string) => {
-    await signIn(provider, { callbackUrl: "/register" });
+    // Don't specify callbackUrl - NextAuth will redirect to signIn page (/login)
+    // Middleware will then handle redirecting to /home or /register based on userID status
+    await signIn(provider);
   };
 
   return (

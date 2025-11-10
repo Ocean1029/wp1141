@@ -21,9 +21,9 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
     e.stopPropagation();
     // Extract hashtag text (remove # and spaces)
     const tag = hashtag.trim().replace(/^#/, "");
-    // Navigate to search or hashtag page (for now, just log)
-    // In the future, this could navigate to a hashtag search page
-    console.log("Hashtag clicked:", tag);
+    if (tag) {
+      router.push(`/hashtag/${encodeURIComponent(tag.toLowerCase())}`);
+    }
   };
 
   const handleUrlClick = (url: string, e: React.MouseEvent) => {

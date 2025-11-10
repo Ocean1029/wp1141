@@ -20,18 +20,18 @@ export function ProfileContainer({ userId, currentUserID }: ProfileContainerProp
   const [isLoading, setIsLoading] = useState(true);
 
   const loadProfile = async () => {
-    setIsLoading(true);
-    try {
-      const profile = await getUserProfile(userId);
-      if (profile) {
-        setUser(profile);
-        setIsOwnProfile(currentUserID === userId);
+      setIsLoading(true);
+      try {
+        const profile = await getUserProfile(userId);
+        if (profile) {
+          setUser(profile);
+          setIsOwnProfile(currentUserID === userId);
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error loading profile:", error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   useEffect(() => {
