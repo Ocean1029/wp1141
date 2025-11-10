@@ -23,9 +23,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async session({ session, user }) {
-      // Add user ID to session
+      // Fetch user with userID from database
+      // Note: userID field will be available after Prisma Client regeneration
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+      });
+
       if (session.user) {
         session.user.id = user.id;
+        // Add userID to session for registration check (may be null if not yet registered)
+        // Type assertion needed until Prisma Client is regenerated
+        session.user.userID = (dbUser as { userID?: string | null })?.userID ?? null;
       }
       return session;
     },

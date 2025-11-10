@@ -1,6 +1,3 @@
-// This is your Prisma schema file
-// Next, we'll add the database models
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,36 +8,39 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  name          String
-  email         String?  @unique
-  imageUrl      String?
-  bannerUrl     String?
-  bio           String?  @db.Text
-  provider      String
-  providerId    String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userID         String?  @unique           // the unique login ID entered by user (optional until registered)
+  name           String                    // display name
+  email          String?  @unique
+  emailVerified  DateTime?
+  image          String?
+  bannerUrl      String?
+  bio            String?  @db.Text
 
-  posts         Post[]
-  likes         Like[]
-  reposts       Repost[]
-  followers     Follow[] @relation("followers")
-  following     Follow[] @relation("following")
-  account       Account[]
-  sessions      Session[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@index([userId])
+  // Relations
+  accounts   Account[]
+  sessions   Session[]
+  posts      Post[]
+  likes      Like[]
+  reposts    Repost[]
+  followers  Follow[] @relation("followers")
+  following  Follow[] @relation("following")
+
+  @@index([userID])
 }
 
 model Account {
   id                String   @id @default(cuid())
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   type              String
   provider          String
   providerAccountId String
+  refresh_token     String?  @db.Text
   access_token      String?  @db.Text
   expires_at        Int?
   token_type        String?

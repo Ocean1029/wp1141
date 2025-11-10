@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { registerWithUserId } from "@/lib/server/users";
 
 export function UserIdForm() {
   const router = useRouter();
@@ -15,9 +16,15 @@ export function UserIdForm() {
     setLoading(true);
 
     try {
-      // TODO: Implement register with userID Server Action
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push("/home");
+      const result = await registerWithUserId(userId);
+      
+      if (result.success) {
+        // Redirect to home page after successful registration
+        router.push("/home");
+        router.refresh(); // Refresh to update session
+      } else {
+        setError(result.error || "Failed to register user ID");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

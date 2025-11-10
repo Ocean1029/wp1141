@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   
@@ -16,9 +18,24 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", req.url));
   }
   
+  // Check if user has completed userID registration
+  const userID = req.auth.user?.userID;
+  const isRegisterPage = pathname === "/register";
+  
+  // If user hasn't registered userID and not on register page, redirect to register
+  if (!userID && !isRegisterPage) {
+    return NextResponse.redirect(new URL("/register", req.url));
+  }
+  
+  // If user has registered userID and on register page, redirect to home
+  if (userID && isRegisterPage) {
+    return NextResponse.redirect(new URL("/home", req.url));
+  }
+  
   // Redirect authenticated users away from login page
   if (pathname === "/login" && req.auth) {
-    return NextResponse.redirect(new URL("/home", req.url));
+    const redirectTo = userID ? "/home" : "/register";
+    return NextResponse.redirect(new URL(redirectTo, req.url));
   }
   
   return NextResponse.next();
