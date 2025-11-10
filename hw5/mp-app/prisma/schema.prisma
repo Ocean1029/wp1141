@@ -67,6 +67,7 @@ model Post {
   authorId      String
   author        User      @relation(fields: [authorId], references: [id])
   text          String    @db.Text
+  imageUrl      String?   // Cloudinary image URL
   isDraft       Boolean   @default(false)
   parentId      String?
   parent        Post?     @relation("PostReplies", fields: [parentId], references: [id])

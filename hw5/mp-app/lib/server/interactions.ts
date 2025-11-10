@@ -1,45 +1,76 @@
 "use server";
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-// TODO: Import Prisma client when database is set up
-// import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Server Action: Toggle like on a post
+ * Requires authentication - gets userId from session
  */
-export async function toggleLike(postId: string, userId: string) {
+export async function toggleLike(postId: string) {
   try {
-    // TODO: Implement Prisma upsert with transaction
-    // const existingLike = await prisma.like.findUnique({
-    //   where: { userId_postId: { userId, postId } },
-    // });
-    // 
-    // if (existingLike) {
-    //   // Unlike: delete like and decrement count
-    //   await prisma.$transaction([
-    //     prisma.like.delete({ where: { id: existingLike.id } }),
-    //     prisma.post.update({
-    //       where: { id: postId },
-    //       data: { likeCount: { decrement: 1 } },
-    //     }),
-    //   ]);
-    //   revalidatePath('/home');
-    //   return { success: true, liked: false };
-    // } else {
-    //   // Like: create like and increment count
-    //   await prisma.$transaction([
-    //     prisma.like.create({ data: { userId, postId } }),
-    //     prisma.post.update({
-    //       where: { id: postId },
-    //       data: { likeCount: { increment: 1 } },
-    //     }),
-    //   ]);
-    //   revalidatePath('/home');
-    //   return { success: true, liked: true };
-    // }
-    
-    return { success: false, error: "Not implemented" };
+    // Get current user from session
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+
+    // Check if like already exists
+    const existingLike = await prisma.like.findUnique({
+      where: { 
+        userId_postId: { 
+          userId, 
+          postId 
+        } 
+      },
+    });
+
+    if (existingLike) {
+      // Unlike: delete like and decrement count
+      await prisma.$transaction([
+        prisma.like.delete({ 
+          where: { 
+            userId_postId: { 
+              userId, 
+              postId 
+            } 
+          } 
+        }),
+        prisma.post.update({
+          where: { id: postId },
+          data: { likeCount: { decrement: 1 } },
+        }),
+      ]);
+      
+      // Revalidate relevant paths
+      revalidatePath('/home');
+      revalidatePath(`/post/${postId}`);
+      
+      return { success: true, liked: false };
+    } else {
+      // Like: create like and increment count
+      await prisma.$transaction([
+        prisma.like.create({ 
+          data: { 
+            userId, 
+            postId 
+          } 
+        }),
+        prisma.post.update({
+          where: { id: postId },
+          data: { likeCount: { increment: 1 } },
+        }),
+      ]);
+      
+      // Revalidate relevant paths
+      revalidatePath('/home');
+      revalidatePath(`/post/${postId}`);
+      
+      return { success: true, liked: true };
+    }
   } catch (error) {
     console.error("Error toggling like:", error);
     return { success: false, error: "Failed to toggle like" };

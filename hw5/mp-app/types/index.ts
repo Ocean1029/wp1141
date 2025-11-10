@@ -20,6 +20,7 @@ export interface Post {
   id: string;
   author: Author;
   text: string;
+  imageUrl?: string;
   createdAt: string;
   relativeTime: string;
   replyCount: number;

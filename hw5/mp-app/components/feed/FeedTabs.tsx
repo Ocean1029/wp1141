@@ -16,24 +16,24 @@ export function FeedTabs({ activeTab }: FeedTabsProps) {
           <Link
             href="/home"
             className={`feed__tab px-4 py-3 text-base transition-colors ${
-              activeTab === "all"
+            activeTab === "all"
                 ? "border-b-2 border-blue-500 font-bold text-black"
                 : "font-normal text-gray-500 hover:bg-gray-50"
-            }`}
-          >
-            All
+          }`}
+        >
+          All
           </Link>
         </div>
         <div className="flex justify-center">
           <Link
             href="/home?tab=following"
             className={`feed__tab px-4 py-3 text-base transition-colors ${
-              activeTab === "following"
+            activeTab === "following"
                 ? "border-b-2 border-blue-500 font-bold text-black"
                 : "font-normal text-gray-500 hover:bg-gray-50"
-            }`}
-          >
-            Following
+          }`}
+        >
+          Following
           </Link>
         </div>
       </div>

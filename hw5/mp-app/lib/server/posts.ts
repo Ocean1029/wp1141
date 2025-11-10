@@ -46,6 +46,7 @@ async function mapPostsForFeed(
   return posts.map((post) => ({
     id: post.id,
     text: post.text,
+    imageUrl: post.imageUrl ?? undefined,
     createdAt: post.createdAt.toISOString(),
     relativeTime: formatRelativeTime(post.createdAt),
     replyCount: post.replyCount,
@@ -147,6 +148,7 @@ export async function createPost(
   text: string,
   parentId?: string,
   isDraft: boolean = false,
+  imageUrl?: string,
 ): Promise<CreatePostResult> {
   try {
     const session = await auth();
@@ -172,6 +174,7 @@ export async function createPost(
       data: {
         authorId,
         text: sanitizedText,
+        imageUrl: imageUrl ?? null,
         parentId: parentId ?? null,
         isDraft,
       },

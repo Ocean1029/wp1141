@@ -25,6 +25,11 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(false);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [pendingDraft, setPendingDraft] = useState<Draft | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showSaveDraftConfirm, setShowSaveDraftConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { valid, charCount } = validateTextLength(text);
@@ -49,6 +54,131 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
     }
   }, [showDrafts, loadDrafts]);
 
+  // Handle ESC key to close drafts modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showDrafts) {
+        setShowDrafts(false);
+      }
+      if (e.key === "Escape" && pendingDraft) {
+        setPendingDraft(null);
+        setShowDrafts(true);
+      }
+    };
+
+    if (showDrafts || pendingDraft) {
+      document.addEventListener("keydown", handleEscape);
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+      };
+    }
+  }, [showDrafts, pendingDraft]);
+
+  const handleSaveDraft = useCallback(async () => {
+    if (isPosting || isSavingDraft) return;
+    const trimmed = text.trim();
+    if (trimmed.length === 0 && !imageUrl) {
+      setErrorMessage("Draft cannot be empty");
+      return;
+    }
+
+    setIsSavingDraft(true);
+    setErrorMessage(null);
+    try {
+      const result = await createPost(text, undefined, true, imageUrl ?? undefined);
+      if (!result.success) {
+        setErrorMessage(result.error ?? "Unable to save draft");
+        return;
+      }
+      setText("");
+      setImageUrl(null);
+      setEditingDraftId(null);
+      setPendingDraft(null);
+      setShowSaveDraftConfirm(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      
+      // Navigate if there's a pending navigation
+      if (pendingNavigation) {
+        router.push(pendingNavigation);
+        setPendingNavigation(null);
+      } else {
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      setErrorMessage("Something went wrong while saving your draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  }, [text, imageUrl, isPosting, isSavingDraft, pendingNavigation, router]);
+
+  // Handle beforeunload event (closing tab/window)
+  useEffect(() => {
+    const hasContent = text.trim().length > 0 || imageUrl !== null;
+    
+    if (hasContent) {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = "";
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }
+  }, [text, imageUrl]);
+
+  // Intercept navigation attempts
+  useEffect(() => {
+    const hasContent = text.trim().length > 0 || imageUrl !== null;
+    
+    if (!hasContent) return;
+
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest("a");
+      
+      if (link && link.href) {
+        const url = new URL(link.href);
+        const currentUrl = new URL(window.location.href);
+        
+        // Only intercept if navigating to a different route
+        if (url.pathname !== currentUrl.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          setPendingNavigation(url.pathname);
+          setShowSaveDraftConfirm(true);
+        }
+      }
+    };
+
+    const handlePopState = () => {
+      const hasContent = text.trim().length > 0 || imageUrl !== null;
+      if (hasContent) {
+        const shouldSave = window.confirm("You have unsaved content. Save as draft before leaving?");
+        if (shouldSave) {
+          // Save draft and allow navigation
+          handleSaveDraft();
+        } else {
+          // Discard and allow navigation
+          setText("");
+          setImageUrl(null);
+        }
+      }
+    };
+
+    document.addEventListener("click", handleLinkClick, true);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      document.removeEventListener("click", handleLinkClick, true);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [text, imageUrl, handleSaveDraft]);
+
   // Focus textarea when component mounts or when focus=compose query param is present
   useEffect(() => {
     const shouldFocus = searchParams.get("focus") === "compose";
@@ -61,14 +191,14 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
           // Remove the query parameter from URL without reloading
           router.replace("/home", { scroll: false });
         }, 300);
-      } else if (!showDrafts && !pendingDraft) {
+      } else if (!showDrafts && !pendingDraft && !showSaveDraftConfirm) {
         // Auto-focus on mount if no query param
         setTimeout(() => {
           textareaRef.current?.focus();
         }, 0);
       }
     }
-  }, [searchParams, router, showDrafts, pendingDraft]);
+  }, [searchParams, router, showDrafts, pendingDraft, showSaveDraftConfirm]);
 
   const handleLoadDraft = (draft: Draft) => {
     // Check if textarea has content before loading draft
@@ -135,20 +265,73 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
     }
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("Image size must be less than 5MB");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setErrorMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+      setImageUrl(data.url);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setErrorMessage("Failed to upload image. Please try again.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handlePost = async () => {
     if (!canPost || isPosting) return;
 
     setIsPosting(true);
     setErrorMessage(null);
     try {
-      const result = await createPost(text);
+      const result = await createPost(text, undefined, false, imageUrl ?? undefined);
       if (!result.success) {
         setErrorMessage(result.error ?? "Unable to publish post");
         return;
       }
       setText("");
+      setImageUrl(null);
       setEditingDraftId(null);
       setPendingDraft(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       // Refresh the page to show the new post
       router.refresh();
     } catch (error) {
@@ -159,32 +342,25 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
     }
   };
 
-  const handleSaveDraft = async () => {
-    if (isPosting || isSavingDraft) return;
-    const trimmed = text.trim();
-    if (trimmed.length === 0) {
-      setErrorMessage("Draft cannot be empty");
-      return;
+  const handleDiscardAndNavigate = () => {
+    setText("");
+    setImageUrl(null);
+    setEditingDraftId(null);
+    setPendingDraft(null);
+    setShowSaveDraftConfirm(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
+    
+    if (pendingNavigation) {
+      router.push(pendingNavigation);
+      setPendingNavigation(null);
+    }
+  };
 
-    setIsSavingDraft(true);
-    setErrorMessage(null);
-    try {
-      const result = await createPost(text, undefined, true);
-      if (!result.success) {
-        setErrorMessage(result.error ?? "Unable to save draft");
-        return;
-      }
-      setText("");
-      setEditingDraftId(null);
-      setPendingDraft(null);
-      router.refresh();
-    } catch (error) {
-      console.error("Error saving draft:", error);
-      setErrorMessage("Something went wrong while saving your draft");
-    } finally {
-      setIsSavingDraft(false);
-    }
+  const handleCancelNavigation = () => {
+    setShowSaveDraftConfirm(false);
+    setPendingNavigation(null);
   };
 
   if (!session?.user) {
@@ -230,15 +406,47 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
             {errorMessage ? (
               <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
             ) : null}
+            {imageUrl && (
+              <div className="mt-2 relative">
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="w-full max-h-96 object-contain rounded-lg border border-gray-200"
+                />
+                <button
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5"
+                  title="Remove image"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
             <div className="mt-2 flex items-center justify-between">
               <div className="flex items-center gap-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                  disabled={isUploadingImage}
+                />
                 <button
-                  className="text-blue-500 hover:text-blue-600"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  className="text-blue-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Add image"
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                  </svg>
+                  {isUploadingImage ? (
+                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                  )}
                 </button>
                 <button
                   className="text-blue-500 hover:text-blue-600"
@@ -363,6 +571,43 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
                 className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
               >
                 Load Draft
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Draft Before Navigation Confirmation Modal */}
+      {showSaveDraftConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCancelNavigation();
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-2 text-lg font-bold">Save as draft before leaving?</h3>
+            <p className="mb-6 text-gray-600">
+              You have unsaved content. Would you like to save it as a draft before leaving?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDiscardAndNavigate}
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 font-medium hover:bg-gray-50"
+              >
+                Discard
+              </button>
+              <button
+                onClick={handleSaveDraft}
+                disabled={isSavingDraft}
+                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSavingDraft ? "Saving..." : "Save Draft"}
               </button>
             </div>
           </div>

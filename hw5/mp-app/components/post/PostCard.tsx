@@ -3,16 +3,44 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Repeat2, Heart } from "lucide-react";
+import { toggleLike } from "@/lib/server/interactions";
 import type { PostCardProps } from "@/types";
 
 export function PostCard({ post }: PostCardProps) {
   const router = useRouter();
   const [liked, setLiked] = useState(post.viewerHasLiked ?? false);
+  const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [isLiking, setIsLiking] = useState(false);
   const displayUserId = post.author.userId ? `@${post.author.userId}` : "";
 
-  const handleLike = async () => {
-    // TODO: Implement like toggle Server Action
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isLiking) return;
+    
+    // Optimistic update
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
     setLiked(!liked);
+    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+    setIsLiking(true);
+
+    try {
+      const result = await toggleLike(post.id);
+      if (!result.success) {
+        // Revert optimistic update on error
+        setLiked(previousLiked);
+        setLikeCount(previousLikeCount);
+        console.error("Failed to toggle like:", result.error);
+      }
+    } catch (error) {
+      // Revert optimistic update on error
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
+      console.error("Error toggling like:", error);
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   const handleRepost = async () => {
@@ -60,6 +88,16 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           </div>
           <p className="mt-1 whitespace-pre-wrap">{post.text}</p>
+          {post.imageUrl && (
+            <div className="mt-2">
+              <img
+                src={post.imageUrl}
+                alt="Post image"
+                className="w-full max-h-96 object-contain rounded-lg border border-gray-200"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
           <div className="post-card__actions mt-3 flex items-center gap-6 text-gray-500">
             <button
               onClick={handleReply}
@@ -79,16 +117,14 @@ export function PostCard({ post }: PostCardProps) {
               <span>{post.repostCount}</span>
             </button>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike();
-              }}
-              className={`flex items-center gap-2 hover:text-red-600 ${
+              onClick={handleLike}
+              disabled={isLiking}
+              className={`flex items-center gap-2 hover:text-red-600 transition-colors ${
                 liked ? "text-red-600" : ""
-              }`}
+              } ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-              <span>{post.likeCount}</span>
+              <span>{likeCount}</span>
             </button>
           </div>
         </div>
