@@ -34,6 +34,23 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
   // Sort segments by start position
   const sortedSegments = [...parsed.segments].sort((a, b) => a.start - b.start);
   
+  const pushText = (content: string, keyPrefix: string) => {
+    if (!content) {
+      return;
+    }
+    const parts = content.split("\n");
+    parts.forEach((part, index) => {
+      if (part) {
+        elements.push(
+          <span key={`${keyPrefix}-text-${index}`}>{part}</span>
+        );
+      }
+      if (index < parts.length - 1) {
+        elements.push(<br key={`${keyPrefix}-br-${index}`} />);
+      }
+    });
+  };
+
   // Build the rendered content
   const elements: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -42,9 +59,7 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
     // Add text before this segment
     if (segment.start > lastIndex) {
       const textBefore = text.substring(lastIndex, segment.start);
-      if (textBefore) {
-        elements.push(<span key={`text-${lastIndex}`}>{textBefore}</span>);
-      }
+      pushText(textBefore, `before-${segment.start}`);
     }
 
     // Add the segment
@@ -91,9 +106,7 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
   // Add remaining text after last segment
   if (lastIndex < text.length) {
     const textAfter = text.substring(lastIndex);
-    if (textAfter) {
-      elements.push(<span key={`text-${lastIndex}`}>{textAfter}</span>);
-    }
+    pushText(textAfter, `after-${lastIndex}`);
   }
 
   return <p className={className}>{elements.length > 0 ? elements : text}</p>;
