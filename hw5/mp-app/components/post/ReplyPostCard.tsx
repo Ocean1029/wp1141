@@ -305,7 +305,7 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
             <div className="flex items-center gap-3 pr-4">
               <div
                 className={`text-sm font-medium text-gray-500 ${
-                  charCount > 260 ? "text-orange-600" : ""
+                  charCount > 280 ? "text-orange-600" : ""
                 } ${!valid ? "text-red-600" : ""}`}
               >
                 {charCount}/280

@@ -389,7 +389,7 @@ export function PostModal({ isOpen, onClose, parentId }: PostModalProps) {
               </div>
               <div
                 className={`font-medium ${
-                  charCount > 260 ? "text-orange-600" : "text-gray-600"
+                  charCount > 280 ? "text-orange-600" : "text-gray-600"
                 } ${!valid ? "text-red-600" : ""}`}
               >
                 {charCount}/280
