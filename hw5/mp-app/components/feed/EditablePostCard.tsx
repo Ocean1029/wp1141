@@ -7,6 +7,7 @@ import { validateTextLength } from "@/lib/utils/text-parser";
 import { createPost, getDrafts } from "@/lib/server/posts";
 import { useRouter } from "next/navigation";
 import { EmojiPicker } from "@/components/common/EmojiPicker";
+import { useAutocomplete, AutocompleteDropdown } from "@/components/common/Autocomplete";
 import type { Session } from "next-auth";
 import type { Draft } from "@/types";
 import { EditableTextArea, type EditableTextAreaRef } from "./EditableTextArea";
@@ -32,12 +33,90 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
   const [showSaveDraftConfirm, setShowSaveDraftConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<EditableTextAreaRef>(null);
+  const textareaElementRef = useRef<HTMLDivElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
 
   const { valid, charCount } = validateTextLength(text);
   const canPost = valid && text.trim().length > 0;
+
+  // Track cursor position
+  useEffect(() => {
+    const updateCursorPosition = () => {
+      if (textareaRef.current) {
+        setCursorPosition(textareaRef.current.getSelectionStart());
+      }
+    };
+
+    const handleSelectionChange = () => {
+      updateCursorPosition();
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, []);
+
+  // Get textarea DOM element
+  useEffect(() => {
+    if (textareaRef.current) {
+      // Find the contentEditable div
+      const findContentEditable = () => {
+        const container = document.querySelector('[contenteditable="true"]');
+        if (container instanceof HTMLDivElement) {
+          textareaElementRef.current = container;
+        }
+      };
+      setTimeout(findContentEditable, 0);
+    }
+  }, [text]);
+
+  // Autocomplete hook
+  const handleAutocompleteSelect = useCallback((currentText: string, insertText: string) => {
+    if (!textareaRef.current) return;
+
+    const start = textareaRef.current.getSelectionStart();
+    const end = textareaRef.current.getSelectionEnd();
+    
+    // Find the @ or # to replace
+    const textBeforeCursor = currentText.substring(0, start);
+    const mentionMatch = textBeforeCursor.match(/@([a-z0-9_]*)$/i);
+    const hashtagMatch = textBeforeCursor.match(/(?:^|\s)#([a-z0-9_]*)$/i);
+    
+    let replaceStart = start;
+    if (mentionMatch) {
+      replaceStart = start - mentionMatch[0].length;
+    } else if (hashtagMatch) {
+      replaceStart = start - hashtagMatch[0].length;
+    }
+
+    const newText = currentText.slice(0, replaceStart) + insertText + " " + currentText.slice(end);
+    setText(newText);
+    
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newPosition = replaceStart + insertText.length + 1;
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
+  }, []);
+
+  const {
+    autocomplete,
+    users,
+    isLoadingUsers,
+    handleKeyDown: handleAutocompleteKeyDown,
+    handleSelectMention,
+  } = useAutocomplete({
+    text,
+    cursorPosition,
+    textareaElement: textareaElementRef.current,
+    onSelect: handleAutocompleteSelect,
+  });
 
   const loadDrafts = useCallback(async () => {
     setIsLoadingDrafts(true);
@@ -260,6 +339,14 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Handle autocomplete navigation first
+    if (autocomplete.type !== null) {
+      handleAutocompleteKeyDown(e);
+      if (e.key === "Enter" || e.key === "Tab" || e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Escape") {
+        return;
+      }
+    }
+
     // Command+Enter (Mac) or Control+Enter (Windows/Linux) to submit
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
       e.preventDefault();
@@ -420,15 +507,30 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
               />
             ) : null}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <EditableTextArea
               ref={textareaRef}
               value={text}
-              onChange={setText}
+              onChange={(newText) => {
+                setText(newText);
+                // Update cursor position after text change
+                setTimeout(() => {
+                  if (textareaRef.current) {
+                    setCursorPosition(textareaRef.current.getSelectionStart());
+                  }
+                }, 0);
+              }}
               onKeyDown={handleKeyDown}
               placeholder="What's happening?"
               className="w-full resize-none border-none p-0 text-lg outline-none bg-transparent placeholder:text-gray-500 whitespace-pre-wrap break-words"
               rows={3}
+            />
+            <AutocompleteDropdown
+              autocomplete={autocomplete}
+              users={users}
+              isLoadingUsers={isLoadingUsers}
+              onSelectMention={handleSelectMention}
+              selectedIndex={autocomplete.selectedIndex}
             />
             {errorMessage ? (
               <p className="mt-2 text-sm text-red-600">{errorMessage}</p>

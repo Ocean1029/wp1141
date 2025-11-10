@@ -469,6 +469,58 @@ export async function getUserPosts(userId: string): Promise<FeedPost[]> {
 }
 
 /**
+ * Server Action: Get user's reposted posts only
+ */
+export async function getUserReposts(userId: string): Promise<FeedPost[]> {
+  try {
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    // Find user by userID
+    const user = await (prisma.user as any).findUnique({
+      where: { userID: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    // Get reposted posts
+    const reposts = await prisma.repost.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        post: {
+          include: {
+            author: true,
+          },
+        },
+      },
+      take: 50,
+    });
+
+    // Filter out null posts, deleted posts, drafts, and replies
+    const repostedPosts = reposts
+      .map((repost) => repost.post)
+      .filter(
+        (post) =>
+          post !== null &&
+          post.deletedAt === null &&
+          post.isDraft === false &&
+          post.parentId === null,
+      ) as PostWithAuthor[];
+
+    return mapPostsForFeed(repostedPosts, viewerId);
+  } catch (error) {
+    console.error("Error fetching user reposts:", error);
+    return [];
+  }
+}
+
+/**
  * Server Action: Get user's liked posts
  */
 export async function getLikedPosts(userId: string): Promise<FeedPost[]> {

@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { validateTextLength } from "@/lib/utils/text-parser";
 import { createPost } from "@/lib/server/posts";
 import { useRouter } from "next/navigation";
 import { EmojiPicker } from "@/components/common/EmojiPicker";
+import { searchUsers } from "@/lib/server/users";
 import type { Session } from "next-auth";
+
+interface User {
+  id: string;
+  userId: string;
+  name: string;
+  imageUrl?: string;
+}
 
 interface ReplyPostCardProps {
   session: Session | null;
@@ -20,11 +28,64 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
   const [isPosting, setIsPosting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMentionAutocomplete, setShowMentionAutocomplete] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionUsers, setMentionUsers] = useState<User[]>([]);
+  const [mentionSelectedIndex, setMentionSelectedIndex] = useState(0);
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { valid, charCount } = validateTextLength(text);
   const canPost = valid && text.trim().length > 0;
+
+  // Handle mention autocomplete
+  useEffect(() => {
+    if (!textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+    const cursorPos = textarea.selectionStart;
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@([a-z0-9_]*)$/i);
+
+    if (mentionMatch) {
+      const query = mentionMatch[1];
+      setMentionQuery(query);
+      
+      // Calculate position for dropdown
+      const textBeforeMention = textBeforeCursor.substring(0, cursorPos - mentionMatch[0].length);
+      const lines = textBeforeMention.split('\n');
+      const lineHeight = 24; // Approximate line height
+      const top = lines.length * lineHeight + 5;
+      const left = lines[lines.length - 1].length * 8; // Approximate character width
+      
+      setMentionPosition({ top, left });
+      setShowMentionAutocomplete(true);
+      setMentionSelectedIndex(0);
+
+      // Search users
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      searchTimeoutRef.current = setTimeout(async () => {
+        const results = await searchUsers(query, 5);
+        setMentionUsers(results);
+      }, 300);
+    } else {
+      setShowMentionAutocomplete(false);
+      setMentionUsers([]);
+    }
+  }, [text]);
+
+  // Handle hashtag detection (just visual feedback for now)
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    const cursorPos = textareaRef.current.selectionStart;
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const hashtagMatch = textBeforeCursor.match(/(?:^|\s)#([a-z0-9_]*)$/i);
+    // Hashtag autocomplete can be added later if needed
+  }, [text]);
 
   // Auto-focus textarea when autoFocus prop is true
   useEffect(() => {

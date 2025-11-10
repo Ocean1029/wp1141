@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
-import { updateUserProfile } from "@/lib/server/users";
+import { updateUserProfile, checkUserIdAvailability } from "@/lib/server/users";
+import { validateUserId, sanitizeUserId } from "@/lib/utils/userId";
 import type { User } from "@/types";
 
 interface EditProfileDialogProps {
@@ -18,6 +19,8 @@ export function EditProfileDialog({
   onClose,
   onUpdate,
 }: EditProfileDialogProps) {
+  const [name, setName] = useState(user.name);
+  const [userID, setUserID] = useState(user.userId);
   const [bio, setBio] = useState(user.bio ?? "");
   const [imageUrl, setImageUrl] = useState(user.imageUrl ?? "");
   const [bannerUrl, setBannerUrl] = useState(user.bannerUrl ?? "");
@@ -25,8 +28,80 @@ export function EditProfileDialog({
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userIdError, setUserIdError] = useState<string | null>(null);
+  const [userIdAvailable, setUserIdAvailable] = useState<boolean | null>(null);
+  const [isCheckingUserId, setIsCheckingUserId] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const userIdCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset form when dialog opens/closes or user changes
+  useEffect(() => {
+    if (isOpen) {
+      setName(user.name);
+      setUserID(user.userId);
+      setBio(user.bio ?? "");
+      setImageUrl(user.imageUrl ?? "");
+      setBannerUrl(user.bannerUrl ?? "");
+      setErrorMessage(null);
+      setUserIdError(null);
+      setUserIdAvailable(null);
+    }
+  }, [isOpen, user]);
+
+  // Check userID availability when it changes
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const currentUserId = user.userId.toLowerCase();
+    const sanitized = sanitizeUserId(userID);
+
+    // Clear previous timeout
+    if (userIdCheckTimeoutRef.current) {
+      clearTimeout(userIdCheckTimeoutRef.current);
+    }
+
+    // If userID hasn't changed, don't check
+    if (sanitized === currentUserId) {
+      setUserIdError(null);
+      setUserIdAvailable(null);
+      return;
+    }
+
+    // Validate format first
+    const validation = validateUserId(sanitized);
+    if (!validation.valid) {
+      setUserIdError(validation.error ?? "Invalid user ID");
+      setUserIdAvailable(false);
+      return;
+    }
+
+    setUserIdError(null);
+    setIsCheckingUserId(true);
+
+    // Debounce the availability check
+    userIdCheckTimeoutRef.current = setTimeout(async () => {
+      try {
+        const result = await checkUserIdAvailability(sanitized);
+        setUserIdAvailable(result.available);
+        if (!result.available && result.error) {
+          setUserIdError(result.error);
+        }
+      } catch (error) {
+        console.error("Error checking user ID availability:", error);
+        setUserIdAvailable(false);
+        setUserIdError("Failed to check availability");
+      } finally {
+        setIsCheckingUserId(false);
+      }
+    }, 500);
+
+    return () => {
+      if (userIdCheckTimeoutRef.current) {
+        clearTimeout(userIdCheckTimeoutRef.current);
+      }
+    };
+  }, [userID, user.userId, isOpen]);
 
   if (!isOpen) return null;
 
@@ -116,8 +191,40 @@ export function EditProfileDialog({
     setIsSaving(true);
     setErrorMessage(null);
 
+    // Validate name
+    const trimmedName = name.trim();
+    if (trimmedName.length === 0) {
+      setErrorMessage("Name cannot be empty");
+      setIsSaving(false);
+      return;
+    }
+    if (trimmedName.length > 50) {
+      setErrorMessage("Name must be 50 characters or less");
+      setIsSaving(false);
+      return;
+    }
+
+    // Validate userID if changed
+    const sanitizedUserId = sanitizeUserId(userID);
+    const currentUserId = user.userId.toLowerCase();
+    if (sanitizedUserId !== currentUserId) {
+      const validation = validateUserId(sanitizedUserId);
+      if (!validation.valid) {
+        setErrorMessage(validation.error ?? "Invalid user ID");
+        setIsSaving(false);
+        return;
+      }
+      if (userIdAvailable === false) {
+        setErrorMessage("User ID is not available");
+        setIsSaving(false);
+        return;
+      }
+    }
+
     try {
       const result = await updateUserProfile({
+        name: trimmedName,
+        userID: sanitizedUserId !== currentUserId ? sanitizedUserId : undefined,
         bio: bio.trim() || undefined,
         image: imageUrl || undefined,
         bannerUrl: bannerUrl || undefined,
@@ -128,8 +235,13 @@ export function EditProfileDialog({
         return;
       }
 
-      onUpdate();
-      onClose();
+      // If userID changed, redirect to new profile URL
+      if (sanitizedUserId !== currentUserId) {
+        window.location.href = `/profile/${sanitizedUserId}`;
+      } else {
+        onUpdate();
+        onClose();
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
       setErrorMessage("Something went wrong while updating your profile");
@@ -270,6 +382,68 @@ export function EditProfileDialog({
             {errorMessage && (
               <p className="text-sm text-red-600">{errorMessage}</p>
             )}
+
+            {/* Name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={50}
+              />
+              <p className="mt-1 text-xs text-gray-500 text-right">
+                {name.length}/50
+              </p>
+            </div>
+
+            {/* User ID */}
+            <div>
+              <label
+                htmlFor="userID"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                User ID
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-gray-500">@</span>
+                <input
+                  id="userID"
+                  type="text"
+                  value={userID}
+                  onChange={(e) => setUserID(e.target.value)}
+                  placeholder="userid"
+                  className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    userIdError
+                      ? "border-red-500"
+                      : userIdAvailable === true
+                      ? "border-green-500"
+                      : "border-gray-300"
+                  }`}
+                  maxLength={20}
+                />
+              </div>
+              {isCheckingUserId && (
+                <p className="mt-1 text-xs text-gray-500">Checking availability...</p>
+              )}
+              {userIdError && (
+                <p className="mt-1 text-xs text-red-600">{userIdError}</p>
+              )}
+              {userIdAvailable === true && !userIdError && (
+                <p className="mt-1 text-xs text-green-600">User ID is available</p>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                3-20 characters, lowercase letters, numbers, and underscores only
+              </p>
+            </div>
 
             {/* Bio */}
             <div>

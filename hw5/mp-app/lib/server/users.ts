@@ -116,6 +116,8 @@ export async function getUserProfile(userId: string) {
  */
 export async function updateUserProfile(
   data: {
+    name?: string;
+    userID?: string;
     bio?: string;
     bannerUrl?: string;
     image?: string;
@@ -128,21 +130,118 @@ export async function updateUserProfile(
       return { success: false, error: "Not authenticated" };
     }
 
-    const user = await prisma.user.update({
+    const updateData: Record<string, unknown> = {};
+
+    // Update name if provided
+    if (data.name !== undefined) {
+      const trimmedName = data.name.trim();
+      if (trimmedName.length === 0) {
+        return { success: false, error: "Name cannot be empty" };
+      }
+      if (trimmedName.length > 50) {
+        return { success: false, error: "Name must be 50 characters or less" };
+      }
+      updateData.name = trimmedName;
+    }
+
+    // Update userID if provided
+    if (data.userID !== undefined) {
+      const sanitized = sanitizeUserId(data.userID);
+      const validation = validateUserId(sanitized);
+      
+      if (!validation.valid) {
+        return { success: false, error: validation.error };
+      }
+
+      // Check if userID is already taken by another user
+      const existingUser = await (prisma.user as any).findUnique({
+        where: { userID: sanitized },
+        select: { id: true },
+      });
+      
+      if (existingUser && existingUser.id !== session.user.id) {
+        return { success: false, error: "User ID already taken" };
+      }
+
+      updateData.userID = sanitized;
+    }
+
+    // Update other fields
+    if (data.bio !== undefined) {
+      updateData.bio = data.bio || null;
+    }
+    if (data.bannerUrl !== undefined) {
+      updateData.bannerUrl = data.bannerUrl || null;
+    }
+    if (data.image !== undefined) {
+      updateData.image = data.image || null;
+    }
+
+    const user = await (prisma.user as any).update({
       where: { id: session.user.id },
-      data,
+      data: updateData,
     });
 
-    // Revalidate profile page if userID exists
+    // Revalidate profile page
     const userWithID = user as { userID?: string | null };
     if (userWithID.userID) {
       revalidatePath(`/profile/${userWithID.userID}`);
     }
     
+    // If userID changed, also revalidate old profile path and home
+    if (data.userID !== undefined) {
+      revalidatePath("/home");
+    }
+    
     return { success: true, user };
   } catch (error) {
     console.error("Error updating profile:", error);
+    // Handle Prisma unique constraint violation
+    if (error instanceof Error && error.message.includes("Unique constraint")) {
+      return { success: false, error: "User ID already taken" };
+    }
     return { success: false, error: "Failed to update profile" };
+  }
+}
+
+/**
+ * Server Action: Search users by userID or name
+ */
+export async function searchUsers(query: string, limit: number = 10) {
+  try {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+
+    const searchTerm = query.trim().toLowerCase();
+
+    // Search by userID or name
+    const users = await (prisma.user as any).findMany({
+      where: {
+        OR: [
+          { userID: { contains: searchTerm, mode: "insensitive" } },
+          { name: { contains: searchTerm, mode: "insensitive" } },
+        ],
+        userID: { not: null },
+      },
+      select: {
+        id: true,
+        userID: true,
+        name: true,
+        image: true,
+      },
+      take: limit,
+    });
+
+    return users.map((user: any) => ({
+      id: user.id,
+      userId: user.userID,
+      name: user.name,
+      imageUrl: user.image ?? undefined,
+    }));
+  } catch (error) {
+    console.error("Error searching users:", error);
+    return [];
   }
 }
 
