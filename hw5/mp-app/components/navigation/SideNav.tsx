@@ -14,9 +14,12 @@ export function SideNav({ session }: SideNavProps) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const currentUserID = session?.user?.userID;
+  const profileHref = currentUserID ? `/profile/${currentUserID}` : "/profile";
+
   const navItems = [
     { href: "/home", icon: Home, label: "Home" },
-    { href: "/profile", icon: User, label: "Profile" },
+    { href: profileHref, icon: User, label: "Profile" },
   ];
 
   const handlePostClick = (e: React.MouseEvent) => {
