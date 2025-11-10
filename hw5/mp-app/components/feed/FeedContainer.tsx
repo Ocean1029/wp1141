@@ -1,14 +1,20 @@
-import { FeedTabs } from "./FeedTabs";
+import { auth } from "@/lib/auth";
+import { EditablePostCard } from "./EditablePostCard";
+import { FeedTabs, type FeedTab } from "./FeedTabs";
 import { FeedList } from "./FeedList";
 
-export function FeedContainer() {
+interface FeedContainerProps {
+  activeTab: FeedTab;
+}
+
+export async function FeedContainer({ activeTab }: FeedContainerProps) {
+  const session = await auth();
+
   return (
-    <div className="min-h-screen">
-      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-4 py-4">
-        <h1 className="text-xl font-bold">Home</h1>
-      </div>
-      <FeedTabs />
-      <FeedList />
+    <div className="feed__container min-h-screen">
+      <FeedTabs activeTab={activeTab} />
+      <EditablePostCard session={session} />
+      <FeedList activeTab={activeTab} />
     </div>
   );
 }

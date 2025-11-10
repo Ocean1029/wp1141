@@ -1,3 +1,4 @@
+import { auth } from "@/lib/auth";
 import { ThreadContainer } from "@/components/thread/ThreadContainer";
 
 export default async function PostThreadPage({
@@ -6,9 +7,10 @@ export default async function PostThreadPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await auth();
   return (
     <div className="border-x border-gray-200">
-      <ThreadContainer postId={id} />
+      <ThreadContainer postId={id} session={session} />
     </div>
   );
 }

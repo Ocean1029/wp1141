@@ -7,6 +7,9 @@ import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "database",
+  },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -22,6 +25,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Allow all sign-ins, but ensure each provider account creates a separate user
+      // PrismaAdapter will handle account linking based on email by default
+      // If you want to prevent linking, you can add custom logic here
+      return true;
+    },
     async session({ session, user }) {
       // Fetch user with userID from database
       // Note: userID field will be available after Prisma Client regeneration

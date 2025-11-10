@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, Repeat2, Heart, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MessageCircle, Repeat2, Heart } from "lucide-react";
 import type { PostCardProps } from "@/types";
 
 export function PostCard({ post }: PostCardProps) {
-  const [liked, setLiked] = useState(false);
+  const router = useRouter();
+  const [liked, setLiked] = useState(post.viewerHasLiked ?? false);
+  const displayUserId = post.author.userId ? `@${post.author.userId}` : "";
 
   const handleLike = async () => {
     // TODO: Implement like toggle Server Action
@@ -16,40 +19,48 @@ export function PostCard({ post }: PostCardProps) {
     // TODO: Implement repost Server Action
   };
 
-  const handleReply = () => {
-    // TODO: Implement reply modal
+  const handleReply = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Navigate to post page with focus=reply query parameter
+    router.push(`/post/${post.id}?focus=reply`);
   };
 
-  const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this post?")) {
-      // TODO: Implement delete Server Action
-      console.log("Delete post:", post.id);
-    }
+  const handleCardClick = () => {
+    router.push(`/post/${post.id}`);
   };
 
   return (
-    <article className="p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex gap-3">
-        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300" />
+    <article
+      className="post-card p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+      onClick={handleCardClick}
+    >
+      <div className="post-card__body flex gap-3">
+        <div className="post-card__avatar h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-gray-300">
+          {post.author.imageUrl ? (
+            <img
+              src={post.author.imageUrl}
+              alt={`${post.author.name} avatar`}
+              className="h-full w-full object-cover"
+            />
+          ) : null}
+        </div>
         <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <span className="font-semibold">{post.author.name}</span>
-              <span className="ml-2 text-gray-500">@{post.author.userId}</span>
-              <span className="ml-2 text-gray-400">·</span>
-              <span className="ml-2 text-gray-500">
-                {new Date(post.createdAt).toLocaleDateString()}
+          <div className="post-card__meta flex items-start gap-2">
+            <div className="post-card__meta-left">
+              <span className="post-card__author font-semibold">{post.author.name}</span>
+              {displayUserId ? (
+                <span className="post-card__handle ml-2 text-gray-500">
+                  {displayUserId}
+                </span>
+              ) : null}
+              <span className="post-card__dot ml-2 text-gray-400">·</span>
+              <span className="post-card__timestamp ml-2 text-gray-500">
+                {post.relativeTime}
               </span>
             </div>
-            <button
-              onClick={handleDelete}
-              className="text-gray-400 hover:text-red-600"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
           </div>
           <p className="mt-1 whitespace-pre-wrap">{post.text}</p>
-          <div className="mt-3 flex items-center gap-6 text-gray-500">
+          <div className="post-card__actions mt-3 flex items-center gap-6 text-gray-500">
             <button
               onClick={handleReply}
               className="flex items-center gap-2 hover:text-blue-600"
@@ -58,14 +69,20 @@ export function PostCard({ post }: PostCardProps) {
               <span>{post.replyCount}</span>
             </button>
             <button
-              onClick={handleRepost}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRepost();
+              }}
               className="flex items-center gap-2 hover:text-green-600"
             >
               <Repeat2 className="h-4 w-4" />
               <span>{post.repostCount}</span>
             </button>
             <button
-              onClick={handleLike}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLike();
+              }}
               className={`flex items-center gap-2 hover:text-red-600 ${
                 liked ? "text-red-600" : ""
               }`}

@@ -20,10 +20,12 @@ export interface Post {
   id: string;
   author: Author;
   text: string;
-  createdAt: Date;
+  createdAt: string;
+  relativeTime: string;
   replyCount: number;
   repostCount: number;
   likeCount: number;
+  viewerHasLiked?: boolean;
 }
 
 // Component Props
@@ -39,6 +41,13 @@ export interface ProfileTabsProps {
 
 export interface PostCardProps {
   post: Post;
+}
+
+export interface Draft {
+  id: string;
+  text: string;
+  createdAt: string;
+  relativeTime: string;
 }
 
 export interface PostModalProps {

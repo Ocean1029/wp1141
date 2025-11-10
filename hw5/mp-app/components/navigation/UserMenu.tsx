@@ -2,16 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
+import type { Session } from "next-auth";
 
-export function UserMenu() {
+interface UserMenuProps {
+  session: Session | null;
+}
+
+export function UserMenu({ session }: UserMenuProps) {
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
 
   const handleLogout = async () => {
-    // TODO: Implement logout logic
+    await signOut({ redirect: false });
     router.push("/login");
+    router.refresh();
   };
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const userName = session.user.name ?? "User";
+  const userID = session.user.userID ?? "userid";
+  const userImage = session.user.image;
 
   return (
     <div className="absolute bottom-4 w-[calc(16rem-2rem)]">
@@ -19,10 +34,18 @@ export function UserMenu() {
         onClick={() => setShowMenu(!showMenu)}
         className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-100"
       >
-        <div className="h-10 w-10 rounded-full bg-gray-300" />
-        <div className="flex-1">
-          <p className="font-medium">User Name</p>
-          <p className="text-sm text-gray-600">@userid</p>
+        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-gray-300">
+          {userImage ? (
+            <img
+              src={userImage}
+              alt={`${userName} avatar`}
+              className="h-full w-full object-cover"
+            />
+          ) : null}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium truncate">{userName}</p>
+          <p className="text-sm text-gray-600 truncate">@{userID}</p>
         </div>
       </button>
       {showMenu && (

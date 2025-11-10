@@ -2,25 +2,88 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-// TODO: Import Prisma client when database is set up
-// import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import type { Prisma } from "@prisma/client";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import type { Post as FeedPost } from "@/types";
+import { validateTextLength } from "@/lib/utils/text-parser";
+import { formatRelativeTime } from "@/lib/utils/time";
+import type { Draft } from "@/types";
 
 /**
- * Server Action: Fetch all posts for "All" feed
+ * Helper: materialize Prisma records into feed payloads.
+ * This helper centralises viewer-specific flags (liked/author) to keep exported functions tidy.
  */
-export async function getAllPosts() {
-  try {
-    // TODO: Implement Prisma query
-    // const posts = await prisma.post.findMany({
-    //   where: { deletedAt: null, isDraft: false },
-    //   include: {
-    //     author: { select: { userId: true, name: true, imageUrl: true } },
-    //   },
-    //   orderBy: { createdAt: 'desc' },
-    // });
-    // return posts;
-    
+type PostWithAuthor = Prisma.PostGetPayload<{
+  include: {
+    author: true;
+  };
+}>;
+
+async function mapPostsForFeed(
+  posts: PostWithAuthor[],
+  viewerId?: string | null,
+): Promise<FeedPost[]> {
+  if (posts.length === 0) {
     return [];
+  }
+
+  let viewerLikes = new Set<string>();
+
+  if (viewerId) {
+    const likedEntries = await prisma.like.findMany({
+      where: {
+        userId: viewerId,
+        postId: { in: posts.map((post) => post.id) },
+      },
+      select: { postId: true },
+    });
+
+    viewerLikes = new Set(likedEntries.map((entry) => entry.postId));
+  }
+
+  return posts.map((post) => ({
+    id: post.id,
+    text: post.text,
+    createdAt: post.createdAt.toISOString(),
+    relativeTime: formatRelativeTime(post.createdAt),
+    replyCount: post.replyCount,
+    repostCount: post.repostCount,
+    likeCount: post.likeCount,
+    viewerHasLiked: viewerId ? viewerLikes.has(post.id) : false,
+    author: {
+      userId:
+        (post.author as { userID?: string | null }).userID ??
+        `user-${post.authorId.slice(0, Math.max(4, Math.min(8, post.authorId.length)))}`,
+      name: post.author.name,
+      imageUrl: (post.author as { image?: string | null }).image ?? undefined,
+    },
+  }));
+}
+
+/**
+ * Server Action: Fetch all posts for "All" feed.
+ */
+export async function getAllPosts(): Promise<FeedPost[]> {
+  try {
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    const posts = await prisma.post.findMany({
+      where: {
+        deletedAt: null,
+        isDraft: false,
+        parentId: null,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+      take: 30,
+    });
+
+    return mapPostsForFeed(posts, viewerId);
   } catch (error) {
     console.error("Error fetching posts:", error);
     return [];
@@ -28,68 +91,117 @@ export async function getAllPosts() {
 }
 
 /**
- * Server Action: Fetch posts from followed users
+ * Server Action: Fetch posts from followed users for the "Following" feed.
  */
-export async function getFollowingPosts(userId: string) {
+export async function getFollowingPosts(): Promise<FeedPost[]> {
   try {
-    // TODO: Implement Prisma query with joins
-    // const user = await prisma.user.findUnique({
-    //   where: { id: userId },
-    //   include: { following: { select: { followingId: true } } },
-    // });
-    // const followingIds = user?.following.map(f => f.followingId) || [];
-    // const posts = await prisma.post.findMany({
-    //   where: {
-    //     authorId: { in: followingIds },
-    //     deletedAt: null,
-    //     isDraft: false,
-    //   },
-    //   include: {
-    //     author: { select: { userId: true, name: true, imageUrl: true } },
-    //   },
-    //   orderBy: { createdAt: 'desc' },
-    // });
-    // return posts;
-    
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    if (!viewerId) {
+      return [];
+    }
+
+    const following = await prisma.follow.findMany({
+      where: { followerId: viewerId },
+      select: { followingId: true },
+    });
+
+    const followingIds = following.map((item) => item.followingId);
+
+    if (followingIds.length === 0) {
     return [];
+    }
+
+    const posts = await prisma.post.findMany({
+      where: {
+        authorId: { in: followingIds },
+        deletedAt: null,
+        isDraft: false,
+        parentId: null,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+      take: 30,
+    });
+
+    return mapPostsForFeed(posts, viewerId);
   } catch (error) {
     console.error("Error fetching following posts:", error);
     return [];
   }
 }
 
+interface CreatePostResult {
+  success: boolean;
+  error?: string;
+  postId?: string;
+}
+
 /**
- * Server Action: Create a new post
+ * Server Action: Create a new post (top-level or reply).
  */
 export async function createPost(
-  authorId: string,
   text: string,
   parentId?: string,
   isDraft: boolean = false,
-) {
+): Promise<CreatePostResult> {
   try {
-    // TODO: Implement Prisma create with transaction
-    // const post = await prisma.post.create({
-    //   data: {
-    //     authorId,
-    //     text,
-    //     parentId,
-    //     isDraft,
-    //   },
-    //   include: {
-    //     author: { select: { userId: true, name: true, imageUrl: true } },
-    //   },
-    // });
-    // 
-    // // Revalidate relevant paths
-    // revalidatePath('/home');
-    // if (parentId) {
-    //   revalidatePath(`/post/${parentId}`);
-    // }
-    // 
-    // return { success: true, post };
-    
-    return { success: false, error: "Not implemented" };
+    const session = await auth();
+    const authorId = session?.user?.id;
+
+    if (!authorId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const sanitizedText = text.trim();
+
+    if (sanitizedText.length === 0) {
+      return { success: false, error: "Post cannot be empty" };
+    }
+
+    const { valid } = validateTextLength(sanitizedText);
+
+    if (!valid) {
+      return { success: false, error: "Post exceeds the 280 character limit" };
+    }
+
+    const created = await prisma.post.create({
+      data: {
+        authorId,
+        text: sanitizedText,
+        parentId: parentId ?? null,
+        isDraft,
+      },
+      select: {
+        id: true,
+        parentId: true,
+        isDraft: true,
+      },
+    });
+
+    if (!created.isDraft && created.parentId) {
+      // Increment reply count for parent post
+      await prisma.post.update({
+        where: { id: created.parentId },
+        data: {
+          replyCount: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
+    if (!created.isDraft) {
+      revalidatePath("/home");
+      if (created.parentId) {
+        revalidatePath(`/post/${created.parentId}`);
+      }
+    }
+
+    return { success: true, postId: created.id };
   } catch (error) {
     console.error("Error creating post:", error);
     return { success: false, error: "Failed to create post" };
@@ -97,65 +209,112 @@ export async function createPost(
 }
 
 /**
- * Server Action: Delete a post (soft delete)
+ * Server Action: Fetch a single post with its replies
  */
-export async function deletePost(postId: string, userId: string) {
+export async function getPostWithReplies(postId: string): Promise<{
+  post: FeedPost | null;
+  replies: FeedPost[];
+}> {
   try {
-    // TODO: Implement Prisma update with permission check
-    // const post = await prisma.post.findUnique({ where: { id: postId } });
-    // if (!post || post.authorId !== userId) {
-    //   return { success: false, error: "Unauthorized" };
-    // }
-    // await prisma.post.update({
-    //   where: { id: postId },
-    //   data: { deletedAt: new Date() },
-    // });
-    // 
-    // revalidatePath('/home');
-    // if (post.parentId) {
-    //   revalidatePath(`/post/${post.parentId}`);
-    // }
-    // 
-    // return { success: true };
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: postId,
+        deletedAt: null,
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    if (!post) {
+      return { post: null, replies: [] };
+    }
+
+    // Only show draft posts to their author
+    if (post.isDraft && post.authorId !== viewerId) {
+      return { post: null, replies: [] };
+    }
+
+    // For public posts, only show non-draft posts
+    if (post.isDraft && post.authorId === viewerId) {
+      // Allow author to view their own draft, but don't show replies
+      const [mappedPost] = await mapPostsForFeed([post], viewerId);
+      return {
+        post: mappedPost ?? null,
+        replies: [],
+      };
+    }
+
+    const replies = await prisma.post.findMany({
+      where: {
+        parentId: postId,
+        deletedAt: null,
+        isDraft: false,
+      },
+      orderBy: { createdAt: "asc" },
+      include: {
+        author: true,
+      },
+    });
+
+    const [mappedPost] = await mapPostsForFeed([post], viewerId);
+    const mappedReplies = await mapPostsForFeed(replies, viewerId);
     
-    return { success: false, error: "Not implemented" };
+    return {
+      post: mappedPost ?? null,
+      replies: mappedReplies,
+    };
   } catch (error) {
-    console.error("Error deleting post:", error);
-    return { success: false, error: "Failed to delete post" };
+    console.error("Error fetching post:", error);
+    return { post: null, replies: [] };
   }
 }
 
 /**
- * Server Action: Fetch a single post with its replies
+ * Server Action: Get user's drafts
  */
-export async function getPostWithReplies(postId: string) {
+export async function getDrafts(): Promise<Draft[]> {
   try {
-    // TODO: Implement Prisma query with nested replies
-    // const post = await prisma.post.findUnique({
-    //   where: { id: postId },
-    //   include: {
-    //     author: { select: { userId: true, name: true, imageUrl: true } },
-    //     replies: {
-    //       include: {
-    //         author: { select: { userId: true, name: true, imageUrl: true } },
-    //       },
-    //       orderBy: { createdAt: 'asc' },
-    //     },
-    //   },
-    // });
-    // return post;
-    
-    return null;
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return [];
+    }
+
+    const drafts = await prisma.post.findMany({
+      where: {
+        authorId: userId,
+        isDraft: true,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        text: true,
+        createdAt: true,
+      },
+    });
+
+    return drafts.map((draft) => ({
+      id: draft.id,
+      text: draft.text,
+      createdAt: draft.createdAt.toISOString(),
+      relativeTime: formatRelativeTime(draft.createdAt),
+    }));
   } catch (error) {
-    console.error("Error fetching post:", error);
-    return null;
+    console.error("Error fetching drafts:", error);
+    return [];
   }
 }
 
 /**
  * Server Action: Get user's liked posts
  */
-export async function getLikedPosts(userId: string) {
+export async function getLikedPosts(_userId: string) {
   try {
     // TODO: Implement Prisma query
     // const likes = await prisma.like.findMany({

@@ -1,33 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 
-export function FeedTabs() {
-  const [activeTab, setActiveTab] = useState<"all" | "following">("all");
+export type FeedTab = "all" | "following";
 
+interface FeedTabsProps {
+  activeTab: FeedTab;
+}
+
+export function FeedTabs({ activeTab }: FeedTabsProps) {
   return (
-    <div className="border-b border-gray-200">
-      <div className="flex">
-        <button
-          onClick={() => setActiveTab("all")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === "all"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setActiveTab("following")}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === "following"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          Following
-        </button>
+    <div className="feed__tabs sticky top-0 z-20 border-b border-gray-200 bg-white w-full">
+      <div className="grid grid-cols-2">
+        <div className="flex justify-center">
+          <Link
+            href="/home"
+            className={`feed__tab px-4 py-3 text-base transition-colors ${
+              activeTab === "all"
+                ? "border-b-2 border-blue-500 font-bold text-black"
+                : "font-normal text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            All
+          </Link>
+        </div>
+        <div className="flex justify-center">
+          <Link
+            href="/home?tab=following"
+            className={`feed__tab px-4 py-3 text-base transition-colors ${
+              activeTab === "following"
+                ? "border-b-2 border-blue-500 font-bold text-black"
+                : "font-normal text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            Following
+          </Link>
+        </div>
       </div>
     </div>
   );

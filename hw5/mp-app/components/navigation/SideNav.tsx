@@ -1,21 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, User, PenSquare } from "lucide-react";
 import { UserMenu } from "./UserMenu";
+import type { Session } from "next-auth";
 
-export function SideNav() {
+interface SideNavProps {
+  session: Session | null;
+}
+
+export function SideNav({ session }: SideNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navItems = [
     { href: "/home", icon: Home, label: "Home" },
     { href: "/profile", icon: User, label: "Profile" },
-    { href: "/post", icon: PenSquare, label: "Post" },
   ];
 
+  const handlePostClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Navigate to home and focus on compose area
+    router.push("/home?focus=compose");
+  };
+
   return (
-    <aside className="w-64 border-r border-gray-200 p-4">
+    <aside className="fixed top-0 left-0 h-screen w-64 border-r border-gray-200 p-4 overflow-y-auto bg-white z-10">
       <nav className="space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -36,8 +47,15 @@ export function SideNav() {
             </Link>
           );
         })}
+        <button
+          onClick={handlePostClick}
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 transition-colors text-gray-700 hover:bg-gray-100"
+        >
+          <PenSquare className="h-5 w-5" />
+          <span className="font-medium">Post</span>
+        </button>
       </nav>
-      <UserMenu />
+      <UserMenu session={session} />
     </aside>
   );
 }

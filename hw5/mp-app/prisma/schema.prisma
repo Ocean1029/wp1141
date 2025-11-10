@@ -11,7 +11,7 @@ model User {
   id             String   @id @default(cuid())
   userID         String?  @unique           // the unique login ID entered by user (optional until registered)
   name           String                    // display name
-  email          String?  @unique
+  email          String?
   emailVerified  DateTime?
   image          String?
   bannerUrl      String?
