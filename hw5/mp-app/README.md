@@ -1,4 +1,4 @@
-# X-like Social Platform
+# Y
 
 A Twitter-like social media platform built with Next.js 16, featuring OAuth authentication, real-time interactions, and threaded conversations. This platform provides a complete social media experience from user registration to content creation, social interactions, and profile management.
 
@@ -6,9 +6,7 @@ A Twitter-like social media platform built with Next.js 16, featuring OAuth auth
 
 The application is deployed on Vercel and can be accessed at the following URL:
 
-**Production Deployment**: [https://vercel.com/ocean1029s-projects/wp1141](https://vercel.com/ocean1029s-projects/wp1141)
-
-For the actual application URL, please check the Vercel project dashboard for the generated domain (typically in the format `https://wp1141.vercel.app` or your custom domain).
+**Production Deployment**: [https://wp1141-eta.vercel.app/](https://wp1141-eta.vercel.app/)
 
 ## Overview
 
@@ -108,15 +106,7 @@ The development environment uses Docker Compose profiles to separate development
 
 ### Starting the Development Server
 
-To start the development environment, run `make up-dev`, which starts the PostgreSQL database container and the Next.js development server. The database is automatically configured with the correct connection string, and the Next.js server runs with hot module replacement enabled for rapid development iteration.
-
-After starting the services, you need to set up the database schema by running `make db-setup-dev`. This command generates the Prisma Client and runs all pending migrations, creating the necessary database tables and indexes. Once the database is set up, you can access the application at `http://localhost:3000`.
-
-### Database Management
-
-Prisma Studio provides a visual interface for database management and can be accessed by running `make db-studio-dev`. This opens a web-based interface at `http://localhost:5555` where you can view and edit database records. This tool is particularly useful during development for inspecting data, testing queries, and debugging database-related issues.
-
-Database migrations are managed through Prisma Migrate, which tracks schema changes and generates SQL migration files. When you modify the Prisma schema, you can create a new migration with `npx prisma migrate dev`, which generates the migration file and applies it to the development database. The migration files are version-controlled, ensuring that schema changes are tracked and can be applied consistently across different environments.
+To start the development environment, run `make up`, which starts the PostgreSQL database container and the Next.js development server. The database is automatically configured with the correct connection string, and the Next.js server runs with hot module replacement enabled for rapid development iteration.
 
 ## Environment Configuration
 

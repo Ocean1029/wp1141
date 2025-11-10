@@ -44,6 +44,7 @@ export function useAutocomplete({
   useEffect(() => {
     if (!textareaElement || cursorPosition === 0) {
       setAutocomplete({ type: null, query: "", position: null, selectedIndex: 0 });
+      setUsers([]);
       return;
     }
 
@@ -63,17 +64,15 @@ export function useAutocomplete({
       });
       
       // Search users
-      if (query.length >= 0) {
-        setIsLoadingUsers(true);
-        if (searchTimeoutRef.current) {
-          clearTimeout(searchTimeoutRef.current);
-        }
-        searchTimeoutRef.current = setTimeout(async () => {
-          const results = await searchUsers(query, 5);
-          setUsers(results);
-          setIsLoadingUsers(false);
-        }, 300);
+      setIsLoadingUsers(true);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
+      searchTimeoutRef.current = setTimeout(async () => {
+        const results = await searchUsers(query, 5);
+        setUsers(results);
+        setIsLoadingUsers(false);
+      }, 300);
       return;
     }
 
@@ -94,6 +93,13 @@ export function useAutocomplete({
     // No match, hide autocomplete
     setAutocomplete({ type: null, query: "", position: null, selectedIndex: 0 });
     setUsers([]);
+    setIsLoadingUsers(false);
+    
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, [text, cursorPosition, textareaElement]);
 
   // Handle keyboard navigation

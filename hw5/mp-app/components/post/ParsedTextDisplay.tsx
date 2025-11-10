@@ -17,6 +17,15 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
     router.push(`/profile/${userId}`);
   };
 
+  const handleHashtagClick = (hashtag: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Extract hashtag text (remove # and spaces)
+    const tag = hashtag.trim().replace(/^#/, "");
+    // Navigate to search or hashtag page (for now, just log)
+    // In the future, this could navigate to a hashtag search page
+    console.log("Hashtag clicked:", tag);
+  };
+
   const handleUrlClick = (url: string, e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(url, "_blank", "noopener,noreferrer");
@@ -52,9 +61,13 @@ export function ParsedTextDisplay({ text, className = "" }: ParsedTextDisplayPro
       );
     } else if (segment.type === "hashtag") {
       elements.push(
-        <span key={`hashtag-${segment.start}`} className="text-blue-600 font-medium">
+        <button
+          key={`hashtag-${segment.start}`}
+          onClick={(e) => handleHashtagClick(segment.content, e)}
+          className="text-blue-600 hover:underline font-medium"
+        >
           {segment.content}
-        </span>
+        </button>
       );
     } else if (segment.type === "url") {
       elements.push(

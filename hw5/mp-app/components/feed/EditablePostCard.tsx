@@ -339,19 +339,26 @@ export function EditablePostCard({ session }: EditablePostCardProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    // Handle autocomplete navigation first
-    if (autocomplete.type !== null) {
-      handleAutocompleteKeyDown(e);
-      if (e.key === "Enter" || e.key === "Tab" || e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Escape") {
-        return;
-      }
-    }
-
     // Command+Enter (Mac) or Control+Enter (Windows/Linux) to submit
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
       e.preventDefault();
       if (canPost && !isPosting) {
         handlePost();
+      }
+      return;
+    }
+
+    // Handle autocomplete navigation
+    if (autocomplete.type !== null) {
+      handleAutocompleteKeyDown(e);
+      if (
+        e.key === "Enter" ||
+        e.key === "Tab" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "Escape"
+      ) {
+        return;
       }
     }
   };

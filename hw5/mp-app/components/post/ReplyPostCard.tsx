@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { validateTextLength } from "@/lib/utils/text-parser";
 import { createPost } from "@/lib/server/posts";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,6 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMentionAutocomplete, setShowMentionAutocomplete] = useState(false);
-  const [mentionQuery, setMentionQuery] = useState("");
   const [mentionUsers, setMentionUsers] = useState<User[]>([]);
   const [mentionSelectedIndex, setMentionSelectedIndex] = useState(0);
   const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
@@ -51,16 +50,28 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
 
     if (mentionMatch) {
       const query = mentionMatch[1];
-      setMentionQuery(query);
       
-      // Calculate position for dropdown
+      // Calculate position for dropdown using textarea metrics
       const textBeforeMention = textBeforeCursor.substring(0, cursorPos - mentionMatch[0].length);
       const lines = textBeforeMention.split('\n');
-      const lineHeight = 24; // Approximate line height
-      const top = lines.length * lineHeight + 5;
-      const left = lines[lines.length - 1].length * 8; // Approximate character width
+      const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 24;
+      const paddingTop = parseFloat(getComputedStyle(textarea).paddingTop) || 0;
+      const top = lines.length * lineHeight + paddingTop + 5;
       
-      setMentionPosition({ top, left });
+      // Calculate left position based on last line width
+      const lastLine = lines[lines.length - 1] || "";
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.font = getComputedStyle(textarea).font || "16px system-ui";
+        const left = context.measureText(lastLine).width + (parseFloat(getComputedStyle(textarea).paddingLeft) || 0);
+        setMentionPosition({ top, left });
+      } else {
+        // Fallback to approximate calculation
+        const left = lastLine.length * 8;
+        setMentionPosition({ top, left });
+      }
+      
       setShowMentionAutocomplete(true);
       setMentionSelectedIndex(0);
 
@@ -78,14 +89,6 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
     }
   }, [text]);
 
-  // Handle hashtag detection (just visual feedback for now)
-  useEffect(() => {
-    if (!textareaRef.current) return;
-    const cursorPos = textareaRef.current.selectionStart;
-    const textBeforeCursor = text.substring(0, cursorPos);
-    const hashtagMatch = textBeforeCursor.match(/(?:^|\s)#([a-z0-9_]*)$/i);
-    // Hashtag autocomplete can be added later if needed
-  }, [text]);
 
   // Auto-focus textarea when autoFocus prop is true
   useEffect(() => {
@@ -103,6 +106,54 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
       if (canPost && !isPosting) {
         handlePost();
       }
+      return;
+    }
+
+    // Handle mention autocomplete navigation
+    if (showMentionAutocomplete && mentionUsers.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setMentionSelectedIndex((prev) => Math.min(prev + 1, mentionUsers.length - 1));
+        return;
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setMentionSelectedIndex((prev) => Math.max(prev - 1, 0));
+        return;
+      } else if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        const selectedUser = mentionUsers[mentionSelectedIndex];
+        if (selectedUser) {
+          handleSelectMention(selectedUser);
+        }
+        return;
+      } else if (e.key === "Escape") {
+        setShowMentionAutocomplete(false);
+        return;
+      }
+    }
+  };
+
+  const handleSelectMention = (user: User) => {
+    if (!textareaRef.current) return;
+    
+    const textarea = textareaRef.current;
+    const cursorPos = textarea.selectionStart;
+    const textBeforeCursor = text.substring(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@([a-z0-9_]*)$/i);
+    
+    if (mentionMatch) {
+      const replaceStart = cursorPos - mentionMatch[0].length;
+      const newText = text.slice(0, replaceStart) + `@${user.userId} ` + text.slice(cursorPos);
+      setText(newText);
+      setShowMentionAutocomplete(false);
+      
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newPosition = replaceStart + user.userId.length + 2;
+          textareaRef.current.setSelectionRange(newPosition, newPosition);
+          textareaRef.current.focus();
+        }
+      }, 0);
     }
   };
 
@@ -175,7 +226,7 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
             />
           ) : null}
         </div>
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
             value={text}
@@ -185,6 +236,40 @@ export function ReplyPostCard({ session, parentId, onReplySuccess, autoFocus = f
             className="w-full resize-none border-none p-0 text-lg outline-none bg-transparent placeholder:text-gray-500 whitespace-pre-wrap"
             rows={3}
           />
+          {showMentionAutocomplete && mentionUsers.length > 0 && (
+            <div
+              className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden max-h-64 overflow-y-auto"
+              style={{
+                top: `${mentionPosition.top}px`,
+                left: `${mentionPosition.left}px`,
+                minWidth: "200px",
+              }}
+            >
+              {mentionUsers.map((user, index) => (
+                <button
+                  key={user.id}
+                  onClick={() => handleSelectMention(user)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-left transition-colors ${
+                    index === mentionSelectedIndex ? "bg-gray-50" : ""
+                  }`}
+                >
+                  <div className="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300 overflow-hidden">
+                    {user.imageUrl ? (
+                      <img
+                        src={user.imageUrl}
+                        alt={`${user.name} avatar`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">{user.name}</div>
+                    <div className="text-xs text-gray-500 truncate">@{user.userId}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
           {errorMessage ? (
             <p className="mt-2 text-sm text-red-600">{errorMessage}</p>
           ) : null}

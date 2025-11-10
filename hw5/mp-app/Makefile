@@ -237,3 +237,4 @@ init: ## Initialize project (copy .env files)
 		echo "$(YELLOW)⚠️  .env.prod already exists$(NC)"; \
 	fi
 	@echo "$(YELLOW)⚠️  Please edit .env.dev and .env.prod with your credentials!$(NC)"
+	npm install
