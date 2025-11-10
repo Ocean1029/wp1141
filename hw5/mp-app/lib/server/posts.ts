@@ -30,17 +30,28 @@ async function mapPostsForFeed(
   }
 
   let viewerLikes = new Set<string>();
+  let viewerReposts = new Set<string>();
 
   if (viewerId) {
-    const likedEntries = await prisma.like.findMany({
-      where: {
-        userId: viewerId,
-        postId: { in: posts.map((post) => post.id) },
-      },
-      select: { postId: true },
-    });
+    const [likedEntries, repostedEntries] = await Promise.all([
+      prisma.like.findMany({
+        where: {
+          userId: viewerId,
+          postId: { in: posts.map((post) => post.id) },
+        },
+        select: { postId: true },
+      }),
+      prisma.repost.findMany({
+        where: {
+          userId: viewerId,
+          postId: { in: posts.map((post) => post.id) },
+        },
+        select: { postId: true },
+      }),
+    ]);
 
     viewerLikes = new Set(likedEntries.map((entry) => entry.postId));
+    viewerReposts = new Set(repostedEntries.map((entry) => entry.postId));
   }
 
   return posts.map((post) => ({
@@ -53,6 +64,8 @@ async function mapPostsForFeed(
     repostCount: post.repostCount,
     likeCount: post.likeCount,
     viewerHasLiked: viewerId ? viewerLikes.has(post.id) : false,
+    viewerHasReposted: viewerId ? viewerReposts.has(post.id) : false,
+    isOwnPost: viewerId ? post.authorId === viewerId : false,
     author: {
       userId:
         (post.author as { userID?: string | null }).userID ??
@@ -315,7 +328,61 @@ export async function getDrafts(): Promise<Draft[]> {
 }
 
 /**
+ * Server Action: Delete a post (soft delete)
+ */
+export async function deletePost(postId: string) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Check if post exists and belongs to the user
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true, parentId: true },
+    });
+
+    if (!post) {
+      return { success: false, error: "Post not found" };
+    }
+
+    if (post.authorId !== userId) {
+      return { success: false, error: "Unauthorized: You can only delete your own posts" };
+    }
+
+    // Soft delete: set deletedAt timestamp
+    await prisma.post.update({
+      where: { id: postId },
+      data: { deletedAt: new Date() },
+    });
+
+    // If this is a reply, decrement parent's reply count
+    if (post.parentId) {
+      await prisma.post.update({
+        where: { id: post.parentId },
+        data: { replyCount: { decrement: 1 } },
+      });
+    }
+
+    // Revalidate relevant paths
+    revalidatePath("/home");
+    if (post.parentId) {
+      revalidatePath(`/post/${post.parentId}`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return { success: false, error: "Failed to delete post" };
+  }
+}
+
+/**
  * Server Action: Get posts by user ID (userID)
+ * Includes both original posts and reposts
  */
 export async function getUserPosts(userId: string): Promise<FeedPost[]> {
   try {
@@ -332,7 +399,8 @@ export async function getUserPosts(userId: string): Promise<FeedPost[]> {
       return [];
     }
 
-    const posts = await prisma.post.findMany({
+    // Get original posts
+    const originalPosts = await prisma.post.findMany({
       where: {
         authorId: user.id,
         deletedAt: null,
@@ -346,7 +414,54 @@ export async function getUserPosts(userId: string): Promise<FeedPost[]> {
       take: 50,
     });
 
-    return mapPostsForFeed(posts, viewerId);
+    // Get reposted posts
+    const reposts = await prisma.repost.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        post: {
+          include: {
+            author: true,
+          },
+        },
+      },
+      take: 50,
+    });
+
+    // Filter out null posts, deleted posts, drafts, and replies
+    const repostedPosts = reposts
+      .map((repost) => repost.post)
+      .filter(
+        (post) =>
+          post !== null &&
+          post.deletedAt === null &&
+          post.isDraft === false &&
+          post.parentId === null,
+      ) as PostWithAuthor[];
+
+    // Combine and sort by creation time (repost time for reposts)
+    // For reposts, we'll use the repost createdAt time for sorting
+    const allPosts: (PostWithAuthor & { repostedAt?: Date })[] = [
+      ...originalPosts.map((post) => ({ ...post, repostedAt: undefined })),
+      ...repostedPosts.map((post) => {
+        const repost = reposts.find((r) => r.postId === post.id);
+        return { ...post, repostedAt: repost?.createdAt };
+      }),
+    ];
+
+    // Sort by repostedAt (if exists) or createdAt, descending
+    allPosts.sort((a, b) => {
+      const timeA = a.repostedAt ?? a.createdAt;
+      const timeB = b.repostedAt ?? b.createdAt;
+      return timeB.getTime() - timeA.getTime();
+    });
+
+    // Remove repostedAt before mapping
+    const postsToMap = allPosts.map(({ repostedAt, ...post }) => post);
+
+    return mapPostsForFeed(postsToMap, viewerId);
   } catch (error) {
     console.error("Error fetching user posts:", error);
     return [];

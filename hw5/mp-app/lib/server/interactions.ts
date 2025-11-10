@@ -45,9 +45,9 @@ export async function toggleLike(postId: string) {
         }),
       ]);
       
-      // Revalidate relevant paths
-      revalidatePath('/home');
-      revalidatePath(`/post/${postId}`);
+      // Don't revalidate to avoid scrolling - optimistic update handles UI
+      // revalidatePath('/home');
+      // revalidatePath(`/post/${postId}`);
       
       return { success: true, liked: false };
     } else {
@@ -65,9 +65,9 @@ export async function toggleLike(postId: string) {
         }),
       ]);
       
-      // Revalidate relevant paths
-      revalidatePath('/home');
-      revalidatePath(`/post/${postId}`);
+      // Don't revalidate to avoid scrolling - optimistic update handles UI
+      // revalidatePath('/home');
+      // revalidatePath(`/post/${postId}`);
       
       return { success: true, liked: true };
     }
@@ -79,39 +79,85 @@ export async function toggleLike(postId: string) {
 
 /**
  * Server Action: Toggle repost on a post
+ * Requires authentication - gets userId from session
  */
-export async function toggleRepost(postId: string, userId: string) {
+export async function toggleRepost(postId: string) {
   try {
-    // TODO: Implement Prisma upsert with transaction
-    // const existingRepost = await prisma.repost.findUnique({
-    //   where: { userId_postId: { userId, postId } },
-    // });
-    // 
-    // if (existingRepost) {
-    //   // Unrepost: delete repost and decrement count
-    //   await prisma.$transaction([
-    //     prisma.repost.delete({ where: { id: existingRepost.id } }),
-    //     prisma.post.update({
-    //       where: { id: postId },
-    //       data: { repostCount: { decrement: 1 } },
-    //     }),
-    //   ]);
-    //   revalidatePath('/home');
-    //   return { success: true, reposted: false };
-    // } else {
-    //   // Repost: create repost and increment count
-    //   await prisma.$transaction([
-    //     prisma.repost.create({ data: { userId, postId } }),
-    //     prisma.post.update({
-    //       where: { id: postId },
-    //       data: { repostCount: { increment: 1 } },
-    //     }),
-    //   ]);
-    //   revalidatePath('/home');
-    //   return { success: true, reposted: true };
-    // }
-    
-    return { success: false, error: "Not implemented" };
+    // Get current user from session
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = session.user.id;
+
+    // Check if the post belongs to the current user
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true },
+    });
+
+    if (!post) {
+      return { success: false, error: "Post not found" };
+    }
+
+    if (post.authorId === userId) {
+      return { success: false, error: "Cannot repost your own post" };
+    }
+
+    // Check if repost already exists
+    const existingRepost = await prisma.repost.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId,
+        },
+      },
+    });
+
+    if (existingRepost) {
+      // Unrepost: delete repost and decrement count
+      await prisma.$transaction([
+        prisma.repost.delete({
+          where: {
+            userId_postId: {
+              userId,
+              postId,
+            },
+          },
+        }),
+        prisma.post.update({
+          where: { id: postId },
+          data: { repostCount: { decrement: 1 } },
+        }),
+      ]);
+
+      // Don't revalidate to avoid scrolling - optimistic update handles UI
+      // revalidatePath('/home');
+      // revalidatePath(`/post/${postId}`);
+
+      return { success: true, reposted: false };
+    } else {
+      // Repost: create repost and increment count
+      await prisma.$transaction([
+        prisma.repost.create({
+          data: {
+            userId,
+            postId,
+          },
+        }),
+        prisma.post.update({
+          where: { id: postId },
+          data: { repostCount: { increment: 1 } },
+        }),
+      ]);
+
+      // Don't revalidate to avoid scrolling - optimistic update handles UI
+      // revalidatePath('/home');
+      // revalidatePath(`/post/${postId}`);
+
+      return { success: true, reposted: true };
+    }
   } catch (error) {
     console.error("Error toggling repost:", error);
     return { success: false, error: "Failed to toggle repost" };
@@ -121,43 +167,114 @@ export async function toggleRepost(postId: string, userId: string) {
 /**
  * Server Action: Toggle follow relationship
  */
-export async function toggleFollow(targetUserId: string, currentUserId: string) {
+export async function toggleFollow(targetUserID: string) {
   try {
-    // TODO: Implement Prisma upsert with permission checks
-    // if (targetUserId === currentUserId) {
-    //   return { success: false, error: "Cannot follow yourself" };
-    // }
-    // 
-    // const existingFollow = await prisma.follow.findUnique({
-    //   where: {
-    //     followerId_followingId: {
-    //       followerId: currentUserId,
-    //       followingId: targetUserId,
-    //     },
-    //   },
-    // });
-    // 
-    // if (existingFollow) {
-    //   // Unfollow
-    //   await prisma.follow.delete({ where: { id: existingFollow.id } });
-    //   revalidatePath(`/profile/${targetUserId}`);
-    //   return { success: true, following: false };
-    // } else {
-    //   // Follow
-    //   await prisma.follow.create({
-    //     data: {
-    //       followerId: currentUserId,
-    //       followingId: targetUserId,
-    //     },
-    //   });
-    //   revalidatePath(`/profile/${targetUserId}`);
-    //   return { success: true, following: true };
-    // }
-    
-    return { success: false, error: "Not implemented" };
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const currentUserId = session.user.id;
+
+    // Find target user by userID
+    const targetUser = await prisma.user.findUnique({
+      where: { userID: targetUserID },
+      select: { id: true },
+    });
+
+    if (!targetUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    const targetUserId = targetUser.id;
+
+    if (targetUserId === currentUserId) {
+      return { success: false, error: "Cannot follow yourself" };
+    }
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: currentUserId,
+          followingId: targetUserId,
+        },
+      },
+    });
+
+    if (existingFollow) {
+      // Unfollow: delete follow relationship
+      await prisma.follow.delete({
+        where: {
+          followerId_followingId: {
+            followerId: currentUserId,
+            followingId: targetUserId,
+          },
+        },
+      });
+
+      // Revalidate relevant paths
+      revalidatePath(`/profile/${targetUserID}`);
+      revalidatePath("/home");
+      
+      return { success: true, following: false };
+    } else {
+      // Follow: create follow relationship
+      await prisma.follow.create({
+        data: {
+          followerId: currentUserId,
+          followingId: targetUserId,
+        },
+      });
+
+      // Revalidate relevant paths
+      revalidatePath(`/profile/${targetUserID}`);
+      revalidatePath("/home");
+      
+      return { success: true, following: true };
+    }
   } catch (error) {
     console.error("Error toggling follow:", error);
     return { success: false, error: "Failed to toggle follow" };
+  }
+}
+
+/**
+ * Server Action: Check if current user is following target user
+ */
+export async function checkFollowingStatus(targetUserID: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { following: false };
+    }
+
+    const currentUserId = session.user.id;
+
+    // Find target user by userID
+    const targetUser = await prisma.user.findUnique({
+      where: { userID: targetUserID },
+      select: { id: true },
+    });
+
+    if (!targetUser) {
+      return { following: false };
+    }
+
+    const targetUserId = targetUser.id;
+
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: currentUserId,
+          followingId: targetUserId,
+        },
+      },
+    });
+
+    return { following: !!follow };
+  } catch (error) {
+    console.error("Error checking following status:", error);
+    return { following: false };
   }
 }
 

@@ -27,12 +27,15 @@ export interface Post {
   repostCount: number;
   likeCount: number;
   viewerHasLiked?: boolean;
+  viewerHasReposted?: boolean;
+  isOwnPost?: boolean;
 }
 
 // Component Props
 export interface ProfileHeaderProps {
   user: User;
   isOwnProfile: boolean;
+  onFollowChange?: () => void;
 }
 
 export interface ProfileTabsProps {

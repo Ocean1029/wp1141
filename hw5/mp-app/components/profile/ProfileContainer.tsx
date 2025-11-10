@@ -19,23 +19,33 @@ export function ProfileContainer({ userId, currentUserID }: ProfileContainerProp
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadProfile() {
-      setIsLoading(true);
-      try {
-        const profile = await getUserProfile(userId);
-        if (profile) {
-          setUser(profile);
-          setIsOwnProfile(currentUserID === userId);
-        }
-      } catch (error) {
-        console.error("Error loading profile:", error);
-      } finally {
-        setIsLoading(false);
+  const loadProfile = async () => {
+    setIsLoading(true);
+    try {
+      const profile = await getUserProfile(userId);
+      if (profile) {
+        setUser(profile);
+        setIsOwnProfile(currentUserID === userId);
       }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadProfile();
   }, [userId, currentUserID]);
+
+  // Refresh profile when navigating back (e.g., after follow/unfollow)
+  useEffect(() => {
+    const handleFocus = () => {
+      loadProfile();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [userId]);
 
   return (
     <div className="min-h-screen">
@@ -52,7 +62,11 @@ export function ProfileContainer({ userId, currentUserID }: ProfileContainerProp
         <div className="p-8 text-center text-gray-500">Loading...</div>
       ) : user ? (
         <>
-          <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
+          <ProfileHeader 
+            user={user} 
+            isOwnProfile={isOwnProfile}
+            onFollowChange={loadProfile}
+          />
           <ProfileTabs user={user} isOwnProfile={isOwnProfile} />
         </>
       ) : (

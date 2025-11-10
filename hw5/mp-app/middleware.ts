@@ -6,6 +6,24 @@ export const runtime = "nodejs";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   
+  // Public routes that don't require authentication
+  const publicRoutes = ["/login", "/api/auth"];
+  
+  // Handle /register route specifically
+  if (pathname === "/register") {
+    // If not authenticated, redirect to login
+    if (!req.auth) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    // If authenticated and has userID, redirect to home
+    const userID = req.auth.user?.userID;
+    if (userID) {
+      return NextResponse.redirect(new URL("/home", req.url));
+    }
+    // If authenticated but no userID, allow access to register page
+    return NextResponse.next();
+  }
+  
   // If user is authenticated and trying to access login page, redirect to home/register
   if (pathname === "/login" && req.auth) {
     const userID = req.auth.user?.userID;
@@ -13,30 +31,22 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(redirectTo, req.url));
   }
   
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/api/auth"];
-  
+  // Allow public routes
   if (publicRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
   
-  // Protected routes
+  // Protected routes - require authentication
   if (!req.auth) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
   
   // Check if user has completed userID registration
   const userID = req.auth.user?.userID;
-  const isRegisterPage = pathname === "/register";
   
-  // If user hasn't registered userID and not on register page, redirect to register
-  if (!userID && !isRegisterPage) {
+  // If user hasn't registered userID, redirect to register
+  if (!userID) {
     return NextResponse.redirect(new URL("/register", req.url));
-  }
-  
-  // If user has registered userID and on register page, redirect to home
-  if (userID && isRegisterPage) {
-    return NextResponse.redirect(new URL("/home", req.url));
   }
   
   return NextResponse.next();

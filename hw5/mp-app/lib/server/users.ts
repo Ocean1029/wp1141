@@ -118,6 +118,7 @@ export async function updateUserProfile(
   data: {
     bio?: string;
     bannerUrl?: string;
+    image?: string;
   },
 ) {
   try {
