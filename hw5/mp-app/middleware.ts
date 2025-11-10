@@ -6,6 +6,13 @@ export const runtime = "nodejs";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   
+  // If user is authenticated and trying to access login page, redirect to home/register
+  if (pathname === "/login" && req.auth) {
+    const userID = req.auth.user?.userID;
+    const redirectTo = userID ? "/home" : "/register";
+    return NextResponse.redirect(new URL(redirectTo, req.url));
+  }
+  
   // Public routes that don't require authentication
   const publicRoutes = ["/login", "/api/auth"];
   
@@ -30,12 +37,6 @@ export default auth((req) => {
   // If user has registered userID and on register page, redirect to home
   if (userID && isRegisterPage) {
     return NextResponse.redirect(new URL("/home", req.url));
-  }
-  
-  // Redirect authenticated users away from login page
-  if (pathname === "/login" && req.auth) {
-    const redirectTo = userID ? "/home" : "/register";
-    return NextResponse.redirect(new URL(redirectTo, req.url));
   }
   
   return NextResponse.next();

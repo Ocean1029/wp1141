@@ -4,9 +4,26 @@ import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import Facebook from "next-auth/providers/facebook";
 import { prisma } from "@/lib/prisma";
+import type { Adapter } from "next-auth/adapters";
+
+// Custom adapter wrapper to prevent account linking for same email different providers
+// This ensures each provider account creates a separate user, even if email is the same
+function createCustomAdapter(baseAdapter: Adapter): Adapter {
+  return {
+    ...baseAdapter,
+    async getUserByEmail(email) {
+      // Return null to prevent account linking based on email alone
+      // This forces creation of a new user for each provider
+      return null;
+    },
+  };
+}
+
+const baseAdapter = PrismaAdapter(prisma);
+const customAdapter = createCustomAdapter(baseAdapter);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: customAdapter,
   session: {
     strategy: "database",
   },
@@ -26,9 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Allow all sign-ins, but ensure each provider account creates a separate user
-      // PrismaAdapter will handle account linking based on email by default
-      // If you want to prevent linking, you can add custom logic here
+      // Allow all sign-ins - custom adapter will handle user creation
       return true;
     },
     async session({ session, user }) {

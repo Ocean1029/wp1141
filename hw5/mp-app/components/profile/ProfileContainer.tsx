@@ -1,25 +1,41 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileTabs } from "./ProfileTabs";
+import { getUserProfile } from "@/lib/server/users";
 import type { User } from "@/types";
 
-export function ProfileContainer({ userId }: { userId: string }) {
+interface ProfileContainerProps {
+  userId: string;
+  currentUserID: string | null;
+}
+
+export function ProfileContainer({ userId, currentUserID }: ProfileContainerProps) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadProfile() {
-      // TODO: Fetch profile from Server Action using userId
+      setIsLoading(true);
+      try {
+        const profile = await getUserProfile(userId);
+        if (profile) {
+          setUser(profile);
+          setIsOwnProfile(currentUserID === userId);
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
     loadProfile();
-  }, [userId]);
+  }, [userId, currentUserID]);
 
   return (
     <div className="min-h-screen">
@@ -32,11 +48,15 @@ export function ProfileContainer({ userId }: { userId: string }) {
           <span className="font-medium">Profile</span>
         </button>
       </div>
-      {user && (
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">Loading...</div>
+      ) : user ? (
         <>
           <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
           <ProfileTabs user={user} isOwnProfile={isOwnProfile} />
         </>
+      ) : (
+        <div className="p-8 text-center text-gray-500">User not found</div>
       )}
     </div>
   );

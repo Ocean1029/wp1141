@@ -312,25 +312,89 @@ export async function getDrafts(): Promise<Draft[]> {
 }
 
 /**
+ * Server Action: Get posts by user ID (userID)
+ */
+export async function getUserPosts(userId: string): Promise<FeedPost[]> {
+  try {
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    // Find user by userID
+    const user = await (prisma.user as any).findUnique({
+      where: { userID: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    const posts = await prisma.post.findMany({
+      where: {
+        authorId: user.id,
+        deletedAt: null,
+        isDraft: false,
+        parentId: null, // Only show top-level posts, not replies
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: true,
+      },
+      take: 50,
+    });
+
+    return mapPostsForFeed(posts, viewerId);
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    return [];
+  }
+}
+
+/**
  * Server Action: Get user's liked posts
  */
-export async function getLikedPosts(_userId: string) {
+export async function getLikedPosts(userId: string): Promise<FeedPost[]> {
   try {
-    // TODO: Implement Prisma query
-    // const likes = await prisma.like.findMany({
-    //   where: { userId },
-    //   include: {
-    //     post: {
-    //       include: {
-    //         author: { select: { userId: true, name: true, imageUrl: true } },
-    //       },
-    //     },
-    //   },
-    //   orderBy: { createdAt: 'desc' },
-    // });
-    // return likes.map(like => like.post);
-    
-    return [];
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
+
+    // Find user by userID
+    const user = await (prisma.user as any).findUnique({
+      where: { userID: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    // Get liked posts
+    const likes = await prisma.like.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        post: {
+          include: {
+            author: true,
+          },
+        },
+      },
+      take: 50,
+    });
+
+    // Filter out deleted/draft posts and map to feed format
+    const posts = likes
+      .map((like) => like.post)
+      .filter(
+        (post) =>
+          post !== null &&
+          post.deletedAt === null &&
+          post.isDraft === false,
+      ) as PostWithAuthor[];
+
+    return mapPostsForFeed(posts, viewerId);
   } catch (error) {
     console.error("Error fetching liked posts:", error);
     return [];

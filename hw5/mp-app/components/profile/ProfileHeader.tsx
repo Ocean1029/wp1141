@@ -23,7 +23,15 @@ export function ProfileHeader({ user, isOwnProfile }: ProfileHeaderProps) {
           />
         )}
         <div className="absolute -bottom-16 left-4">
-          <div className="h-32 w-32 rounded-full border-4 border-white bg-gray-300" />
+          <div className="h-32 w-32 rounded-full border-4 border-white bg-gray-300 overflow-hidden">
+            {user.imageUrl && (
+              <img
+                src={user.imageUrl}
+                alt={`${user.name} avatar`}
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
         </div>
       </div>
       <div className="mt-20 px-4">

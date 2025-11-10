@@ -1,10 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getUserPosts, getLikedPosts } from "@/lib/server/posts";
+import { PostCard } from "../post/PostCard";
 import type { ProfileTabsProps } from "@/types";
+import type { Post } from "@/types";
 
-export function ProfileTabs({ isOwnProfile }: ProfileTabsProps) {
+export function ProfileTabs({ user, isOwnProfile }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<"posts" | "likes">("posts");
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      setIsLoading(true);
+      try {
+        if (activeTab === "posts") {
+          const userPosts = await getUserPosts(user.userId);
+          setPosts(userPosts);
+        } else if (isOwnProfile && activeTab === "likes") {
+          const likedPosts = await getLikedPosts(user.userId);
+          setPosts(likedPosts);
+        }
+      } catch (error) {
+        console.error("Error loading content:", error);
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadContent();
+  }, [activeTab, user.userId, isOwnProfile]);
 
   return (
     <div>
@@ -34,10 +60,21 @@ export function ProfileTabs({ isOwnProfile }: ProfileTabsProps) {
           )}
         </div>
       </div>
-      <div className="p-8 text-center text-gray-500">
-        {/* TODO: Render posts or likes based on activeTab */}
-        No content yet
-      </div>
+      {isLoading ? (
+        <div className="p-8 text-center text-gray-500">Loading...</div>
+      ) : posts.length === 0 ? (
+        <div className="p-8 text-center text-gray-500">
+          {activeTab === "posts"
+            ? "No posts yet."
+            : "No liked posts yet."}
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-200">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
