@@ -10,5 +10,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Add your models here when needed
-
+// Placeholder model to enable Prisma Client generation
+// This can be removed or replaced when actual models are added
+model Placeholder {
+  id String @id @default(cuid())
+}
