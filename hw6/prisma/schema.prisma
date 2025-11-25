@@ -72,7 +72,7 @@ model User {
 
 model Game {
   id            String    @id @default(cuid())
-  lineGroupId   String?   // LINE 群組 ID (如果是私聊則為 null)
+  lineGroupId   String   
   status        GameStatus @default(WAITING)
   winner        Winner?
   
@@ -166,17 +166,12 @@ model MissionAction {
   @@unique([proposalId, playerId])
 }
 
-// Log 系統
 model Message {
   id            String    @id @default(cuid())
   lineUserId    String?   // 若 sender=USER 則有值
-  gameId        String?   // 可選：綁定某局遊戲的對話
   sender        MessageSender
   content       String
   createdAt     DateTime  @default(now())
-  
-  // Metadata
-  tokens        Int?      // LLM Tokens
   
   user          User?     @relation(fields: [lineUserId], references: [lineId]) // 注意這裡關聯 lineId
 }
