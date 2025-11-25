@@ -34,7 +34,7 @@ import type { ApiErrorResponse } from "@/types/api.types";
  */
 export function handleError(
   error: unknown,
-  defaultMessage: string = "An error occurred"
+  defaultMessage: string = "An error occurred without a message"
 ): NextResponse<ApiErrorResponse> {
   // Handle AppError instances
   if (error instanceof AppError) {
@@ -150,4 +150,5 @@ export function createErrorResponse(
     ...(context && { context }),
   };
 }
+
 
