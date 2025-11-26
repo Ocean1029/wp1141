@@ -4,15 +4,15 @@
 
 /* CSS variables for theming */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default to dark theme for Avalon atmosphere */
+  --background: #000000;
+  --foreground: #ededed;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #000000;
   }
 }
 
@@ -22,4 +22,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
-
