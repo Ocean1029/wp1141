@@ -38,22 +38,22 @@ export class GameRepository {
     
     // Debug: Check if there are any active games at all
     const allActiveGames = await prisma.game.findMany({
-      where: {
-        status: {
-          in: [GameStatus.WAITING, GameStatus.PLAYING],
+        where: {
+          status: {
+            in: [GameStatus.WAITING, GameStatus.PLAYING],
+          },
         },
-      },
-      select: {
-        id: true,
-        lineGroupId: true,
-        status: true,
+        select: {
+          id: true,
+          lineGroupId: true,
+          status: true,
         createdAt: true,
       },
       orderBy: {
         createdAt: "desc",
-      },
+        },
       take: 10,
-    });
+      });
     
     console.log(`[GameRepository] No exact match found. Recent active games (last 10):`);
     allActiveGames.forEach(g => {
@@ -95,7 +95,7 @@ export class GameRepository {
   /**
    * Create a new game
    */
-  static async create(lineGroupId: string, hostUserId: string): Promise<Game> {
+  static async create(lineGroupId: string, hostUserId: string, maxPlayers: number = 6, activeRoles?: Role[]): Promise<Game> {
     // Transaction: Create Game -> Create Host Player
     return prisma.$transaction(async (tx) => {
       const game = await tx.game.create({
@@ -103,7 +103,8 @@ export class GameRepository {
           lineGroupId,
           status: GameStatus.WAITING,
           playerCount: 1,
-          maxPlayers: 6, // Default
+          maxPlayers,
+          activeRoles: activeRoles || undefined,
         },
       });
 
@@ -225,6 +226,16 @@ export class GameRepository {
     return prisma.game.update({
       where: { id: gameId },
       data: { maxPlayers },
+    });
+  }
+
+  /**
+   * Update active roles configuration
+   */
+  static async updateActiveRoles(gameId: string, activeRoles: Role[]): Promise<Game> {
+    return prisma.game.update({
+      where: { id: gameId },
+      data: { activeRoles },
     });
   }
 }

@@ -2,8 +2,20 @@ import { GameRepository } from "../repositories/game.repository";
 import { Game, GameStatus, Role, Player } from "@prisma/client";
 import { logger } from "@/lib/logger";
 
-// Avalon Configuration (5-10 Players)
+// Avalon Configuration (2-10 Players)
 const GAME_CONFIG: Record<number, { quest: number[]; roles: Role[] }> = {
+  2: {
+    quest: [1, 1, 1, 1, 1],
+    roles: [Role.MERLIN, Role.ASSASSIN],
+  },
+  3: {
+    quest: [1, 2, 1, 2, 2],
+    roles: [Role.MERLIN, Role.SERVANT, Role.ASSASSIN],
+  },
+  4: {
+    quest: [2, 2, 2, 2, 2],
+    roles: [Role.MERLIN, Role.SERVANT, Role.MORGANA, Role.ASSASSIN],
+  },
   5: {
     quest: [2, 3, 2, 3, 3],
     roles: [Role.MERLIN, Role.PERCIVAL, Role.SERVANT, Role.MORGANA, Role.ASSASSIN],
@@ -73,8 +85,12 @@ export class GameService {
       console.log(`[GameService] Active game exists: ${activeGame.id}, lineGroupId: ${activeGame.lineGroupId}, status: ${activeGame.status}`);
       throw new Error("Group already has an active game");
     }
-    const game = await GameRepository.create(lineGroupId, hostUserId);
-    console.log(`[GameService] Game created: ${game.id}, lineGroupId: ${game.lineGroupId}`);
+    
+    // Use default config for 6 players if not specified
+    const defaultMaxPlayers = 6;
+    const defaultRoles = GAME_CONFIG[defaultMaxPlayers].roles;
+    const game = await GameRepository.create(lineGroupId, hostUserId, defaultMaxPlayers, defaultRoles);
+    console.log(`[GameService] Game created: ${game.id}, lineGroupId: ${game.lineGroupId}, maxPlayers: ${defaultMaxPlayers}`);
     return game;
   }
 
@@ -122,7 +138,7 @@ export class GameService {
 
   /**
    * Update max players count
-   * Only host can update, and maxPlayers must be between 5-10
+   * Only host can update, and maxPlayers must be between 2-10
    * Cannot set maxPlayers less than current player count
    */
   static async updateMaxPlayers(gameId: string, maxPlayers: number, requestUserId: string) {
@@ -135,8 +151,8 @@ export class GameService {
     }
 
     // Validate maxPlayers range
-    if (maxPlayers < 5 || maxPlayers > 10) {
-      throw new Error("Max players must be between 5 and 10");
+    if (maxPlayers < 2 || maxPlayers > 10) {
+      throw new Error("Max players must be between 2 and 10");
     }
 
     // Cannot set maxPlayers less than current player count
@@ -145,11 +161,62 @@ export class GameService {
       throw new Error(`Cannot set max players to ${maxPlayers}. There are already ${currentPlayerCount} players in the game.`);
     }
 
+    // Update maxPlayers and activeRoles if not already set or if roles count doesn't match
+    const currentRoles = game.activeRoles || [];
+    const shouldUpdateRoles = currentRoles.length === 0 || currentRoles.length !== maxPlayers;
+    const newRoles = shouldUpdateRoles ? (GAME_CONFIG[maxPlayers]?.roles || []) : currentRoles;
+
     await GameRepository.updateMaxPlayers(gameId, maxPlayers);
+    if (shouldUpdateRoles) {
+      await GameRepository.updateActiveRoles(gameId, newRoles);
+    }
     
     logger.info(`[GameService] Max players updated`, {
       gameId,
       maxPlayers,
+      updatedRoles: shouldUpdateRoles,
+      hostUserId: requestUserId,
+    });
+  }
+
+  /**
+   * Update active roles configuration
+   * Only host can update roles
+   * Roles count must match maxPlayers
+   */
+  static async updateActiveRoles(gameId: string, activeRoles: Role[], requestUserId: string) {
+    const game = await GameRepository.findById(gameId);
+    if (!game) throw new Error("Game not found");
+
+    const host = game.players.find(p => p.isHost);
+    if (host?.user.lineId !== requestUserId) {
+      throw new Error("Only host can update roles");
+    }
+
+    // Get maxPlayers from game
+    const gameWithMaxPlayers = game as Game & { maxPlayers: number };
+    const maxPlayers = gameWithMaxPlayers.maxPlayers;
+
+    // Validate roles count matches maxPlayers
+    if (activeRoles.length !== maxPlayers) {
+      throw new Error(`Role count (${activeRoles.length}) must match max players (${maxPlayers})`);
+    }
+
+    // Validate: Must have at least one MERLIN
+    if (!activeRoles.includes(Role.MERLIN)) {
+      throw new Error("Must have at least one MERLIN (good team leader)");
+    }
+
+    // Validate: Must have at least one ASSASSIN
+    if (!activeRoles.includes(Role.ASSASSIN)) {
+      throw new Error("Must have at least one ASSASSIN (evil team leader)");
+    }
+
+    await GameRepository.updateActiveRoles(gameId, activeRoles);
+    
+    logger.info(`[GameService] Active roles updated`, {
+      gameId,
+      activeRoles,
       hostUserId: requestUserId,
     });
   }
@@ -162,17 +229,28 @@ export class GameService {
     if (host?.user.lineId !== requestUserId) throw new Error("Only host can start the game");
 
     const count = game.players.length;
-    if (count < 5 || count > 10) throw new Error(`Invalid player count: ${count}. Must be 5-10.`);
+    if (count < 2 || count > 10) throw new Error(`Invalid player count: ${count}. Must be 2-10.`);
 
     // Type assertion: isReady exists in Player model
     const playersWithReady = game.players as (Player & { user: any; isReady: boolean })[];
     const notReady = playersWithReady.some(p => !p.isReady);
     if (notReady) throw new Error("Not all players are ready");
 
+    // Use activeRoles if set, otherwise use default config
+    const gameWithMaxPlayers = game as Game & { maxPlayers: number };
+    const activeRoles = game.activeRoles && game.activeRoles.length > 0 
+      ? game.activeRoles 
+      : (GAME_CONFIG[count]?.roles || []);
+    
+    // Validate activeRoles count matches player count
+    if (activeRoles.length !== count) {
+      throw new Error(`Active roles count (${activeRoles.length}) does not match player count (${count}). Please update roles configuration.`);
+    }
+
     const config = GAME_CONFIG[count];
     if (!config) throw new Error("Configuration not found for this player count");
 
-    const shuffledRoles = this.shuffleArray([...config.roles]);
+    const shuffledRoles = this.shuffleArray([...activeRoles]);
     const playerRoles = game.players.map((player, index) => ({
       playerId: player.id,
       role: shuffledRoles[index],
@@ -202,6 +280,7 @@ export class GameService {
       id: game.id,
       status: game.status,
       maxPlayers: gameWithMaxPlayers.maxPlayers,
+      activeRoles: game.activeRoles || [],
       players: playersWithReady.map(p => ({
         lineId: p.user.lineId,
         displayName: p.user.displayName,

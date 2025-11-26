@@ -18,7 +18,7 @@ export function ActionBar({
   isStartable, 
   onJoin, 
   onToggleReady, 
-  onStart
+  onStart 
 }: ActionBarProps) {
   
   if (!isJoined) {

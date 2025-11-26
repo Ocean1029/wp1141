@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useLiffContext } from "@/components/providers/liff-provider";
 import { PlayerList } from "@/components/game/lobby/player-list";
 import { ActionBar } from "@/components/game/lobby/action-bar";
+import { RoleEditorModal } from "@/components/game/lobby/role-editor-modal";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/loading-screen";
+import { Role } from "@prisma/client";
 
 interface Player {
   lineId: string;
@@ -22,6 +24,7 @@ interface GameData {
   maxPlayers: number;
   players: Player[];
   isStartable: boolean;
+  activeRoles?: string[];
 }
 
 export default function LobbyPage() {
@@ -33,6 +36,7 @@ export default function LobbyPage() {
   const [profile, setProfile] = useState<{ userId: string; displayName: string } | null>(null);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isRoleEditorOpen, setIsRoleEditorOpen] = useState(false);
 
   // Initialize
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function LobbyPage() {
       console.log(`[Lobby] Full URL: ${window.location.href}`);
       console.log(`[Lobby] URL search params: ${window.location.search}`);
       console.log(`[Lobby] URL groupId parameter: ${urlGroupId}`);
-      
+
       const context = liff.getContext();
       console.log("[Lobby] LIFF Context:", {
         type: context?.type,
@@ -294,8 +298,8 @@ export default function LobbyPage() {
     if (!game || !profile) return;
     
     // Validate range
-    if (newMaxPlayers < 5 || newMaxPlayers > 10) {
-      alert("房間人數必須在 5-10 人之間");
+    if (newMaxPlayers < 2 || newMaxPlayers > 10) {
+      alert("房間人數必須在 2-10 人之間");
       return;
     }
     
@@ -326,6 +330,32 @@ export default function LobbyPage() {
       setGame({ ...game, maxPlayers: newMaxPlayers });
     } catch (e) {
       alert(`更新房間人數時發生錯誤: ${e}`);
+    }
+  };
+
+  const handleSaveRoles = async (roles: Role[]) => {
+    if (!game || !profile) return;
+    
+    try {
+      const res = await fetch("/api/game/update-roles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          gameId: game.id, 
+          userId: profile.userId,
+          activeRoles: roles 
+        }),
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update roles");
+      }
+      
+      // Update local state
+      setGame({ ...game, activeRoles: roles });
+    } catch (e) {
+      throw e; // Re-throw to let modal handle the error
     }
   };
 
@@ -402,7 +432,7 @@ export default function LobbyPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleUpdateMaxPlayers(game.maxPlayers - 1)}
-                          disabled={game.maxPlayers <= 5 || game.players.length > (game.maxPlayers - 1)}
+                          disabled={game.maxPlayers <= 2 || game.players.length > (game.maxPlayers - 1)}
                           className="text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1 rounded hover:bg-slate-700/50"
                           title="減少人數"
                         >
@@ -437,7 +467,17 @@ export default function LobbyPage() {
 
             {/* Player List */}
             <div className="space-y-2">
+              <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Participants</h3>
+                {isHost && (
+                  <button
+                    onClick={() => setIsRoleEditorOpen(true)}
+                    className="text-xs text-amber-500 hover:text-amber-400 transition-colors px-2 py-1 rounded hover:bg-slate-700/50"
+                  >
+                    編輯角色
+                  </button>
+                )}
+              </div>
               <PlayerList players={game.players} maxPlayers={game.maxPlayers} />
             </div>
 
@@ -454,6 +494,17 @@ export default function LobbyPage() {
           </div>
         )}
       </div>
+
+      {/* Role Editor Modal */}
+      {game && (
+        <RoleEditorModal
+          isOpen={isRoleEditorOpen}
+          onClose={() => setIsRoleEditorOpen(false)}
+          currentRoles={(game.activeRoles || []) as Role[]}
+          maxPlayers={game.maxPlayers}
+          onSave={handleSaveRoles}
+        />
+      )}
     </div>
   );
 }
