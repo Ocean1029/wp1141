@@ -1,51 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useLiff } from "@/hooks/use-liff";
+import { useGameInit } from "@/hooks/use-game-init";
 import { LoadingScreen } from "@/components/game/loading-screen";
 import { ErrorScreen } from "@/components/game/error-screen";
 import { LobbyScreen } from "@/components/game/lobby-screen";
 
 export default function Home() {
-  const { liff, isReady, error } = useLiff();
-  const [profile, setProfile] = useState<any>(null);
-  const [context, setContext] = useState<any>(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
-
-  useEffect(() => {
-    if (isReady && liff) {
-      const fetchLiffData = async () => {
-        try {
-          // Check login status
-          if (!liff.isLoggedIn()) {
-            liff.login();
-            return;
-          }
-
-          // Get Profile & Context
-          const [profileData, contextData] = await Promise.all([
-            liff.getProfile(),
-            liff.getContext(),
-          ]);
-
-          setProfile(profileData);
-          setContext(contextData);
-        } catch (err) {
-          console.error("LIFF Data Fetch Error:", err);
-        } finally {
-          // Artificial delay for smoother UX (prevent flicker)
-          setTimeout(() => {
-            setIsProfileLoading(false);
-          }, 1000);
-        }
-      };
-
-      fetchLiffData();
-    }
-  }, [isReady, liff]);
+  const { isLoading, error, profile, context } = useGameInit();
 
   // Phase 1: Initial Loading (System init or Data fetching)
-  if (!isReady || isProfileLoading) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
