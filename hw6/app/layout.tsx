@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
+import { LiffProvider } from "@/components/providers/liff-provider";
 import "./globals.css";
 
 // Configure Inter font with CSS variable
@@ -34,7 +35,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${robotoMono.variable} antialiased`}
       >
-        {children}
+        <LiffProvider liffId={process.env.NEXT_PUBLIC_LINE_LIFF_ID || ""}>
+          {children}
+        </LiffProvider>
       </body>
     </html>
   );

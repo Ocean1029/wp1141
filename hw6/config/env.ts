@@ -58,6 +58,21 @@ const envSchema = z.object({
     .optional(),
 
   // LINE Bot configuration
+  NEXT_PUBLIC_LINE_LIFF_ID: z
+    .string({
+      required_error:
+        "Missing required environment variable: NEXT_PUBLIC_LINE_LIFF_ID\n" +
+        "Description: LINE LIFF ID for Frontend Framework initialization\n" +
+        "Please set this variable in your .env file.\n" +
+        "Example: NEXT_PUBLIC_LINE_LIFF_ID=1234567890-AbCdEfGh",
+    })
+    .min(1, {
+      message:
+        "NEXT_PUBLIC_LINE_LIFF_ID cannot be empty\n" +
+        "Please set this variable in your .env file.\n" +
+        "Example: NEXT_PUBLIC_LINE_LIFF_ID=1234567890-AbCdEfGh",
+    }),
+
   LINE_CHANNEL_ACCESS_TOKEN: z
     .string({
       required_error:
@@ -154,6 +169,7 @@ export const config = {
   baseUrl,
 
   line: {
+    liffId: env.NEXT_PUBLIC_LINE_LIFF_ID,
     channelAccessToken: env.LINE_CHANNEL_ACCESS_TOKEN,
     channelSecret: env.LINE_CHANNEL_SECRET,
     // Automatically construct webhook URL from baseUrl
