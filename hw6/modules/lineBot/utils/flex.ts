@@ -241,4 +241,262 @@ export class FlexMessageFactory {
       }
     };
   }
+
+  /**
+   * Create quest configuration and status message
+   * @param questConfig - Array of required players for each quest
+   * @param currentRound - Current round number
+   * @param rounds - Array of rounds with results (isSuccess field)
+   */
+  static createQuestStatusMessage(questConfig: number[], currentRound: number, rounds: Array<{ roundNumber: number; isSuccess: boolean | null }> = []): FlexContainer {
+    const questItems = questConfig.map((requiredPlayers, index) => {
+      const roundNumber = index + 1;
+      const round = rounds.find(r => r.roundNumber === roundNumber);
+      const isSuccess = round?.isSuccess;
+      
+      // First round (roundNumber === 1) should not have any result marker
+      let resultText = "";
+      let resultColor = "#C6A666";
+      
+      if (roundNumber > 1 && isSuccess !== null && isSuccess !== undefined) {
+        if (isSuccess) {
+          resultText = " 🔵 藍方勝";
+          resultColor = "#4A90E2";
+        } else {
+          resultText = " 🔴 紅方勝";
+          resultColor = "#E24A4A";
+        }
+      }
+      
+      const contents: any[] = [
+        {
+          type: "text" as const,
+          text: `任務 ${roundNumber}`,
+          size: "sm" as const,
+          color: "#ffffff",
+          flex: 2,
+          weight: "bold" as const
+        },
+        {
+          type: "text" as const,
+          text: `${requiredPlayers} 人`,
+          size: "sm" as const,
+          color: "#C6A666",
+          flex: 1,
+          align: "end" as const,
+          weight: "bold" as const
+        }
+      ];
+      
+      if (resultText) {
+        contents.push({
+          type: "text" as const,
+          text: resultText,
+          size: "xs" as const,
+          color: resultColor,
+          flex: 0,
+          margin: "sm" as const,
+          weight: "bold" as const
+        });
+      }
+      
+      return {
+        type: "box" as const,
+        layout: "baseline" as const,
+        margin: "sm" as const,
+        contents
+      };
+    });
+
+    return {
+      type: "bubble",
+      size: "kilo",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "📋 任務配置",
+            weight: "bold",
+            size: "lg",
+            color: "#C6A666",
+            align: "center"
+          }
+        ],
+        backgroundColor: "#1a1c30",
+        paddingAll: "md"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "每次任務所需人數：",
+            size: "sm",
+            color: "#aaaaaa",
+            margin: "md"
+          },
+          ...questItems,
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "text",
+            text: `目前進度：第 ${currentRound} 輪`,
+            size: "sm",
+            color: "#ffffff",
+            weight: "bold",
+            align: "center",
+            margin: "md"
+          }
+        ],
+        backgroundColor: "#272946"
+      }
+    };
+  }
+
+  /**
+   * Create current round and leader message
+   * @param currentRound - Current round number
+   * @param leaderName - Current leader's display name
+   * @param totalRounds - Total number of rounds
+   * @param players - Array of players with index and display name
+   */
+  static createRoundLeaderMessage(
+    currentRound: number, 
+    leaderName: string, 
+    totalRounds: number = 5,
+    players: Array<{ index: number; displayName: string }> = []
+  ): FlexContainer {
+    return {
+      type: "bubble",
+      size: "kilo",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "⚔️ 遊戲進度",
+            weight: "bold",
+            size: "lg",
+            color: "#C6A666",
+            align: "center"
+          }
+        ],
+        backgroundColor: "#1a1c30",
+        paddingAll: "md"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "box",
+            layout: "baseline",
+            margin: "lg",
+            contents: [
+              {
+                type: "text",
+                text: "第",
+                size: "md",
+                color: "#aaaaaa",
+                flex: 0
+              },
+              {
+                type: "text",
+                text: `${currentRound}`,
+                size: "3xl",
+                color: "#C6A666",
+                weight: "bold",
+                flex: 0,
+                margin: "sm"
+              },
+              {
+                type: "text",
+                text: "輪",
+                size: "md",
+                color: "#aaaaaa",
+                flex: 0
+              },
+              {
+                type: "text",
+                text: `/ ${totalRounds}`,
+                size: "md",
+                color: "#666666",
+                flex: 0,
+                margin: "sm"
+              }
+            ]
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            margin: "lg",
+            contents: [
+              {
+                type: "text",
+                text: "👑 隊長：",
+                size: "sm",
+                color: "#aaaaaa",
+                flex: 0
+              },
+              {
+                type: "text",
+                text: leaderName,
+                size: "md",
+                color: "#ffffff",
+                weight: "bold",
+                flex: 1,
+                margin: "sm"
+              }
+            ]
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "text",
+            text: "玩家列表：",
+            size: "sm",
+            color: "#aaaaaa",
+            margin: "md"
+          },
+          ...players.map(player => ({
+            type: "box" as const,
+            layout: "baseline" as const,
+            margin: "xs" as const,
+            contents: [
+              {
+                type: "text" as const,
+                text: `${player.index + 1}`,
+                size: "sm" as const,
+                color: "#C6A666",
+                flex: 0,
+                weight: "bold" as const,
+                margin: "sm" as const
+              },
+              {
+                type: "text" as const,
+                text: player.displayName,
+                size: "sm" as const,
+                color: "#ffffff",
+                flex: 1,
+                margin: "sm" as const
+              }
+            ]
+          }))
+        ],
+        backgroundColor: "#272946"
+      }
+    };
+  }
 }

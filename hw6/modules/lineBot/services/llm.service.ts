@@ -133,4 +133,102 @@ export class LLMService {
       return false;
     }
   }
+
+  /**
+   * Parse team proposal command from leader's message
+   * Returns null if not a team proposal command, or an object with player indices if it is
+   */
+  static async parseTeamProposal(
+    text: string,
+    playerCount: number,
+    playerNames: Array<{ index: number; displayName: string }>,
+    leaderIndex: number
+  ): Promise<{ indices: number[] } | null> {
+    try {
+      const playerListText = playerNames.map(p => `${p.index + 1}. ${p.displayName}`).join("\n");
+      
+      const completion = await this.openai.chat.completions.create({
+        model: config.openai.model || "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are parsing a team proposal command in the Avalon game.
+The leader (index ${leaderIndex + 1}, name: ${playerNames.find(p => p.index === leaderIndex)?.displayName || "Unknown"}) wants to propose a team for the current quest.
+
+Available players:
+${playerListText}
+
+Parse the user's message and extract which player indices (1-based) should be on the team.
+Examples:
+- "我要選 1, 2, 3" → {"indices": [1, 2, 3]}
+- "選 2號和5號" → {"indices": [2, 5]}
+- "讓${playerNames[0]?.displayName || "小明"}和${playerNames[1]?.displayName || "小華"}出隊" → find indices by matching names
+- "選第一、第二、第三個人" → {"indices": [1, 2, 3]}
+- "我要選我自己和2號" → {"indices": [${leaderIndex + 1}, 2]}
+- "選我、1號、3號" → {"indices": [${leaderIndex + 1}, 1, 3]}
+
+IMPORTANT: Match player names from the list above. If a name doesn't match exactly, try to find the closest match.
+
+If the message is NOT a team proposal command (e.g., just chatting, asking questions), return {"indices": []}.
+Otherwise, return a JSON object with "indices" array containing 1-based player numbers.
+
+Return ONLY valid JSON: {"indices": [1, 2, 3]} or {"indices": []}`,
+          },
+          { role: "user", content: text },
+        ],
+        temperature: 0,
+        max_tokens: 150,
+        response_format: { type: "json_object" },
+      });
+
+      const result = completion.choices[0]?.message?.content?.trim();
+      if (!result) {
+        return null;
+      }
+
+      const parsed = JSON.parse(result);
+      if (parsed.indices && Array.isArray(parsed.indices)) {
+        // Convert to 0-based indices and validate
+        const indices = parsed.indices
+          .map((idx: number) => idx - 1)
+          .filter((idx: number) => idx >= 0 && idx < playerCount);
+        
+        if (indices.length > 0) {
+          return { indices };
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error in parseTeamProposal:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if user's message is a confirmation (yes/ok/confirm)
+   */
+  static async isConfirmation(text: string): Promise<boolean> {
+    try {
+      const completion = await this.openai.chat.completions.create({
+        model: config.openai.model || "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Determine if the user's message is a confirmation (yes, ok, confirm, 是, 好, 確認, etc.).
+Return strictly 'TRUE' or 'FALSE'.`,
+          },
+          { role: "user", content: text },
+        ],
+        temperature: 0,
+        max_tokens: 10,
+      });
+
+      const result = completion.choices[0]?.message?.content?.trim().toUpperCase();
+      return result === "TRUE";
+    } catch (error) {
+      console.error("Error in isConfirmation:", error);
+      return false;
+    }
+  }
 }

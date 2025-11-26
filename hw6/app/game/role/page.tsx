@@ -116,6 +116,26 @@ export default function RolePage() {
         const data = await roleRes.json();
         
         setRoleData(data);
+
+        // 3. Send game info messages to group (only once per player)
+        // Use sessionStorage to track if we've already sent messages
+        const hasSentMessages = sessionStorage.getItem(`gameInfoSent_${gameData.id}`);
+        if (!hasSentMessages && finalGroupId) {
+          try {
+            await fetch("/api/game/send-game-info", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                gameId: gameData.id,
+                groupId: finalGroupId,
+              }),
+            });
+            sessionStorage.setItem(`gameInfoSent_${gameData.id}`, "true");
+          } catch (e) {
+            console.error("Failed to send game info messages:", e);
+            // Don't throw error, just log it
+          }
+        }
       } catch (e) {
         setError(String(e));
       } finally {
@@ -133,35 +153,70 @@ export default function RolePage() {
 
   const isEvil = roleData.roleTeam === "EVIL";
   const cardColor = isEvil ? "bg-red-900" : "bg-blue-900";
-  const cardBorder = isEvil ? "border-red-500" : "border-blue-400";
+  const cardBorder = "border-amber-500";
+  
+  // Map role to image path
+  const getRoleImage = (role: string): string => {
+    const roleImageMap: Record<string, string> = {
+      MERLIN: "/Images/Roles/Merlin.jpg",
+      PERCIVAL: "/Images/Roles/Percival.jpg",
+      SERVANT: "/Images/Roles/Servant.jpg",
+      MORGANA: "/Images/Roles/Morgana.jpg",
+      ASSASSIN: "/Images/Roles/Assassin.jpg",
+      MINION: "/Images/Roles/Servant.jpg", // Fallback to Servant if no specific image
+      OBERON: "/Images/Roles/Servant.jpg", // Fallback
+      MORDRED: "/Images/Roles/Servant.jpg", // Fallback
+    };
+    return roleImageMap[role] || "/Images/Roles/Servant.jpg";
+  };
+  
+  const roleImageUrl = getRoleImage(roleData.role);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden flex flex-col items-center pt-10 px-4">
-      <h1 className="text-xl text-amber-500 font-bold mb-6 tracking-widest">YOUR IDENTITY</h1>
-
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden flex flex-col items-center justify-center px-4 py-10">
       {/* Card Scene */}
-      <div className="relative w-64 h-96 cursor-pointer perspective-1000" onClick={() => setIsFlipped(!isFlipped)}>
+      <div className="relative w-80 h-[32rem] cursor-pointer perspective-1000" onClick={() => setIsFlipped(!isFlipped)}>
         <div className={`w-full h-full transition-all duration-700 transform-style-3d relative ${isFlipped ? "rotate-y-180" : ""}`}>
           
           {/* Front (Cover) */}
-          <div className="absolute w-full h-full backface-hidden bg-slate-800 rounded-xl border-2 border-amber-600/50 shadow-2xl flex flex-col items-center justify-center p-6">
+          <div className="absolute w-full h-full backface-hidden bg-slate-800 rounded-xl border border-amber-500 shadow-2xl flex flex-col items-center justify-center p-6">
             <div className="text-6xl mb-4">🛡️</div>
             <div className="text-amber-500 font-serif text-2xl">AVALON</div>
             <div className="mt-8 text-slate-400 text-sm animate-pulse">點擊翻開身分卡</div>
           </div>
 
           {/* Back (Role) */}
-          <div className={`absolute w-full h-full backface-hidden rotate-y-180 rounded-xl border-4 shadow-2xl flex flex-col items-center p-6 ${cardColor} ${cardBorder}`}>
-             <div className="text-xs uppercase tracking-widest text-white/50 mb-4">{roleData.roleTeam} TEAM</div>
-             <div className="text-4xl font-bold text-white mb-2">{roleData.roleName}</div>
-             <div className="w-16 h-1 bg-white/20 mb-4 rounded-full"></div>
-             <p className="text-sm text-center text-white/90 leading-relaxed">
-               {roleData.roleDesc}
-             </p>
-             
-             {/* Role Icon */}
-             <div className="mt-auto text-6xl opacity-50">
-                {isEvil ? "😈" : "🛡️"}
+          <div 
+            className={`absolute w-full h-full backface-hidden rotate-y-180 rounded-xl border shadow-2xl flex flex-col ${cardBorder} relative overflow-hidden ${cardColor}`}
+          >
+             {/* Content */}
+             <div className="flex flex-col items-center h-full w-full p-4">
+               {/* Top: Role Name */}
+               <div className="w-full text-center mb-2">
+                 <div className="text-[8px] uppercase tracking-widest text-white/70 mb-0.5 font-semibold">{roleData.roleTeam} TEAM</div>
+                 <div className="text-xl font-bold text-white drop-shadow-lg">{roleData.roleName}</div>
+               </div>
+               
+               {/* Middle: Role Image */}
+               <div className="flex-1 w-full mb-2 flex items-center justify-center overflow-hidden rounded-lg min-h-0">
+                 <img 
+                   src={roleImageUrl} 
+                   alt={roleData.roleName}
+                   className="w-full h-full object-cover rounded-lg"
+                   onError={(e) => {
+                     // Fallback if image fails to load
+                     const target = e.target as HTMLImageElement;
+                     target.style.display = 'none';
+                   }}
+                 />
+               </div>
+               
+               {/* Bottom: Role Description */}
+               <div className="w-full">
+                 <p className="text-sm text-center text-white/90 leading-relaxed px-1">
+                   {roleData.roleDesc}
+                 </p>
+               </div>
              </div>
           </div>
         </div>

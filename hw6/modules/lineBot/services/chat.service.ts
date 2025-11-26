@@ -7,6 +7,7 @@ import { MessageSender } from "@prisma/client";
 import { logger } from "@/lib/logger";
 import { FlexMessageFactory } from "../utils/flex";
 import { getLineBotService } from "./lineBot.service";
+import { TeamProposalService } from "./team-proposal.service";
 
 export class ChatService {
   /**
@@ -125,6 +126,29 @@ export class ChatService {
         // But if they asked "Explain rules", maybe they want text. 
         // Let's stick to just the card for this exact phrase to avoid duplication.
         return;
+      }
+
+      // 2.5. Handle team proposal confirmation
+      if (groupId) {
+        const confirmationResult = await TeamProposalService.handleConfirmation(userId, groupId, userText);
+        if (confirmationResult.isConfirmation) {
+          if (confirmationResult.success) {
+            // Confirmation successful, message already sent to group
+            return;
+          }
+          // Confirmation failed or invalid
+          await LineService.replyText(replyToken, "確認失敗，請重新提出隊伍。");
+          return;
+        }
+
+        // 2.6. Handle team proposal command
+        const proposalResult = await TeamProposalService.handleProposalCommand(userId, groupId, userText);
+        if (proposalResult.isProposal) {
+          if (proposalResult.confirmationMessage) {
+            await LineService.replyText(replyToken, proposalResult.confirmationMessage);
+            return;
+          }
+        }
       }
 
       // 3. AI Evaluation: Does this message need a response?
