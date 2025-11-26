@@ -32,22 +32,81 @@ export default function RolePage() {
     const init = async () => {
       try {
         const profile = await liff.getProfile();
-        const context = liff.getContext();
         
-        if (!context?.groupId) {
-           // Fallback for testing
-           // throw new Error("請在群組中開啟");
+        // First, try to get groupId from URL query parameter (passed from lobby page)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlGroupId = urlParams.get("groupId");
+        
+        const context = liff.getContext();
+        console.log("[Role] LIFF Context:", {
+          type: context?.type,
+          groupId: context?.groupId,
+          roomId: context?.roomId,
+          urlGroupId,
+        });
+        
+        // Priority: URL parameter > getContext().groupId
+        let finalGroupId: string | null = null;
+        
+        if (urlGroupId) {
+          const isLineGroupId = urlGroupId.startsWith("C") && urlGroupId.length === 33;
+          if (isLineGroupId) {
+            console.log(`[Role] Using groupId from URL: ${urlGroupId}`);
+            finalGroupId = urlGroupId;
+          } else {
+            console.warn(`[Role] URL groupId format unclear: ${urlGroupId}`);
+          }
         }
-        const groupId = context?.groupId;
+        
+        if (!finalGroupId && context?.groupId) {
+          const isLineGroupId = context.groupId.startsWith("C") && context.groupId.length === 33;
+          if (isLineGroupId) {
+            console.log(`[Role] Using groupId from getContext(): ${context.groupId}`);
+            finalGroupId = context.groupId;
+          } else {
+            console.warn(`[Role] getContext() groupId format unclear: ${context.groupId}`);
+          }
+        }
+        
+        if (!finalGroupId) {
+          // Provide helpful error message
+          let errorMessage = "無法取得有效的群組 ID。\n\n";
+          
+          if (urlGroupId) {
+            if (urlGroupId.startsWith("C") && urlGroupId.length !== 33) {
+              errorMessage += `URL 參數中的 Group ID 長度不正確：${urlGroupId.length}（應為 33）。\n`;
+            } else if (urlGroupId.includes("-")) {
+              errorMessage += "URL 參數中的 ID 格式不正確（UUID 格式，應為 C 開頭）。\n";
+            }
+          }
+          
+          if (context?.groupId) {
+            if (context.groupId.includes("-")) {
+              errorMessage += "LIFF getContext() 回傳的 ID 格式不正確（UUID 格式）。\n";
+            }
+          }
+          
+          if (!urlGroupId && !context?.groupId) {
+            errorMessage += "未偵測到任何 Group ID（URL 參數和 getContext() 都沒有）。\n";
+            errorMessage += "請從遊戲大廳頁面開始遊戲，或確認 Bot 已加入群組。\n";
+          }
+          
+          errorMessage += "\n請確認：\n";
+          errorMessage += "1. Bot 已加入群組\n";
+          errorMessage += "2. 在 LINE Official Account Manager 中啟用「允許 Bot 加入群組聊天」\n";
+          errorMessage += "3. 從遊戲大廳頁面開始遊戲\n";
+          
+          throw new Error(errorMessage);
+        }
 
         // 1. Get Active Game ID
-        const gameRes = await fetch(`/api/game/active?groupId=${groupId}`);
+        const gameRes = await fetch(`/api/game/active?groupId=${finalGroupId}`);
         if (!gameRes.ok) throw new Error("無法取得遊戲資訊");
         const gameData = await gameRes.json();
         
         if (!gameData || gameData.status !== "PLAYING") {
-            // Redirect back to lobby if game not playing
-            window.location.href = "/game/lobby";
+            // Redirect back to lobby if game not playing, preserve groupId
+            window.location.href = `/game/lobby?groupId=${encodeURIComponent(finalGroupId)}`;
             return;
         }
 

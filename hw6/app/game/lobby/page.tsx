@@ -186,7 +186,7 @@ export default function LobbyPage() {
              }
              setGame(data);
              if (data.status === "PLAYING") {
-               router.push("/game/role");
+               router.push(`/game/role?groupId=${encodeURIComponent(groupId)}`);
              }
           } else {
             // No active game found
