@@ -80,14 +80,56 @@ export class GameRepository {
             index: "asc",
           },
         },
-        rounds: true,
+        rounds: {
+          include: {
+            proposals: {
+              include: {
+                votes: true,
+                missionActions: {
+                  include: {
+                    player: {
+                      include: {
+                        user: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
     
     // Type assertion to ensure maxPlayers is included
     return result as (Game & {
       players: (Player & { user: any })[];
-      rounds: any[];
+      rounds: Array<{
+        id: string;
+        roundNumber: number;
+        requiredPlayers: number;
+        isSuccess: boolean | null;
+        proposals: Array<{
+          id: string;
+          proposerId: string;
+          proposedTeam: string[];
+          isApproved: boolean | null;
+          votes: any[];
+          missionActions: Array<{
+            id: string;
+            playerId: string;
+            result: string;
+            player: {
+              id: string;
+              user: {
+                lineId: string;
+                displayName: string;
+              };
+              role: string | null;
+            };
+          }>;
+        }>;
+      }>;
       maxPlayers: number;
     }) | null;
   }
@@ -186,8 +228,9 @@ export class GameRepository {
         data: {
           status: GameStatus.PLAYING,
           questConfig,
+          currentRoundNumber: 1, // Start from round 1
           currentLeaderIndex: Math.floor(Math.random() * playerRoles.length), // Random first leader
-        },
+        } as any, // Type assertion needed until Prisma types are regenerated
       });
 
       // 2. Update Player Roles

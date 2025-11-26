@@ -364,12 +364,14 @@ export class FlexMessageFactory {
    * @param leaderName - Current leader's display name
    * @param totalRounds - Total number of rounds
    * @param players - Array of players with index and display name
+   * @param requiredPlayers - Number of players required for this round's mission
    */
   static createRoundLeaderMessage(
     currentRound: number, 
     leaderName: string, 
     totalRounds: number = 5,
-    players: Array<{ index: number; displayName: string }> = []
+    players: Array<{ index: number; displayName: string }> = [],
+    requiredPlayers?: number
   ): FlexContainer {
     return {
       type: "bubble",
@@ -459,9 +461,38 @@ export class FlexMessageFactory {
               }
             ]
           },
+          ...(requiredPlayers !== undefined ? [
+            {
+              type: "separator" as const,
+              margin: "lg" as const
+            },
+            {
+              type: "box" as const,
+              layout: "baseline" as const,
+              margin: "md" as const,
+              contents: [
+                {
+                  type: "text" as const,
+                  text: "📋 本輪需要：",
+                  size: "sm" as const,
+                  color: "#aaaaaa",
+                  flex: 0
+                },
+                {
+                  type: "text" as const,
+                  text: `${requiredPlayers} 人出隊`,
+                  size: "md" as const,
+                  color: "#C6A666",
+                  weight: "bold" as const,
+                  flex: 1,
+                  margin: "sm" as const
+                }
+              ]
+            }
+          ] : []),
           {
-            type: "separator",
-            margin: "lg"
+            type: "separator" as const,
+            margin: "lg" as const
           },
           {
             type: "text",
@@ -494,6 +525,379 @@ export class FlexMessageFactory {
               }
             ]
           }))
+        ],
+        backgroundColor: "#272946"
+      }
+    };
+  }
+
+  /**
+   * Create team proposal notification card for selected players
+   */
+  static createTeamProposalNotification(
+    gameId: string,
+    groupId: string,
+    roundNumber: number,
+    requiredPlayers: number
+  ): FlexContainer {
+    const baseUrl = config.baseUrl;
+    const liffId = config.line.liffId;
+    const liffUrl = `https://liff.line.me/${liffId}/game/mission?gameId=${gameId}&groupId=${encodeURIComponent(groupId)}&roundNumber=${roundNumber}`;
+
+    return {
+      type: "bubble",
+      size: "kilo",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "⚔️ 你被選中出隊！",
+            weight: "bold",
+            size: "lg",
+            color: "#C6A666",
+            align: "center"
+          }
+        ],
+        backgroundColor: "#1a1c30",
+        paddingAll: "md"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: `第 ${roundNumber} 輪任務`,
+            size: "md",
+            color: "#ffffff",
+            weight: "bold",
+            align: "center",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: `本輪需要 ${requiredPlayers} 人出隊`,
+            size: "sm",
+            color: "#aaaaaa",
+            align: "center",
+            margin: "sm"
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "text",
+            text: "請點擊下方按鈕選擇任務結果",
+            size: "sm",
+            color: "#C6A666",
+            align: "center",
+            margin: "md"
+          }
+        ],
+        backgroundColor: "#272946"
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "button",
+            action: {
+              type: "uri",
+              label: "選擇任務結果",
+              uri: liffUrl
+            },
+            style: "primary",
+            color: "#C6A666",
+            height: "md"
+          }
+        ],
+        backgroundColor: "#1a1c30"
+      }
+    };
+  }
+
+  /**
+   * Create voting card for team proposal
+   */
+  static createVotingCard(
+    proposalId: string,
+    roundNumber: number,
+    leaderName: string,
+    teamMembers: Array<{ index: number; displayName: string }>,
+    requiredPlayers: number
+  ): FlexContainer {
+    const memberList = teamMembers.map(m => `${m.index + 1}. ${m.displayName}`).join("\n");
+    
+    return {
+      type: "bubble",
+      size: "kilo",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "🗳️ 投票階段",
+            weight: "bold",
+            size: "lg",
+            color: "#C6A666",
+            align: "center"
+          }
+        ],
+        backgroundColor: "#1a1c30",
+        paddingAll: "md"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: `第 ${roundNumber} 輪任務`,
+            size: "md",
+            color: "#ffffff",
+            weight: "bold",
+            align: "center",
+            margin: "md"
+          },
+          {
+            type: "text",
+            text: `隊長 ${leaderName} 提出出隊名單：`,
+            size: "sm",
+            color: "#aaaaaa",
+            align: "center",
+            margin: "sm"
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "text",
+            text: memberList,
+            size: "sm",
+            color: "#ffffff",
+            align: "start",
+            margin: "md",
+            wrap: true
+          },
+          {
+            type: "text",
+            text: `（需要 ${requiredPlayers} 人）`,
+            size: "xs",
+            color: "#C6A666",
+            align: "center",
+            margin: "sm"
+          }
+        ],
+        backgroundColor: "#272946"
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "box",
+            layout: "horizontal",
+            spacing: "sm",
+            contents: [
+              {
+                type: "button",
+                action: {
+                  type: "postback",
+                  label: "✅ 同意",
+                  data: `vote:${proposalId}:APPROVE`,
+                  displayText: "我投票：同意"
+                },
+                style: "primary",
+                color: "#4CAF50",
+                flex: 1,
+                height: "md"
+              },
+              {
+                type: "button",
+                action: {
+                  type: "postback",
+                  label: "❌ 反對",
+                  data: `vote:${proposalId}:REJECT`,
+                  displayText: "我投票：反對"
+                },
+                style: "primary",
+                color: "#F44336",
+                flex: 1,
+                height: "md"
+              }
+            ]
+          }
+        ],
+        backgroundColor: "#1a1c30"
+      }
+    };
+  }
+
+  /**
+   * Create mission result announcement card
+   */
+  static createMissionResultCard(
+    roundNumber: number,
+    isSuccess: boolean,
+    successCount: number,
+    failCount: number,
+    requiredPlayers: number
+  ): FlexContainer {
+    const resultText = isSuccess ? "成功" : "失敗";
+    const resultEmoji = isSuccess ? "✅" : "❌";
+    const backgroundColor = isSuccess ? "#1a3a2e" : "#3a1a1a";
+    const accentColor = isSuccess ? "#4CAF50" : "#F44336";
+    
+    return {
+      type: "bubble",
+      size: "kilo",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: `${resultEmoji} 任務結果`,
+            weight: "bold",
+            size: "xl",
+            color: accentColor,
+            align: "center"
+          }
+        ],
+        backgroundColor: backgroundColor,
+        paddingAll: "md"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "box",
+            layout: "baseline",
+            margin: "lg",
+            contents: [
+              {
+                type: "text",
+                text: "第",
+                size: "md",
+                color: "#aaaaaa",
+                flex: 0
+              },
+              {
+                type: "text",
+                text: `${roundNumber}`,
+                size: "3xl",
+                color: accentColor,
+                weight: "bold",
+                flex: 0,
+                margin: "sm"
+              },
+              {
+                type: "text",
+                text: "輪",
+                size: "md",
+                color: "#aaaaaa",
+                flex: 0
+              }
+            ]
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "box",
+            layout: "baseline",
+            margin: "lg",
+            contents: [
+              {
+                type: "text",
+                text: "結果：",
+                size: "md",
+                color: "#aaaaaa",
+                flex: 0
+              },
+              {
+                type: "text",
+                text: resultText,
+                size: "2xl",
+                color: accentColor,
+                weight: "bold",
+                flex: 1,
+                margin: "sm"
+              }
+            ]
+          },
+          {
+            type: "separator",
+            margin: "lg"
+          },
+          {
+            type: "box",
+            layout: "vertical",
+            spacing: "sm",
+            margin: "lg",
+            contents: [
+              {
+                type: "box",
+                layout: "baseline",
+                contents: [
+                  {
+                    type: "text",
+                    text: "✅ 成功：",
+                    size: "sm",
+                    color: "#4CAF50",
+                    flex: 0
+                  },
+                  {
+                    type: "text",
+                    text: `${successCount} 票`,
+                    size: "md",
+                    color: "#ffffff",
+                    weight: "bold",
+                    flex: 1,
+                    margin: "sm"
+                  }
+                ]
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                contents: [
+                  {
+                    type: "text",
+                    text: "❌ 失敗：",
+                    size: "sm",
+                    color: "#F44336",
+                    flex: 0
+                  },
+                  {
+                    type: "text",
+                    text: `${failCount} 票`,
+                    size: "md",
+                    color: "#ffffff",
+                    weight: "bold",
+                    flex: 1,
+                    margin: "sm"
+                  }
+                ]
+              },
+              {
+                type: "text",
+                text: `（需要 ${requiredPlayers} 人出隊）`,
+                size: "xs",
+                color: "#aaaaaa",
+                align: "center",
+                margin: "sm"
+              }
+            ]
+          }
         ],
         backgroundColor: "#272946"
       }

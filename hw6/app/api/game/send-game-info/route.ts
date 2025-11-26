@@ -29,12 +29,9 @@ export async function POST(req: NextRequest) {
     // Get quest config and current round
     const questConfig = game.questConfig || [];
     const rounds = game.rounds || [];
-    // Find the maximum round number
-    // Since startGame creates round 1, we should use the max roundNumber
-    const maxRoundNumber = rounds.length > 0 
-      ? Math.max(...rounds.map(r => r.roundNumber || 0))
-      : 0;
-    const currentRound = maxRoundNumber; // Current round number
+    // Use currentRoundNumber from game, fallback to max roundNumber if not set
+    const currentRound = game.currentRoundNumber ?? 
+      (rounds.length > 0 ? Math.max(...rounds.map(r => r.roundNumber || 0)) : 1);
     
     // Prepare rounds data with results for Flex Message
     const roundsWithResults = rounds.map(r => ({
@@ -53,13 +50,18 @@ export async function POST(req: NextRequest) {
       displayName: p.user.displayName
     })).sort((a, b) => a.index - b.index); // Sort by index
 
+    // Get required players for current round
+    const currentRoundData = rounds.find(r => r.roundNumber === currentRound);
+    const requiredPlayers = currentRoundData?.requiredPlayers;
+
     // Create Flex Messages
     const questStatusMessage = FlexMessageFactory.createQuestStatusMessage(questConfig, currentRound, roundsWithResults);
     const roundLeaderMessage = FlexMessageFactory.createRoundLeaderMessage(
       currentRound,
       leaderName,
       questConfig.length,
-      playersList
+      playersList,
+      requiredPlayers
     );
 
     // Send messages to group

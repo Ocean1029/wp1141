@@ -3,6 +3,7 @@ import { LLMService } from "./llm.service";
 import { LineService } from "./line.service";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { FlexMessageFactory } from "../utils/flex";
 
 // Store pending team proposals waiting for confirmation
 // Key: userId, Value: { gameId, roundId, playerIndices }
@@ -29,28 +30,38 @@ export class TeamProposalService {
         return { isProposal: false };
       }
 
+      // Type assertion: game includes players and rounds
+      const gameWithDetails = game as typeof game & {
+        currentRoundNumber: number | null;
+        players: Array<{ index: number; user: { lineId: string; displayName: string } }>;
+        rounds: Array<{ id: string; roundNumber: number; requiredPlayers: number; proposals?: Array<{ isApproved: boolean | null }> }>;
+      };
+
       // Check if user is the current leader
       const currentLeaderIndex = game.currentLeaderIndex ?? 0;
-      const leader = game.players.find(p => p.index === currentLeaderIndex);
+      const leader = gameWithDetails.players.find(p => p.index === currentLeaderIndex);
       
       if (!leader || leader.user.lineId !== userId) {
         return { isProposal: false };
       }
 
-      // Get current round
-      const rounds = game.rounds || [];
-      const currentRound = rounds.find(r => {
-        const proposals = r.proposals || [];
-        // Find round that doesn't have an approved proposal yet
-        return !proposals.some((p: any) => p.isApproved === true);
-      });
+      // Get current round using currentRoundNumber
+      const currentRoundNumber = gameWithDetails.currentRoundNumber;
+      if (!currentRoundNumber) {
+        return { isProposal: false };
+      }
+
+      const rounds = gameWithDetails.rounds || [];
+      const currentRound = rounds.find(r => r.roundNumber === currentRoundNumber);
 
       if (!currentRound) {
+        // Round doesn't exist yet, create it
+        // This should not happen normally, but handle it gracefully
         return { isProposal: false };
       }
 
       // Prepare player list for LLM
-      const playersList = game.players
+      const playersList = gameWithDetails.players
         .map(p => ({
           index: p.index,
           displayName: p.user.displayName
@@ -65,7 +76,7 @@ export class TeamProposalService {
       // Parse team proposal using LLM
       const proposal = await LLMService.parseTeamProposal(
         message,
-        game.players.length,
+        gameWithDetails.players.length,
         playersList,
         currentLeaderIndex
       );
@@ -75,8 +86,8 @@ export class TeamProposalService {
       }
 
       // Validate proposal size matches required players
-      const requiredPlayers = currentRound.requiredPlayers;
-      if (proposal.indices.length !== requiredPlayers) {
+      const requiredPlayers = currentRound?.requiredPlayers || 0;
+      if (!currentRound || proposal.indices.length !== requiredPlayers) {
         const confirmationMessage = `你選擇了 ${proposal.indices.length} 人，但本輪任務需要 ${requiredPlayers} 人。請重新選擇。`;
         return { isProposal: true, confirmationMessage };
       }
@@ -127,14 +138,20 @@ export class TeamProposalService {
         return { isConfirmation: true, success: false };
       }
 
-      const round = game.rounds.find(r => r.id === pending.roundId);
+      // Type assertion: game includes players and rounds
+      const gameWithDetails = game as typeof game & {
+        players: Array<{ id: string; index: number; user: { lineId: string; displayName: string } }>;
+        rounds: Array<{ id: string; roundNumber: number; requiredPlayers: number }>;
+      };
+
+      const round = gameWithDetails.rounds.find(r => r.id === pending.roundId);
       if (!round) {
         pendingProposals.delete(userId);
         return { isConfirmation: true, success: false };
       }
 
       // Find leader player
-      const leader = game.players.find(p => p.user.lineId === userId);
+      const leader = gameWithDetails.players.find(p => p.user.lineId === userId);
       if (!leader) {
         pendingProposals.delete(userId);
         return { isConfirmation: true, success: false };
@@ -143,7 +160,7 @@ export class TeamProposalService {
       // Convert indices to player IDs
       const proposedPlayerIds = pending.playerIndices
         .map(idx => {
-          const player = game.players.find(p => p.index === idx);
+          const player = gameWithDetails.players.find(p => p.index === idx);
           return player?.id;
         })
         .filter((id): id is string => !!id);
@@ -165,12 +182,54 @@ export class TeamProposalService {
       // Clear pending proposal
       pendingProposals.delete(userId);
 
+      // Get the created proposal
+      const createdProposal = await prisma.teamProposal.findFirst({
+        where: {
+          roundId: pending.roundId,
+          proposerId: leader.id,
+        },
+        orderBy: {
+          id: "desc",
+        },
+      });
+
+      if (!createdProposal) {
+        logger.error(`[TeamProposalService] Failed to find created proposal`);
+        return { isConfirmation: true, success: false };
+      }
+
+      // Prepare team members list for voting card
+      const teamMembers = gameWithDetails.players
+        .filter(p => pending.playerIndices.includes(p.index))
+        .map(p => ({
+          index: p.index,
+          displayName: p.user.displayName,
+        }))
+        .sort((a, b) => a.index - b.index);
+
       // Send confirmation to group
       const playerNumbers = pending.playerIndices.map(idx => idx + 1).join("、");
       await LineService.pushMessage(pending.groupId, [{
         type: "text",
         text: `✅ 隊長已確認出隊：${playerNumbers} 號\n現在開始投票階段！`,
       }]);
+
+      // Send voting card to all players
+      const votingCard = FlexMessageFactory.createVotingCard(
+        createdProposal.id,
+        round.roundNumber,
+        leader.user.displayName,
+        teamMembers,
+        round.requiredPlayers
+      );
+
+      await LineService.pushMessage(pending.groupId, [{
+        type: "flex",
+        altText: "投票階段",
+        contents: votingCard as any, // Type assertion to handle FlexContainer type mismatch
+      }]);
+
+      // Note: Mission cards will be sent after voting passes (handled in VoteService)
 
       return { isConfirmation: true, success: true };
     } catch (error) {

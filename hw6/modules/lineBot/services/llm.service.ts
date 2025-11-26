@@ -231,4 +231,61 @@ Return strictly 'TRUE' or 'FALSE'.`,
       return false;
     }
   }
+
+  /**
+   * Generate personalized mission result description
+   */
+  static async generateMissionResultDescription(
+    roundNumber: number,
+    isSuccess: boolean,
+    successCount: number,
+    failCount: number,
+    teamMembers: Array<{ displayName: string; role: string }>
+  ): Promise<string> {
+    try {
+      const teamInfo = teamMembers.map(m => `${m.displayName}(${m.role})`).join("、");
+      const resultText = isSuccess ? "成功" : "失敗";
+      
+      const completion = await this.openai.chat.completions.create({
+        model: config.openai.model || "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `你是傳說中的「湖中女神 (Lady of the Lake)」，名字是薇薇安 (Viviane)。
+請用神秘、優雅、帶有傳說色彩的語氣，描述第 ${roundNumber} 輪任務的結果。
+
+任務結果：${resultText}
+成功票數：${successCount}
+失敗票數：${failCount}
+出隊成員：${teamInfo}
+
+請用 50-100 字描述這個結果，要：
+- 使用神秘、優雅的語氣
+- 帶有傳說色彩（例如：湖面泛起漣漪、命運的試煉等）
+- 不要透露任何玩家的角色身份
+- 不要使用 markdown 格式
+- 用中文描述
+
+例如：
+- 成功時：「湖面泛起金色的漣漪，命運的天平傾向正義的一方。第 ${roundNumber} 輪試煉，${successCount} 道光芒照亮了前路...」
+- 失敗時：「暗影籠罩了湖面，第 ${roundNumber} 輪試煉中，${failCount} 道陰影阻擋了前進的道路...」`,
+          },
+          {
+            role: "user",
+            content: `請描述第 ${roundNumber} 輪任務的結果`,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 200,
+      });
+
+      const description = completion.choices[0]?.message?.content?.trim();
+      return description || `第 ${roundNumber} 輪任務${resultText}！成功：${successCount} 票，失敗：${failCount} 票。`;
+    } catch (error) {
+      console.error("Error generating mission result description:", error);
+      // Fallback to simple description
+      const resultText = isSuccess ? "成功" : "失敗";
+      return `第 ${roundNumber} 輪任務${resultText}！成功：${successCount} 票，失敗：${failCount} 票。`;
+    }
+  }
 }

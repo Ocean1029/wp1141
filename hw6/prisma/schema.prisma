@@ -13,10 +13,10 @@ datasource db {
 // --- Enums ---
 
 enum GameStatus {
-  WAITING    // 等待加入中
-  PLAYING    // 遊戲進行中
-  FINISHED   // 遊戲結束
-  ABORTED    // 強制結束/流局
+  WAITING // 等待加入中
+  PLAYING // 遊戲進行中
+  FINISHED // 遊戲結束
+  ABORTED // 強制結束/流局
 }
 
 enum Role {
@@ -26,8 +26,8 @@ enum Role {
   MORGANA
   ASSASSIN
   MINION
-  OBERON     // 奧伯倫 (擴充用)
-  MORDRED    // 莫德雷德 (擴充用)
+  OBERON // 奧伯倫 (擴充用)
+  MORDRED // 莫德雷德 (擴充用)
 }
 
 enum TeamVote {
@@ -54,138 +54,139 @@ enum MessageSender {
 // --- Models ---
 
 model User {
-  id            String    @id @default(cuid())
-  lineId        String    @unique
-  displayName   String
-  pictureUrl    String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String   @id @default(cuid())
+  lineId      String   @unique
+  displayName String
+  pictureUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // 排行榜/統計欄位
-  totalGames    Int       @default(0)
-  wonGames      Int       @default(0)
-  
+  totalGames Int @default(0)
+  wonGames   Int @default(0)
+
   // Relations
-  players       Player[]
-  messages      Message[]
-  
+  players  Player[]
+  messages Message[]
+
   // 狀態
   isLearningRules Boolean @default(false)
 }
 
 model Game {
-  id            String    @id @default(cuid())
-  lineGroupId   String?   // LINE 群組 ID (如果是私聊則為 null)
-  status        GameStatus @default(WAITING)
-  winner        Winner?
-  
+  id          String     @id @default(cuid())
+  lineGroupId String? // LINE 群組 ID (如果是私聊則為 null)
+  status      GameStatus @default(WAITING)
+  winner      Winner?
+
   // 遊戲設定與快照
-  maxPlayers    Int       @default(6) // 玩家人數上限 (5-10)
-  playerCount   Int       @default(0) // 實際參與人數
-  questConfig   Int[]     // 例如 [2, 3, 4, 3, 4]
-  activeRoles   Role[]    // 本局包含的角色
+  maxPlayers  Int    @default(6) // 玩家人數上限 (5-10)
+  playerCount Int    @default(0) // 實際參與人數
+  questConfig Int[] // 例如 [2, 3, 4, 3, 4]
+  activeRoles Role[] // 本局包含的角色
 
   // 遊戲進度狀態
-  currentLeaderIndex Int  @default(0) // 目前輪到第幾號位當隊長
+  currentRoundNumber Int? // 當前正在進行的輪次 (1-5)
+  currentLeaderIndex Int     @default(0) // 目前輪到第幾號位當隊長
   assassinTargetId   String? // 刺殺階段，刺客選擇刺殺的 Player ID
 
-  createdAt     DateTime  @default(now())
-  endedAt       DateTime?
-  duration      Int?      // 遊戲持續秒數
-  
+  createdAt DateTime  @default(now())
+  endedAt   DateTime?
+  duration  Int? // 遊戲持續秒數
+
   // Relations
-  players       Player[]
-  rounds        Round[]
-  messages      Message[]
+  players  Player[]
+  rounds   Round[]
+  messages Message[]
 }
 
 model Player {
-  id            String    @id @default(cuid())
-  userId        String
-  gameId        String
-  index         Int       // 座位順序 (0, 1, 2...)
-  role          Role?     // 遊戲開始後分配
-  
-  // 狀態旗標
-  isHost        Boolean   @default(false)
-  isReady       Boolean   @default(false) // 玩家是否已準備
-  
-  // 湖中女神擴充欄位
-  hasLadyOfLake      Boolean @default(false) // 目前是否持有女神
-  wasInvestigatedBy  String? // 紀錄被哪個 Player ID 查驗過 (null 代表沒被查過)
+  id     String @id @default(cuid())
+  userId String
+  gameId String
+  index  Int // 座位順序 (0, 1, 2...)
+  role   Role? // 遊戲開始後分配
 
-  user          User      @relation(fields: [userId], references: [id])
-  game          Game      @relation(fields: [gameId], references: [id])
-  
-  votes         Vote[]
-  proposals     TeamProposal[] // 該玩家擔任隊長的提議
+  // 狀態旗標
+  isHost  Boolean @default(false)
+  isReady Boolean @default(false) // 玩家是否已準備
+
+  // 湖中女神擴充欄位
+  hasLadyOfLake     Boolean @default(false) // 目前是否持有女神
+  wasInvestigatedBy String? // 紀錄被哪個 Player ID 查驗過 (null 代表沒被查過)
+
+  user User @relation(fields: [userId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
+
+  votes          Vote[]
+  proposals      TeamProposal[] // 該玩家擔任隊長的提議
   missionActions MissionAction[]
 
   @@unique([userId, gameId])
 }
 
 model Round {
-  id            String    @id @default(cuid())
-  gameId        String
-  roundNumber   Int       // 1-5
-  requiredPlayers Int     // 本回合需要幾人 (來自 questConfig)
-  isSuccess     Boolean?  // 任務最終結果 (True=好人得分)
-  
-  game          Game      @relation(fields: [gameId], references: [id])
-  proposals     TeamProposal[]
-  
+  id              String   @id @default(cuid())
+  gameId          String
+  roundNumber     Int // 1-5
+  requiredPlayers Int // 本回合需要幾人 (來自 questConfig)
+  isSuccess       Boolean? // 任務最終結果 (True=好人得分)
+
+  game      Game           @relation(fields: [gameId], references: [id])
+  proposals TeamProposal[]
+
   @@unique([gameId, roundNumber])
 }
 
 model TeamProposal {
-  id            String    @id @default(cuid())
-  roundId       String
-  proposerId    String    // 隊長 (Player ID)
-  proposedTeam  String[]  // 被提名的 Player IDs (Array of strings)
-  isApproved    Boolean?  // 投票結果是否通過
-  
-  round         Round     @relation(fields: [roundId], references: [id])
-  proposer      Player    @relation(fields: [proposerId], references: [id])
-  votes         Vote[]
+  id           String   @id @default(cuid())
+  roundId      String
+  proposerId   String // 隊長 (Player ID)
+  proposedTeam String[] // 被提名的 Player IDs (Array of strings)
+  isApproved   Boolean? // 投票結果是否通過
+
+  round          Round           @relation(fields: [roundId], references: [id])
+  proposer       Player          @relation(fields: [proposerId], references: [id])
+  votes          Vote[]
   missionActions MissionAction[] // 如果通過，這裡會有任務執行結果
 }
 
 model Vote {
-  id            String    @id @default(cuid())
-  proposalId    String
-  playerId      String
-  decision      TeamVote
-  
-  proposal      TeamProposal @relation(fields: [proposalId], references: [id])
-  player        Player       @relation(fields: [playerId], references: [id])
+  id         String   @id @default(cuid())
+  proposalId String
+  playerId   String
+  decision   TeamVote
+
+  proposal TeamProposal @relation(fields: [proposalId], references: [id])
+  player   Player       @relation(fields: [playerId], references: [id])
 
   @@unique([proposalId, playerId])
 }
 
 model MissionAction {
-  id            String    @id @default(cuid())
-  proposalId    String    // 綁定在哪個成功的提議上
-  playerId      String
-  result        MissionResult
-  
-  proposal      TeamProposal @relation(fields: [proposalId], references: [id])
-  player        Player       @relation(fields: [playerId], references: [id])
+  id         String        @id @default(cuid())
+  proposalId String // 綁定在哪個成功的提議上
+  playerId   String
+  result     MissionResult
+
+  proposal TeamProposal @relation(fields: [proposalId], references: [id])
+  player   Player       @relation(fields: [playerId], references: [id])
 
   @@unique([proposalId, playerId])
 }
 
 // Log 系統
 model Message {
-  id            String    @id @default(cuid())
-  lineUserId    String?   // 若 sender=USER 則有值
-  gameId        String?   // 綁定某局遊戲的對話
-  sender        MessageSender
-  content       String
-  createdAt     DateTime  @default(now())
-  
+  id         String        @id @default(cuid())
+  lineUserId String? // 若 sender=USER 則有值
+  gameId     String? // 綁定某局遊戲的對話
+  sender     MessageSender
+  content    String
+  createdAt  DateTime      @default(now())
+
   // Metadata
-  tokens        Int?      // LLM Tokens
-  
-  user          User?     @relation(fields: [lineUserId], references: [lineId]) // 注意這裡關聯 lineId
-  game          Game?     @relation(fields: [gameId], references: [id])
+  tokens Int? // LLM Tokens
+
+  user User? @relation(fields: [lineUserId], references: [lineId]) // 注意這裡關聯 lineId
+  game Game? @relation(fields: [gameId], references: [id])
 }

@@ -8,6 +8,8 @@ import { logger } from "@/lib/logger";
 import { FlexMessageFactory } from "../utils/flex";
 import { getLineBotService } from "./lineBot.service";
 import { TeamProposalService } from "./team-proposal.service";
+import { VoteService } from "./vote.service";
+import { TeamVote } from "@prisma/client";
 
 export class ChatService {
   /**
@@ -179,14 +181,47 @@ export class ChatService {
    * Handle Postback Event
    */
   private static async handlePostbackEvent(event: any) {
-    const { replyToken, postback } = event;
+    const { replyToken, postback, source } = event;
+    const userId = source.userId;
+    const groupId = source.type === "group" ? source.groupId : undefined;
     
-    // Only handle 'show_rules' here if necessary. 
-    // Legacy 'create_game' actions are removed as we use LIFF now.
-    if (postback.data === "action=show_rules") {
-        const rulesFlex = FlexMessageFactory.createRulesMessage();
-        const lineBotService = getLineBotService();
-        await lineBotService.replyFlex(replyToken, "阿瓦隆遊戲規則", rulesFlex);
+    if (!groupId) {
+      logger.warn(`[ChatService] Postback event without groupId`);
+      return;
+    }
+
+    const data = postback.data;
+    
+    // Handle vote postback
+    if (data.startsWith("vote:")) {
+      const parts = data.split(":");
+      if (parts.length === 3) {
+        const [, proposalId, decision] = parts;
+        const voteDecision = decision === "APPROVE" ? "APPROVE" : "REJECT";
+        
+        const result = await VoteService.handleVote(
+          proposalId,
+          userId,
+          groupId,
+          voteDecision as any
+        );
+
+        if (result.success) {
+          // Vote handled successfully, confirmation message already sent
+          return;
+        } else {
+          // Send error message
+          await LineService.replyText(replyToken, result.message || "投票失敗");
+          return;
+        }
+      }
+    }
+    
+    // Handle other postbacks
+    if (data === "action=show_rules") {
+      const rulesFlex = FlexMessageFactory.createRulesMessage();
+      const lineBotService = getLineBotService();
+      await lineBotService.replyFlex(replyToken, "阿瓦隆遊戲規則", rulesFlex);
     }
   }
 
