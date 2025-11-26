@@ -1,27 +1,33 @@
 "use client";
 
-import { useGameInit } from "@/hooks/use-game-init";
-import { LoadingScreen } from "@/components/game/loading-screen";
-import { ErrorScreen } from "@/components/game/error-screen";
-import { LobbyScreen } from "@/components/game/lobby-screen";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 
 export default function Home() {
-  const { isLoading, error, profile, context } = useGameInit();
+  const router = useRouter();
+  const [progress, setProgress] = useState(0);
 
-  // Phase 1: Initial Loading (System init or Data fetching)
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        const next = Math.min(prev + Math.random() * 10, 100);
+        
+        if (next >= 100) {
+          clearInterval(interval);
+          // Keep progress at 100, then redirect after 1 second
+          setTimeout(() => {
+            router.replace("/game/lobby");
+          }, 1000);
+          return 100;
+        }
+        
+        return next;
+      });
+    }, 200);
 
-  // Phase 2: Error Handling (Invalid Environment)
-  // In production, strict check: context?.type !== "group" && context?.type !== "room"
-  // For development/testing, we might want to allow external browser (context?.type === "none")
-  const isInvalidEnv = false; // Temporarily disabled for easier testing
-  
-  if (error || isInvalidEnv) {
-    return <ErrorScreen />;
-  }
+    return () => clearInterval(interval);
+  }, [router]);
 
-  // Phase 3: Game Lobby
-  return <LobbyScreen profile={profile} context={context} />;
+  return <LoadingScreen progress={progress} />;
 }

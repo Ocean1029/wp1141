@@ -68,15 +68,19 @@ model User {
   // Relations
   players       Player[]
   messages      Message[]
+  
+  // 狀態
+  isLearningRules Boolean @default(false)
 }
 
 model Game {
   id            String    @id @default(cuid())
-  lineGroupId   String   
+  lineGroupId   String?   // LINE 群組 ID (如果是私聊則為 null)
   status        GameStatus @default(WAITING)
   winner        Winner?
   
   // 遊戲設定與快照
+  maxPlayers    Int       @default(6) // 玩家人數上限 (5-10)
   playerCount   Int       @default(0) // 實際參與人數
   questConfig   Int[]     // 例如 [2, 3, 4, 3, 4]
   activeRoles   Role[]    // 本局包含的角色
@@ -92,6 +96,7 @@ model Game {
   // Relations
   players       Player[]
   rounds        Round[]
+  messages      Message[]
 }
 
 model Player {
@@ -100,7 +105,10 @@ model Player {
   gameId        String
   index         Int       // 座位順序 (0, 1, 2...)
   role          Role?     // 遊戲開始後分配
+  
+  // 狀態旗標
   isHost        Boolean   @default(false)
+  isReady       Boolean   @default(false) // 玩家是否已準備
   
   // 湖中女神擴充欄位
   hasLadyOfLake      Boolean @default(false) // 目前是否持有女神
@@ -166,12 +174,18 @@ model MissionAction {
   @@unique([proposalId, playerId])
 }
 
+// Log 系統
 model Message {
   id            String    @id @default(cuid())
   lineUserId    String?   // 若 sender=USER 則有值
+  gameId        String?   // 綁定某局遊戲的對話
   sender        MessageSender
   content       String
   createdAt     DateTime  @default(now())
   
+  // Metadata
+  tokens        Int?      // LLM Tokens
+  
   user          User?     @relation(fields: [lineUserId], references: [lineId]) // 注意這裡關聯 lineId
+  game          Game?     @relation(fields: [gameId], references: [id])
 }

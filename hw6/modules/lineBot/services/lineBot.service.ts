@@ -148,6 +148,21 @@ export class LineBotService {
   }
 
   /**
+   * Reply with Flex Message
+   * 
+   * @param replyToken - Reply token from the event
+   * @param altText - Alternative text for devices that don't support Flex
+   * @param contents - Flex Container object
+   */
+  async replyFlex(replyToken: string, altText: string, contents: any): Promise<void> {
+    await this.client.replyMessage(replyToken, {
+      type: "flex",
+      altText,
+      contents,
+    });
+  }
+
+  /**
    * Push message to user
    * 
    * @param userId - LINE user ID

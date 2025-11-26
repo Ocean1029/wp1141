@@ -1,10 +1,26 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import liff from "@line/liff";
+
+// Define shape of LIFF object (minimal)
+interface LiffObject {
+  init: (config: { liffId: string }) => Promise<void>;
+  id: string | null;
+  getProfile: () => Promise<{ userId: string; displayName: string; pictureUrl?: string }>;
+  getContext: () => { type: string; groupId?: string; roomId?: string; userId?: string } | null;
+  isInClient: () => boolean;
+  closeWindow: () => void;
+  login: () => void;
+}
+
+declare global {
+  interface Window {
+    liff: LiffObject;
+  }
+}
 
 interface LiffContextValue {
-  liff: typeof liff | null;
+  liff: LiffObject | null;
   isReady: boolean;
   error: Error | null;
 }
@@ -23,42 +39,55 @@ interface LiffProviderProps {
 export function LiffProvider({ children, liffId }: LiffProviderProps) {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [liffObject, setLiffObject] = useState<LiffObject | null>(null);
 
   useEffect(() => {
-    console.log("Initializing LIFF...");
-    
     if (!liffId) {
       console.error("LIFF ID is not provided.");
       setError(new Error("LIFF ID is not provided."));
       return;
     }
 
-    // Avoid initializing if already initialized
-    if (liff.id) {
-        setIsReady(true);
-        return;
-    }
+    // Load LIFF SDK via CDN
+    const script = document.createElement("script");
+    script.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+    script.async = true;
+    
+    script.onload = () => {
+      if (window.liff) {
+        window.liff
+          .init({ liffId })
+          .then(() => {
+            console.log("LIFF initialized successfully!");
+            setLiffObject(window.liff);
+            setIsReady(true);
+          })
+          .catch((err: Error) => {
+            console.error("LIFF initialization failed", err);
+            setError(err);
+          });
+      }
+    };
 
-    liff
-      .init({
-        liffId: liffId,
-      })
-      .then(() => {
-        console.log("LIFF initialized successfully!");
-        setIsReady(true);
-      })
-      .catch((err: Error) => {
-        console.error("LIFF initialization failed", err);
-        setError(err);
-      });
+    script.onerror = () => {
+      setError(new Error("Failed to load LIFF SDK script"));
+    };
+
+    document.body.appendChild(script);
+
+    return () => {
+      // Safely remove script element if it still exists in the DOM
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, [liffId]);
 
   return (
-    <LiffContext.Provider value={{ liff: isReady ? liff : null, isReady, error }}>
+    <LiffContext.Provider value={{ liff: liffObject, isReady, error }}>
       {children}
     </LiffContext.Provider>
   );
 }
 
 export const useLiffContext = () => useContext(LiffContext);
-
