@@ -233,11 +233,16 @@ export class GameService {
 
     // Type assertion: isReady exists in Player model
     const playersWithReady = game.players as (Player & { user: any; isReady: boolean })[];
-    const notReady = playersWithReady.some(p => !p.isReady);
-    if (notReady) throw new Error("Not all players are ready");
+    const gameWithMaxPlayers = game as Game & { maxPlayers: number };
+    
+    // If player count equals maxPlayers, can start regardless of ready status
+    // Otherwise, all players must be ready
+    if (count !== gameWithMaxPlayers.maxPlayers) {
+      const notReady = playersWithReady.some(p => !p.isReady);
+      if (notReady) throw new Error("Not all players are ready");
+    }
 
     // Use activeRoles if set, otherwise use default config
-    const gameWithMaxPlayers = game as Game & { maxPlayers: number };
     const activeRoles = game.activeRoles && game.activeRoles.length > 0 
       ? game.activeRoles 
       : (GAME_CONFIG[count]?.roles || []);
@@ -276,6 +281,11 @@ export class GameService {
     const gameWithMaxPlayers = game as Game & { maxPlayers: number };
     const playersWithReady = game.players as (Player & { user: any; isReady: boolean })[];
 
+    // Game can start when player count equals maxPlayers
+    const canStartByCount = playersWithReady.length === gameWithMaxPlayers.maxPlayers;
+    // Or when all players are ready (for cases where not all slots are filled)
+    const allReady = playersWithReady.length >= 2 && playersWithReady.every(p => p.isReady);
+    
     return {
       id: game.id,
       status: game.status,
@@ -288,7 +298,7 @@ export class GameService {
         isHost: p.isHost,
         isReady: p.isReady,
       })),
-      isStartable: playersWithReady.length >= 5 && playersWithReady.every(p => p.isReady),
+      isStartable: canStartByCount || allReady,
     };
   }
 
