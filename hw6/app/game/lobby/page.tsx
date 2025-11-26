@@ -41,6 +41,15 @@ export default function LobbyPage() {
         setProfile({ userId: p.userId, displayName: p.displayName });
       }).catch(console.error);
 
+      // First, try to get groupId from URL query parameter (passed from Flex Message)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlGroupId = urlParams.get("groupId");
+      
+      // Log full URL for debugging
+      console.log(`[Lobby] Full URL: ${window.location.href}`);
+      console.log(`[Lobby] URL search params: ${window.location.search}`);
+      console.log(`[Lobby] URL groupId parameter: ${urlGroupId}`);
+      
       const context = liff.getContext();
       console.log("[Lobby] LIFF Context:", {
         type: context?.type,
@@ -49,10 +58,109 @@ export default function LobbyPage() {
         userId: context?.userId,
         fullContext: context,
       });
-      if (context?.groupId) {
-        setGroupId(context.groupId);
+      
+      // Priority: URL parameter > getContext().groupId
+      // URL parameter is more reliable as it comes from webhook event (which has correct Group ID)
+      let finalGroupId: string | null = null;
+      
+      if (urlGroupId) {
+        const isLineGroupId = urlGroupId.startsWith("C") && urlGroupId.length === 33;
+        const isUUID = urlGroupId.includes("-") && urlGroupId.length === 36;
+        
+        console.log(`[Lobby] URL groupId: ${urlGroupId}, length=${urlGroupId.length}, startsWithC=${urlGroupId.startsWith("C")}, isUUID=${isUUID}`);
+        
+        if (isLineGroupId) {
+          console.log(`[Lobby] Using groupId from URL parameter: ${urlGroupId}`);
+          finalGroupId = urlGroupId;
+        } else if (isUUID) {
+          console.warn(`[Lobby] URL parameter contains UUID format, will try getContext() instead`);
+        } else {
+          console.warn(`[Lobby] URL parameter format unclear, will try getContext() instead`);
+        }
+      }
+      
+      // Fallback to getContext() if URL parameter is not available or invalid
+      if (!finalGroupId && context?.groupId) {
+        const receivedGroupId = context.groupId;
+        const isLineGroupId = receivedGroupId.startsWith("C") && receivedGroupId.length === 33;
+        const isUUID = receivedGroupId.includes("-") && receivedGroupId.length === 36;
+        
+        console.log(`[Lobby] getContext() groupId: ${receivedGroupId}, length=${receivedGroupId.length}, startsWithC=${receivedGroupId.startsWith("C")}, isUUID=${isUUID}`);
+        
+        if (isUUID) {
+          console.error(`[Lobby] ERROR: getContext() returned UUID instead of LINE Group ID!`);
+          console.error(`[Lobby] This indicates a LIFF configuration issue. Please check LINE Official Account Manager settings.`);
+          setError("錯誤：無法取得有效的群組 ID。請確認 Bot 已加入群組，並在 LINE Official Account Manager 中啟用「允許 Bot 加入群組聊天」功能。");
+          return;
+        }
+        
+        if (isLineGroupId) {
+          console.log(`[Lobby] Using groupId from getContext(): ${receivedGroupId}`);
+          finalGroupId = receivedGroupId;
+        } else {
+          console.warn(`[Lobby] getContext() groupId format unclear: ${receivedGroupId}`);
+        }
+      }
+      
+      if (finalGroupId) {
+        console.log(`[Lobby] Successfully set groupId: ${finalGroupId}`);
+        setGroupId(finalGroupId);
+      } else if (context?.roomId) {
+        console.warn(`[Lobby] Room ID detected instead of Group ID: ${context.roomId}. Games only work in Groups.`);
+        setError("請在 LINE 群組中開啟此頁面！（目前偵測到的是聊天室，不是群組）");
       } else {
-        setError("請在 LINE 群組中開啟此頁面！");
+        console.error(`[Lobby] No valid groupId found.`);
+        console.error(`[Lobby] Debug info:`, {
+          urlGroupId,
+          urlGroupIdLength: urlGroupId?.length,
+          urlGroupIdStartsWithC: urlGroupId?.startsWith("C"),
+          urlGroupIdType: urlGroupId ? (urlGroupId.startsWith("C") && urlGroupId.length === 33 ? "LINE_GROUP_ID" : urlGroupId.includes("-") && urlGroupId.length === 36 ? "UUID" : "UNKNOWN") : "NONE",
+          contextGroupId: context?.groupId,
+          contextGroupIdLength: context?.groupId?.length,
+          contextGroupIdStartsWithC: context?.groupId?.startsWith("C"),
+          contextGroupIdType: context?.groupId ? (context.groupId.startsWith("C") && context.groupId.length === 33 ? "LINE_GROUP_ID" : context.groupId.includes("-") && context.groupId.length === 36 ? "UUID" : "UNKNOWN") : "NONE",
+          contextType: context?.type,
+          contextRoomId: context?.roomId,
+          fullUrl: window.location.href,
+          searchParams: window.location.search,
+        });
+        
+        // Provide more helpful error message based on what we found
+        let errorMessage = "無法取得有效的群組 ID。\n\n";
+        
+        if (urlGroupId) {
+          if (urlGroupId.startsWith("C") && urlGroupId.length !== 33) {
+            errorMessage += `URL 參數中的 Group ID 長度不正確：${urlGroupId.length}（應為 33）。\n`;
+          } else if (urlGroupId.includes("-")) {
+            errorMessage += "URL 參數中的 ID 格式不正確（UUID 格式，應為 C 開頭）。\n";
+          } else if (!urlGroupId.startsWith("C")) {
+            errorMessage += `URL 參數中的 ID 格式不正確：${urlGroupId.substring(0, 20)}...（應為 C 開頭）。\n`;
+          }
+        }
+        
+        if (context?.groupId) {
+          if (context.groupId.includes("-")) {
+            errorMessage += "LIFF getContext() 回傳的 ID 格式不正確（UUID 格式）。\n";
+          } else if (!context.groupId.startsWith("C")) {
+            errorMessage += `LIFF getContext() 回傳的 ID 格式不正確：${context.groupId.substring(0, 20)}...（應為 C 開頭）。\n`;
+          }
+        }
+        
+        if (context?.type === "none" || !context?.type) {
+          errorMessage += "LIFF Context type 為 'none'，表示可能不在群組環境中。\n";
+        }
+        
+        if (!urlGroupId && !context?.groupId) {
+          errorMessage += "未偵測到任何 Group ID（URL 參數和 getContext() 都沒有）。\n";
+        }
+        
+        errorMessage += "\n請確認：\n";
+        errorMessage += "1. Bot 已加入群組\n";
+        errorMessage += "2. 在 LINE Official Account Manager 中啟用「允許 Bot 加入群組聊天」\n";
+        errorMessage += "3. 從群組中的 Flex Message 點擊「開始遊戲」按鈕（不要直接開啟 LIFF URL）\n";
+        errorMessage += "4. 檢查瀏覽器 Console 的詳細 Log";
+        
+        setError(errorMessage);
       }
     }
   }, [isReady, liff]);
@@ -67,10 +175,18 @@ export default function LobbyPage() {
         if (res.ok) {
           const data = await res.json();
           if (data) {
+             // If game is closed/aborted, clear game state
+             if (data.status === "ABORTED" || data.status === "FINISHED") {
+               setGame(null);
+               return;
+             }
              setGame(data);
              if (data.status === "PLAYING") {
                router.push("/game/role");
              }
+          } else {
+            // No active game found
+            setGame(null);
           }
         }
       } catch (e) {
@@ -145,6 +261,74 @@ export default function LobbyPage() {
     }
   };
 
+  const handleCloseGame = async () => {
+    if (!game || !profile) return;
+    
+    // Confirm before closing
+    if (!confirm("確定要關閉房間嗎？所有玩家將被移除，遊戲將無法繼續。")) {
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/game/close", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameId: game.id, userId: profile.userId }),
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to close game");
+        return;
+      }
+      
+      // Game closed successfully, clear game state
+      setGame(null);
+      alert("房間已關閉");
+    } catch (e) {
+      alert(`關閉房間時發生錯誤: ${e}`);
+    }
+  };
+
+  const handleUpdateMaxPlayers = async (newMaxPlayers: number) => {
+    if (!game || !profile) return;
+    
+    // Validate range
+    if (newMaxPlayers < 5 || newMaxPlayers > 10) {
+      alert("房間人數必須在 5-10 人之間");
+      return;
+    }
+    
+    // Cannot set less than current players
+    if (newMaxPlayers < game.players.length) {
+      alert(`無法設定為 ${newMaxPlayers} 人，目前已有 ${game.players.length} 位玩家`);
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/game/update-max-players", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          gameId: game.id, 
+          userId: profile.userId,
+          maxPlayers: newMaxPlayers 
+        }),
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || "Failed to update max players");
+        return;
+      }
+      
+      // Update local state
+      setGame({ ...game, maxPlayers: newMaxPlayers });
+    } catch (e) {
+      alert(`更新房間人數時發生錯誤: ${e}`);
+    }
+  };
+
   const isJoined = game?.players.some(p => p.lineId === profile?.userId) ?? false;
   const myPlayer = game?.players.find(p => p.lineId === profile?.userId);
   const isHost = myPlayer?.isHost ?? false;
@@ -157,13 +341,33 @@ export default function LobbyPage() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-24">
       {/* Header */}
-      <div className="bg-slate-800 p-4 shadow-lg text-center border-b border-amber-600/30 sticky top-0 z-10">
+      <div className="bg-slate-800 p-4 shadow-lg text-center border-b border-amber-600/30 sticky top-0 z-10 relative">
+        {/* Close button - only visible for host when game exists */}
+        {game && isHost && (
+          <button
+            onClick={handleCloseGame}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-400 transition-colors p-2 hover:bg-slate-700/50 rounded-lg"
+            title="關閉房間"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12" 
+              />
+            </svg>
+          </button>
+        )}
         <h1 className="text-2xl font-bold text-amber-500 tracking-widest">AVALON</h1>
         <p className="text-xs text-slate-400 mt-1 font-mono">Lobby: {groupId?.slice(-4)}</p>
-        {/* Debug Info */}
-        <div className="text-[10px] text-slate-600 mt-1">
-          GID: {groupId}
-        </div>
+        
       </div>
 
       {/* Main Content */}
@@ -171,7 +375,7 @@ export default function LobbyPage() {
         {!game ? (
           // No Game - Create Mode
           <div className="text-center mt-20 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-7xl animate-bounce">🏰</div>
+            <div className="text-7xl">🏰</div>
             <div className="space-y-2">
               <h2 className="text-xl font-semibold text-amber-100">尚未建立遊戲</h2>
               <p className="text-slate-400 text-sm px-8">
@@ -179,7 +383,7 @@ export default function LobbyPage() {
               </p>
             </div>
             <Button onClick={handleCreateGame} isLoading={loading} size="lg" className="w-full">
-              👑 開啟新局 (Create Game)
+              開啟新局
             </Button>
           </div>
         ) : (
@@ -187,11 +391,41 @@ export default function LobbyPage() {
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Status Banner */}
             <div className="flex justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-700 shadow-sm">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
                 <span className="text-3xl">👥</span>
-                <div>
+                <div className="flex-1">
                   <div className="text-xs text-slate-400 uppercase tracking-wide">Players</div>
-                  <div className="font-bold text-xl text-white">{game.players.length} <span className="text-slate-500 text-sm">/ {game.maxPlayers}</span></div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xl text-white">{game.players.length}</span>
+                    <span className="text-slate-500 text-sm">/</span>
+                    {isHost ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleUpdateMaxPlayers(game.maxPlayers - 1)}
+                          disabled={game.maxPlayers <= 5 || game.players.length > (game.maxPlayers - 1)}
+                          className="text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1 rounded hover:bg-slate-700/50"
+                          title="減少人數"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </button>
+                        <span className="font-bold text-xl text-white min-w-[1.5rem] text-center">{game.maxPlayers}</span>
+                        <button
+                          onClick={() => handleUpdateMaxPlayers(game.maxPlayers + 1)}
+                          disabled={game.maxPlayers >= 10}
+                          className="text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors p-1 rounded hover:bg-slate-700/50"
+                          title="增加人數"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="font-bold text-xl text-white">{game.maxPlayers}</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide ${
@@ -204,7 +438,7 @@ export default function LobbyPage() {
             {/* Player List */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Participants</h3>
-              <PlayerList players={game.players} />
+              <PlayerList players={game.players} maxPlayers={game.maxPlayers} />
             </div>
 
             {/* Action Area */}

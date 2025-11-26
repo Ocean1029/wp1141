@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Game, GameStatus, Player, Role, TeamProposal, Vote } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export class GameRepository {
   /**
@@ -7,6 +8,9 @@ export class GameRepository {
    */
   static async findActiveGame(lineGroupId: string): Promise<Game | null> {
     console.log(`[GameRepository] findActiveGame querying for lineGroupId: ${lineGroupId}`);
+    console.log(`[GameRepository] lineGroupId type check: length=${lineGroupId.length}, startsWithC=${lineGroupId.startsWith("C")}, isUUID=${lineGroupId.includes("-")}`);
+    
+    // First, try exact match
     const result = await prisma.game.findFirst({
       where: {
         lineGroupId,
@@ -26,32 +30,46 @@ export class GameRepository {
         rounds: true,
       },
     });
-    console.log(`[GameRepository] findActiveGame result: ${result ? `Found game ${result.id} with lineGroupId ${result.lineGroupId}` : "null"}`);
-    // Debug: Check if there are any games with similar IDs
-    if (!result) {
-      const allGames = await prisma.game.findMany({
-        where: {
-          status: {
-            in: [GameStatus.WAITING, GameStatus.PLAYING],
-          },
-        },
-        select: {
-          id: true,
-          lineGroupId: true,
-          status: true,
-        },
-        take: 5,
-      });
-      console.log(`[GameRepository] Recent active games:`, allGames.map(g => ({ id: g.id, lineGroupId: g.lineGroupId, status: g.status })));
+    
+    if (result) {
+      console.log(`[GameRepository] Found exact match: gameId=${result.id}, lineGroupId=${result.lineGroupId}, status=${result.status}`);
+      return result;
     }
-    return result;
+    
+    // Debug: Check if there are any active games at all
+    const allActiveGames = await prisma.game.findMany({
+      where: {
+        status: {
+          in: [GameStatus.WAITING, GameStatus.PLAYING],
+        },
+      },
+      select: {
+        id: true,
+        lineGroupId: true,
+        status: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+    });
+    
+    console.log(`[GameRepository] No exact match found. Recent active games (last 10):`);
+    allActiveGames.forEach(g => {
+      console.log(`  - Game ${g.id}: lineGroupId="${g.lineGroupId}" (length=${g.lineGroupId?.length || 0}, startsWithC=${g.lineGroupId?.startsWith("C") || false}), status=${g.status}, created=${g.createdAt}`);
+    });
+    
+    console.log(`[GameRepository] Querying for "${lineGroupId}" but found ${allActiveGames.length} active games total`);
+    
+    return null;
   }
 
   /**
    * Find game by ID with full details
    */
   static async findById(gameId: string) {
-    return prisma.game.findUnique({
+    const result = await prisma.game.findUnique({
       where: { id: gameId },
       include: {
         players: {
@@ -65,6 +83,13 @@ export class GameRepository {
         rounds: true,
       },
     });
+    
+    // Type assertion to ensure maxPlayers is included
+    return result as (Game & {
+      players: (Player & { user: any })[];
+      rounds: any[];
+      maxPlayers: number;
+    }) | null;
   }
 
   /**
@@ -190,6 +215,16 @@ export class GameRepository {
     return prisma.game.update({
       where: { id: gameId },
       data: { status },
+    });
+  }
+
+  /**
+   * Update max players count
+   */
+  static async updateMaxPlayers(gameId: string, maxPlayers: number): Promise<Game> {
+    return prisma.game.update({
+      where: { id: gameId },
+      data: { maxPlayers },
     });
   }
 }

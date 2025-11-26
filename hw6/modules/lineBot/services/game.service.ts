@@ -44,8 +44,29 @@ const ROLE_INFO: Record<Role, { name: string; team: "GOOD" | "EVIL"; desc: strin
 export class GameService {
   // ... createGame, joinGame, toggleReady, startGame ...
   
+  /**
+   * Validate LINE Group ID format
+   * LINE Group IDs should start with 'C' followed by 32 hexadecimal characters (33 chars total)
+   */
+  private static isValidLineGroupId(id: string): boolean {
+    const lineGroupIdPattern = /^C[0-9a-fA-F]{32}$/;
+    return lineGroupIdPattern.test(id);
+  }
+  
   static async createGame(lineGroupId: string, hostUserId: string) {
     console.log(`[GameService] createGame called with lineGroupId: ${lineGroupId}, hostUserId: ${hostUserId}`);
+    
+    // Validate LINE Group ID format
+    if (!this.isValidLineGroupId(lineGroupId)) {
+      const isUUID = lineGroupId.includes("-") && lineGroupId.length === 36;
+      const errorMsg = isUUID
+        ? `Invalid LINE Group ID: Received UUID format instead of LINE Group ID. Expected: C + 32 hex chars (33 total). Received: ${lineGroupId.substring(0, 20)}...`
+        : `Invalid LINE Group ID format. Expected: C + 32 hex chars (33 total). Received: ${lineGroupId.substring(0, 20)}... (length: ${lineGroupId.length})`;
+      
+      console.error(`[GameService] ${errorMsg}`);
+      throw new Error(errorMsg);
+    }
+    
     const activeGame = await GameRepository.findActiveGame(lineGroupId);
     console.log(`[GameService] findActiveGame result: ${activeGame ? `Found game ${activeGame.id}` : "No active game found"}`);
     if (activeGame) {
@@ -61,7 +82,10 @@ export class GameService {
     const game = await GameRepository.findById(gameId);
     if (!game) throw new Error("Game not found");
     if (game.status !== GameStatus.WAITING) throw new Error("Game has already started");
-    if (game.players.length >= game.maxPlayers) throw new Error("Game is full");
+    
+    // Type assertion: maxPlayers exists in Game model
+    const maxPlayers = (game as Game & { maxPlayers: number }).maxPlayers;
+    if (game.players.length >= maxPlayers) throw new Error("Game is full");
     
     const isAlreadyJoined = game.players.some(p => p.user.lineId === userId);
     if (isAlreadyJoined) throw new Error("User already joined");
@@ -70,8 +94,64 @@ export class GameService {
     return GameRepository.addPlayer(gameId, userId, nextIndex);
   }
 
-  static async toggleReady(gameId: string, userId: string) {
+  static async toggleReady(gameId: string, userId: string): Promise<boolean> {
     return GameRepository.toggleReady(gameId, userId);
+  }
+
+  /**
+   * Close/Abort game room
+   * Only host can close the game
+   */
+  static async closeGame(gameId: string, requestUserId: string) {
+    const game = await GameRepository.findById(gameId);
+    if (!game) throw new Error("Game not found");
+
+    const host = game.players.find(p => p.isHost);
+    if (host?.user.lineId !== requestUserId) {
+      throw new Error("Only host can close the game");
+    }
+
+    // Update game status to ABORTED
+    await GameRepository.updateStatus(gameId, GameStatus.ABORTED);
+    
+    logger.info(`[GameService] Game closed by host`, {
+      gameId,
+      hostUserId: requestUserId,
+    });
+  }
+
+  /**
+   * Update max players count
+   * Only host can update, and maxPlayers must be between 5-10
+   * Cannot set maxPlayers less than current player count
+   */
+  static async updateMaxPlayers(gameId: string, maxPlayers: number, requestUserId: string) {
+    const game = await GameRepository.findById(gameId);
+    if (!game) throw new Error("Game not found");
+
+    const host = game.players.find(p => p.isHost);
+    if (host?.user.lineId !== requestUserId) {
+      throw new Error("Only host can update max players");
+    }
+
+    // Validate maxPlayers range
+    if (maxPlayers < 5 || maxPlayers > 10) {
+      throw new Error("Max players must be between 5 and 10");
+    }
+
+    // Cannot set maxPlayers less than current player count
+    const currentPlayerCount = game.players.length;
+    if (maxPlayers < currentPlayerCount) {
+      throw new Error(`Cannot set max players to ${maxPlayers}. There are already ${currentPlayerCount} players in the game.`);
+    }
+
+    await GameRepository.updateMaxPlayers(gameId, maxPlayers);
+    
+    logger.info(`[GameService] Max players updated`, {
+      gameId,
+      maxPlayers,
+      hostUserId: requestUserId,
+    });
   }
 
   static async startGame(gameId: string, requestUserId: string) {
@@ -84,7 +164,9 @@ export class GameService {
     const count = game.players.length;
     if (count < 5 || count > 10) throw new Error(`Invalid player count: ${count}. Must be 5-10.`);
 
-    const notReady = game.players.some(p => !p.isReady);
+    // Type assertion: isReady exists in Player model
+    const playersWithReady = game.players as (Player & { user: any; isReady: boolean })[];
+    const notReady = playersWithReady.some(p => !p.isReady);
     if (notReady) throw new Error("Not all players are ready");
 
     const config = GAME_CONFIG[count];
@@ -112,18 +194,22 @@ export class GameService {
     const game = await GameRepository.findById(gameId);
     if (!game) return null;
 
+    // Type assertions: maxPlayers and isReady exist in Game and Player models
+    const gameWithMaxPlayers = game as Game & { maxPlayers: number };
+    const playersWithReady = game.players as (Player & { user: any; isReady: boolean })[];
+
     return {
       id: game.id,
       status: game.status,
-      maxPlayers: game.maxPlayers,
-      players: game.players.map(p => ({
+      maxPlayers: gameWithMaxPlayers.maxPlayers,
+      players: playersWithReady.map(p => ({
         lineId: p.user.lineId,
         displayName: p.user.displayName,
         pictureUrl: p.user.pictureUrl,
         isHost: p.isHost,
         isReady: p.isReady,
       })),
-      isStartable: game.players.length >= 5 && game.players.every(p => p.isReady),
+      isStartable: playersWithReady.length >= 5 && playersWithReady.every(p => p.isReady),
     };
   }
 
@@ -148,7 +234,7 @@ export class GameService {
         .filter(p => {
             if (!p.role) return false;
             // Is Evil?
-            const isEvil = [Role.MORGANA, Role.ASSASSIN, Role.MINION, Role.OBERON].includes(p.role);
+            const isEvil = p.role === Role.MORGANA || p.role === Role.ASSASSIN || p.role === Role.MINION || p.role === Role.OBERON;
             // Exclude MORDRED if we had it
             return isEvil && p.user.lineId !== userId;
         })
@@ -160,18 +246,18 @@ export class GameService {
     } else if (me.role === Role.PERCIVAL) {
       // Percival sees MERLIN and MORGANA as "Unknown"
       knownInfo = game.players
-        .filter(p => [Role.MERLIN, Role.MORGANA].includes(p.role!))
+        .filter(p => p.role === Role.MERLIN || p.role === Role.MORGANA)
         .map(p => ({
             displayName: p.user.displayName,
             pictureUrl: p.user.pictureUrl,
             type: "梅林或莫甘娜"
         }));
-    } else if ([Role.MORGANA, Role.ASSASSIN, Role.MINION, Role.MORDRED].includes(me.role)) {
+    } else if (me.role === Role.MORGANA || me.role === Role.ASSASSIN || me.role === Role.MINION || me.role === Role.MORDRED) {
       // Evil sees Evil (except OBERON)
       knownInfo = game.players
         .filter(p => {
             if (p.user.lineId === userId) return false;
-            const isEvilTeammate = [Role.MORGANA, Role.ASSASSIN, Role.MINION, Role.MORDRED].includes(p.role!);
+            const isEvilTeammate = p.role === Role.MORGANA || p.role === Role.ASSASSIN || p.role === Role.MINION || p.role === Role.MORDRED;
             return isEvilTeammate;
         })
         .map(p => ({

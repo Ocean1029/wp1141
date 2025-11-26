@@ -6,7 +6,7 @@
  */
 
 export { LineBotService, getLineBotService } from "./services/lineBot.service";
-export { handleLineEvent, handleLineEvents } from "./handlers/event.handler";
+export { handleLineEvents } from "./handlers/event.handler";
 export { verifySignature } from "./utils/signature";
 export * from "./domain/lineBot.types";
 

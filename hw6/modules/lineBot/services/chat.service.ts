@@ -61,8 +61,20 @@ export class ChatService {
   private static async handleMessageEvent(event: any) {
     const { replyToken, source, message } = event;
     const userId = source.userId;
-    const groupId = source.type === "group" ? source.groupId : undefined;
+    const sourceType = source.type;
+    const groupId = sourceType === "group" ? source.groupId : undefined;
+    const roomId = sourceType === "room" ? source.roomId : undefined;
     const userText = message.text.trim();
+    
+    // Log source information for debugging
+    logger.info(`[ChatService] Message event source info`, {
+      sourceType,
+      userId,
+      groupId,
+      roomId,
+      hasGroupId: !!groupId,
+      hasRoomId: !!roomId,
+    });
 
     if (!userId) return;
 
@@ -81,7 +93,23 @@ export class ChatService {
       const isStartCommand = userText === "/start" || userText === "/open" || await LLMService.checkStartCommand(userText);
 
       if (isStartCommand) {
-        const flexMessage = FlexMessageFactory.createAvalonLobby();
+        // Log group information for debugging
+        logger.info(`[ChatService] Start command received`, {
+          userId,
+          groupId,
+          sourceType: source.type,
+          hasGroupId: !!groupId,
+          groupIdFormat: groupId ? (groupId.startsWith("C") ? "LINE_GROUP_ID" : groupId.includes("-") ? "UUID" : "UNKNOWN") : "NONE",
+        });
+        
+        // Pass groupId to Flex Message so it can be included in LIFF URL
+        // This is a fallback when getContext().groupId is not available or returns invalid format
+        const flexMessage = FlexMessageFactory.createAvalonLobby(groupId);
+        
+        if (!groupId) {
+          logger.warn(`[ChatService] No groupId available when creating Flex Message. User may not be in a group.`);
+        }
+        
         const lineBotService = getLineBotService();
         await lineBotService.replyFlex(replyToken, "阿瓦隆遊戲大廳", flexMessage);
         return;

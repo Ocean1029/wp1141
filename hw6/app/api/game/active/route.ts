@@ -44,19 +44,28 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const groupId = req.nextUrl.searchParams.get("groupId");
   console.log(`[API active] Query groupId: ${groupId}`);
+  console.log(`[API active] groupId details: length=${groupId?.length || 0}, startsWithC=${groupId?.startsWith("C") || false}, type=${typeof groupId}`);
   
-  if (!groupId) return NextResponse.json({ error: "Missing groupId" }, { status: 400 });
+  if (!groupId) {
+    console.error(`[API active] Missing groupId parameter`);
+    return NextResponse.json({ error: "Missing groupId" }, { status: 400 });
+  }
 
   try {
     const game = await GameRepository.findActiveGame(groupId);
-    console.log(`[API active] Found game: ${game?.id || "null"} for group: ${groupId}`);
+    console.log(`[API active] Query result: ${game ? `Found game ${game.id} with lineGroupId ${game.lineGroupId}` : "No game found"} for query groupId: ${groupId}`);
     
-    if (!game) return NextResponse.json(null); // No active game is fine, return null
+    if (!game) {
+      console.log(`[API active] Returning null - no active game found for groupId: ${groupId}`);
+      return NextResponse.json(null); // No active game is fine, return null
+    }
 
     // Use Service to format return data same as getLobbyStatus
     const status = await GameService.getLobbyStatus(game.id);
+    console.log(`[API active] Returning game status for gameId: ${game.id}, players: ${status.players.length}`);
     return NextResponse.json(status);
   } catch (error) {
+    console.error(`[API active] Error querying active game:`, error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

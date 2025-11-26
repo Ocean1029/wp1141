@@ -11,9 +11,12 @@ interface Player {
 
 interface PlayerListProps {
   players: Player[];
+  maxPlayers: number;
 }
 
-export function PlayerList({ players }: PlayerListProps) {
+export function PlayerList({ players, maxPlayers }: PlayerListProps) {
+  const emptySlotsCount = Math.max(0, maxPlayers - players.length);
+  
   return (
     <div className="grid grid-cols-2 gap-3">
       {players.map((player) => (
@@ -48,8 +51,8 @@ export function PlayerList({ players }: PlayerListProps) {
         </div>
       ))}
       
-      {/* Empty Slots Visuals (Optional, max 10) */}
-      {Array.from({ length: Math.max(0, 5 - players.length) }).map((_, i) => (
+      {/* Empty Slots - Show slots up to maxPlayers */}
+      {Array.from({ length: emptySlotsCount }).map((_, i) => (
         <div key={`empty-${i}`} className="border border-dashed border-slate-700 rounded-lg p-3 flex items-center justify-center min-h-[66px]">
           <span className="text-slate-600 text-xs">Empty Slot</span>
         </div>

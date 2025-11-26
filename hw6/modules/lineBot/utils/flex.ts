@@ -4,12 +4,21 @@ import { config } from "@/config/env";
 export class FlexMessageFactory {
   /**
    * Create the main Avalon game lobby card
+   * @param groupId - Optional LINE Group ID to pass via URL parameter
+   *                   This is a fallback when getContext().groupId is not available
    */
-  static createAvalonLobby(): FlexContainer {
+  static createAvalonLobby(groupId?: string): FlexContainer {
     const baseUrl = config.baseUrl;
     // Use a dark theme hero image or fallback
     const heroImageUrl = `${baseUrl}/Images/Card_Image.jpg`;
-    const liffUrl = `https://liff.line.me/${config.line.liffId}/game/lobby`;
+    // Include groupId in URL as query parameter if provided
+    // This ensures we can get the correct Group ID even if getContext() fails
+    const liffUrl = groupId 
+      ? `https://liff.line.me/${config.line.liffId}/game/lobby?groupId=${encodeURIComponent(groupId)}`
+      : `https://liff.line.me/${config.line.liffId}/game/lobby`;
+    
+    // Log for debugging
+    console.log(`[FlexMessageFactory] Creating lobby with groupId: ${groupId || "NONE"}, LIFF URL: ${liffUrl}`);
 
     return {
       type: "bubble",
