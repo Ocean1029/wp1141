@@ -85,3 +85,4 @@
 建議依照 **Phase 1 -> Phase 2 -> Phase 5 -> Phase 3 -> Phase 4** 的順序進行。
 先確保 **資料庫** 與 **Bot 基礎對話/Log** 功能正常 (滿足 Must Have)，再進行複雜的遊戲邏輯與 LIFF 開發。
 
+
