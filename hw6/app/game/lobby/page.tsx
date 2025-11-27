@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Role } from "@prisma/client";
+
 import { useLiffContext } from "@/components/providers/liff-provider";
 import { PlayerList } from "@/components/game/lobby/player-list";
 import { ActionBar } from "@/components/game/lobby/action-bar";
 import { RoleEditorModal } from "@/components/game/lobby/role-editor-modal";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/loading-screen";
-import { Role } from "@prisma/client";
 
 interface Player {
   lineId: string;
