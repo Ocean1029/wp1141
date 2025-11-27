@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Find player
-    const player = game.players.find(p => p.user.lineId === userId);
+    const player = game.players.find((p: any) => p.user.lineId === userId);
     if (!player || !player.role) {
       return NextResponse.json({ error: "Player not found or role not assigned" }, { status: 404 });
     }
