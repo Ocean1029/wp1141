@@ -1,7 +1,7 @@
 import { Client, ClientConfig, middleware } from "@line/bot-sdk";
 import { config } from "@/config/env";
 import { LineBotContext, isMessageEvent, isTextMessage, isFollowEvent } from "../domain/lineBot.types";
-import { openai, createChatCompletion } from "@/lib/openai";
+import { createChatCompletion } from "@/lib/openai";
 import { getMessage } from "@/config/messages";
 import { logger } from "@/lib/logger";
 import { ExternalServiceError } from "@/lib/errors";

@@ -1,4 +1,3 @@
-import { GameRepository } from "../repositories/game.repository";
 import { LineService } from "./line.service";
 import { FlexMessageFactory } from "../utils/flex";
 import { logger } from "@/lib/logger";
@@ -144,7 +143,6 @@ export class VoteService {
 
     const approveCount = proposal.votes.filter(v => v.decision === TeamVote.APPROVE).length;
     const rejectCount = proposal.votes.filter(v => v.decision === TeamVote.REJECT).length;
-    const totalPlayers = proposal.round.game.players.length;
     const isApproved = approveCount > rejectCount; // Simple majority
 
     // Update proposal

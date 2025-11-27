@@ -1,4 +1,3 @@
-import { GameRepository } from "../repositories/game.repository";
 import { LineService } from "./line.service";
 import { LLMService } from "./llm.service";
 import { FlexMessageFactory } from "../utils/flex";
@@ -11,7 +10,7 @@ export class MissionService {
    */
   static async checkAndAnnounceResult(
     proposalId: string,
-    gameId: string,
+    _gameId: string,
     groupId: string
   ): Promise<void> {
     try {
@@ -84,7 +83,6 @@ export class MissionService {
       );
 
       // Send result announcement to group
-      const resultEmoji = isSuccess ? "✅" : "❌";
       const resultText = isSuccess ? "成功" : "失敗";
       
       // 1. Send AI description text
@@ -177,11 +175,15 @@ export class MissionService {
 
         // Create next round if it doesn't exist
         if (!nextRoundExists) {
+          const requiredPlayers = questConfig[nextRoundNumber - 1]; // questConfig is 0-indexed
+          if (requiredPlayers === undefined) {
+            throw new Error(`Quest config missing for round ${nextRoundNumber}`);
+          }
           await prisma.round.create({
             data: {
               gameId: game.id,
               roundNumber: nextRoundNumber,
-              requiredPlayers: questConfig[nextRoundNumber - 1], // questConfig is 0-indexed
+              requiredPlayers,
             },
           });
         }

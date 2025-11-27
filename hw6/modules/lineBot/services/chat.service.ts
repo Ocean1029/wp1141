@@ -9,7 +9,6 @@ import { FlexMessageFactory } from "../utils/flex";
 import { getLineBotService } from "./lineBot.service";
 import { TeamProposalService } from "./team-proposal.service";
 import { VoteService } from "./vote.service";
-import { TeamVote } from "@prisma/client";
 
 export class ChatService {
   /**

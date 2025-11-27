@@ -4,7 +4,6 @@ import { verifySignature } from "@/modules/lineBot/utils/signature";
 import { handleError } from "@/utils/error-handler";
 import { AuthenticationError, ValidationError } from "@/lib/errors";
 import { createSuccessResponse } from "@/types/api.types";
-import { logger } from "@/lib/logger";
 
 /**
  * @swagger
@@ -147,7 +146,7 @@ export async function POST(req: NextRequest) {
  *               message: "LINE Webhook endpoint is active"
  *               timestamp: "2024-01-01T00:00:00.000Z"
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const response = createSuccessResponse(
     {
       message: "LINE Webhook endpoint is active",

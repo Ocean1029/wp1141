@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
  * Currently provides a basic structure for request handling
  * Can be extended with authentication, logging, or other cross-cutting concerns
  */
-export function middleware(req: NextRequest) {
+export function middleware(_req: NextRequest) {
   // Basic middleware structure
   // Add custom logic here as needed
   

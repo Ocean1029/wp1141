@@ -116,7 +116,7 @@ export class TeamProposalService {
    */
   static async handleConfirmation(
     userId: string,
-    groupId: string,
+    _groupId: string,
     message: string
   ): Promise<{ isConfirmation: boolean; success?: boolean }> {
     try {

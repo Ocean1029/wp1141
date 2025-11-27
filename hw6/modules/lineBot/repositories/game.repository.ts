@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Game, GameStatus, Player, Role, TeamProposal, Vote } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import { Game, GameStatus, Player, Role } from "@prisma/client";
 
 export class GameRepository {
   /**
@@ -242,11 +241,15 @@ export class GameRepository {
       }
 
       // 3. Create First Round
+      const firstQuestPlayers = questConfig[0];
+      if (firstQuestPlayers === undefined) {
+        throw new Error("Quest config is empty");
+      }
       await tx.round.create({
         data: {
           gameId,
           roundNumber: 1,
-          requiredPlayers: questConfig[0],
+          requiredPlayers: firstQuestPlayers,
         },
       });
     });

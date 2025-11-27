@@ -1,4 +1,4 @@
-import { FlexContainer, FlexMessage } from "@line/bot-sdk";
+import { FlexContainer } from "@line/bot-sdk";
 import { config } from "@/config/env";
 
 export class FlexMessageFactory {
@@ -540,7 +540,6 @@ export class FlexMessageFactory {
     roundNumber: number,
     requiredPlayers: number
   ): FlexContainer {
-    const baseUrl = config.baseUrl;
     const liffId = config.line.liffId;
     const liffUrl = `https://liff.line.me/${liffId}/game/mission?gameId=${gameId}&groupId=${encodeURIComponent(groupId)}&roundNumber=${roundNumber}`;
 

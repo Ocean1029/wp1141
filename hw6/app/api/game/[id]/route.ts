@@ -37,7 +37,7 @@ import { GameService } from "@/modules/lineBot/services/game.service";
  *       500:
  *         description: Internal server error
  */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const status = await GameService.getLobbyStatus(params.id);
     if (!status) return NextResponse.json({ error: "Game not found" }, { status: 404 });

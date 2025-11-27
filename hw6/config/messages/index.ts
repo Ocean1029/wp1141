@@ -10,7 +10,7 @@
  */
 
 import { messages } from "./messages";
-import type { MessageKey, MessageParams, MessageTemplate } from "./types";
+import type { MessageKey, MessageParams } from "./types";
 
 /**
  * Get a message by key path

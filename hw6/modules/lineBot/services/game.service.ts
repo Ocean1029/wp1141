@@ -88,7 +88,11 @@ export class GameService {
     
     // Use default config for 6 players if not specified
     const defaultMaxPlayers = 6;
-    const defaultRoles = GAME_CONFIG[defaultMaxPlayers].roles;
+    const defaultConfig = GAME_CONFIG[defaultMaxPlayers];
+    if (!defaultConfig) {
+      throw new Error(`Configuration not found for ${defaultMaxPlayers} players`);
+    }
+    const defaultRoles = defaultConfig.roles;
     const game = await GameRepository.create(lineGroupId, hostUserId, defaultMaxPlayers, defaultRoles);
     console.log(`[GameService] Game created: ${game.id}, lineGroupId: ${game.lineGroupId}, maxPlayers: ${defaultMaxPlayers}`);
     return game;
@@ -256,10 +260,16 @@ export class GameService {
     if (!config) throw new Error("Configuration not found for this player count");
 
     const shuffledRoles = this.shuffleArray([...activeRoles]);
-    const playerRoles = game.players.map((player, index) => ({
-      playerId: player.id,
-      role: shuffledRoles[index],
-    }));
+    const playerRoles = game.players.map((player, index) => {
+      const role = shuffledRoles[index];
+      if (role === undefined) {
+        throw new Error(`Not enough roles for player ${index}`);
+      }
+      return {
+        playerId: player.id,
+        role,
+      };
+    });
 
     await GameRepository.startGame(gameId, playerRoles, config.quest);
     return config;
@@ -268,7 +278,12 @@ export class GameService {
   private static shuffleArray<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      const temp = array[i];
+      const itemJ = array[j];
+      if (temp !== undefined && itemJ !== undefined) {
+        array[i] = itemJ;
+        array[j] = temp;
+      }
     }
     return array;
   }

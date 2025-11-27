@@ -24,23 +24,47 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
-      const [statsRes, msgsRes] = await Promise.all([
-        fetch("/api/admin/stats"),
-        fetch("/api/admin/messages?limit=50"),
-      ]);
+      setError(null);
+      
+      // Add timeout to prevent hanging requests
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Request timeout")), 10000)
+      );
+
+      const [statsRes, msgsRes] = await Promise.race([
+        Promise.all([
+          fetch("/api/admin/stats"),
+          fetch("/api/admin/messages?limit=50"),
+        ]),
+        timeoutPromise,
+      ]) as [Response, Response];
 
       if (statsRes.ok) {
-        setStats(await statsRes.json());
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      } else {
+        const errorData = await statsRes.json().catch(() => ({ error: "Failed to fetch stats" }));
+        console.error("Stats API error:", errorData);
+        const errorMsg = errorData.details 
+          ? `${errorData.error}: ${errorData.details}` 
+          : (errorData.error || "Failed to fetch stats");
+        setError(errorMsg);
       }
+
       if (msgsRes.ok) {
         const data = await msgsRes.json();
-        setMessages(data.data);
+        setMessages(data.data || []);
+      } else {
+        const errorData = await msgsRes.json().catch(() => ({ error: "Failed to fetch messages" }));
+        console.error("Messages API error:", errorData);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError(error instanceof Error ? error.message : "Failed to fetch data");
     } finally {
       setLoading(false);
     }
@@ -52,10 +76,31 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading && !stats) {
+  if (loading && !stats && !error) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-xl font-semibold text-gray-600">Loading Dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-center">
+          <div className="text-xl font-semibold text-red-600 mb-2">Error Loading Dashboard</div>
+          <div className="text-gray-600 mb-4">{error}</div>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              fetchData();
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
