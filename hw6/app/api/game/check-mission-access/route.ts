@@ -27,19 +27,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Find player
-    const player = game.players.find((p: any) => p.user.lineId === userId);
+    const player = game.players.find((p: (typeof game.players)[number]) => p.user.lineId === userId);
     if (!player || !player.role) {
       return NextResponse.json({ error: "Player not found or role not assigned" }, { status: 404 });
     }
 
     // Find current round
-    const round = game.rounds.find(r => r.roundNumber === parseInt(roundNumber, 10));
+    const round = game.rounds.find((r: (typeof game.rounds)[number]) => r.roundNumber === parseInt(roundNumber, 10));
     if (!round) {
       return NextResponse.json({ error: "Round not found" }, { status: 404 });
     }
 
     // Find approved team proposal for this round
-    const proposal = round.proposals.find(p => p.isApproved === true);
+    const proposal = round.proposals.find((p: (typeof round.proposals)[number]) => p.isApproved === true);
     if (!proposal) {
       return NextResponse.json({ 
         hasAccess: false, 
