@@ -113,12 +113,5 @@ check-env:
 	@echo "✅ .env file exists"
 
 # Setup (first time setup)
-setup: check-env install db-generate
-	@echo ""
+setup: check-env install db-generate db-migrate
 	@echo "✅ Setup complete!"
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Make sure your .env file is configured"
-	@echo "  2. Run 'make db-push' to sync database schema"
-	@echo "  3. Run 'make dev' to start development server"
-
