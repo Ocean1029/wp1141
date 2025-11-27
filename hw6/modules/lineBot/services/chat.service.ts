@@ -26,6 +26,10 @@ export class ChatService {
           }
           break;
         
+        case "follow":
+          await this.handleFollowEvent(event);
+          break;
+        
         case "join":
           await this.handleJoinEvent(event);
           break;
@@ -41,6 +45,26 @@ export class ChatService {
       }
     } catch (error) {
       logger.error(`Error processing event ${event.type}`, {}, error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+
+  /**
+   * Handle Follow Event (User adds bot as friend)
+   */
+  private static async handleFollowEvent(event: any) {
+    const { replyToken, source } = event;
+    const sourceType = source.type;
+    
+    // Only send usage guide for friend users (not group joins)
+    if (sourceType === "user") {
+      try {
+        const flexMessage = FlexMessageFactory.createUsageGuideCard();
+        const lineBotService = getLineBotService();
+        await lineBotService.replyFlex(replyToken, "歡迎使用阿瓦隆遊戲 Bot！", flexMessage);
+        logger.info(`[ChatService] Sent usage guide to new friend user: ${source.userId}`);
+      } catch (error) {
+        logger.error("Failed to send usage guide flex message", {}, error instanceof Error ? error : new Error(String(error)));
+      }
     }
   }
 
@@ -80,6 +104,20 @@ export class ChatService {
     });
 
     if (!userId) return;
+
+    // If message is from friend (not in group), send usage guide
+    if (sourceType === "user") {
+      try {
+        const flexMessage = FlexMessageFactory.createUsageGuideCard();
+        const lineBotService = getLineBotService();
+        await lineBotService.replyFlex(replyToken, "使用說明", flexMessage);
+        logger.info(`[ChatService] Sent usage guide to friend user: ${userId}`);
+        return;
+      } catch (error) {
+        logger.error("Failed to send usage guide flex message", {}, error instanceof Error ? error : new Error(String(error)));
+        return;
+      }
+    }
 
     await this.syncUserProfile(userId, groupId);
 

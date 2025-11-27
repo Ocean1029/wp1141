@@ -74,11 +74,11 @@ db-studio:
 	npm run db:studio
 
 db-reset:
-	@echo "⚠️  WARNING: This will delete all data in the database!"
+	@echo "This will delete all data in the database!"
 	@echo "🗑️  Resetting database..."
 	npx prisma migrate reset --force
 	npm run db:generate
-	@echo "✅ Database reset complete!"
+	@echo "Database reset complete!"
 
 # Cleanup
 clean:

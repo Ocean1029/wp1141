@@ -903,4 +903,154 @@ export class FlexMessageFactory {
       }
     };
   }
+
+  /**
+   * Create usage guide card for friend users (not in group)
+   * This card instructs users to add the bot to a group to play the game
+   */
+  static createUsageGuideCard(): FlexContainer {
+    return {
+      type: "bubble",
+      size: "mega",
+      header: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: "THE RESISTANCE",
+            color: "#aa8f66",
+            size: "xs",
+            weight: "bold",
+            align: "center"
+          },
+          {
+            type: "text",
+            text: "AVALON",
+            color: "#ffffff",
+            size: "3xl",
+            weight: "bold",
+            align: "center",
+            margin: "sm",
+            style: "normal"
+          },
+          {
+            type: "separator",
+            margin: "sm",
+            color: "#aa8f66"
+          }
+        ],
+        paddingAll: "10px",
+        backgroundColor: "#1a1c30"
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "box",
+            layout: "vertical",
+            spacing: "md",
+            margin: "md",
+            contents: [
+              {
+                type: "text",
+                text: "歡迎使用阿瓦隆遊戲 Bot！",
+                size: "md",
+                color: "#ffffff",
+                align: "center"
+              },
+              {
+                type: "text",
+                text: "本 Bot 需要在 LINE 群組中才能進行遊戲",
+                size: "sm",
+                color: "#ffffff",
+                align: "center",
+                wrap: true
+              },
+              {
+                type: "separator",
+                margin: "lg",
+                color: "#444444"
+              },
+              {
+                type: "box",
+                layout: "vertical",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "box",
+                    layout: "baseline",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "1️⃣",
+                        flex: 0,
+                        size: "sm"
+                      },
+                      {
+                        type: "text",
+                        text: "建立或開啟一個 LINE 群組",
+                        size: "sm",
+                        color: "#ffffff",
+                        margin: "sm",
+                        wrap: true
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "baseline",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "2️⃣",
+                        flex: 0,
+                        size: "sm"
+                      },
+                      {
+                        type: "text",
+                        text: "將此 Bot 加入群組",
+                        size: "sm",
+                        color: "#ffffff",
+                        margin: "sm",
+                        wrap: true
+                      }
+                    ]
+                  },
+                  {
+                    type: "box",
+                    layout: "baseline",
+                    contents: [
+                      {
+                        type: "text",
+                        text: "3️⃣",
+                        flex: 0,
+                        size: "sm"
+                      },
+                      {
+                        type: "text",
+                        text: "在群組中輸入「開始遊戲」或「/start」",
+                        size: "sm",
+                        color: "#ffffff",
+                        margin: "sm",
+                        wrap: true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: "separator",
+                margin: "lg",
+                color: "#444444"
+              }
+            ]
+          }
+        ],
+        backgroundColor: "#1a1c30",
+        paddingAll: "2px"
+      }
+    };
+  }
 }
