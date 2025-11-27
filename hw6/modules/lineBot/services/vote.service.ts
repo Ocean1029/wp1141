@@ -241,11 +241,11 @@ export class VoteService {
                   userId: player.user.lineId,
                 }],
               },
-            },
+            } as any,
             {
               type: "flex",
               altText: "你被選中出隊！",
-              contents: notificationFlex,
+              contents: notificationFlex as any,
             },
           ]);
         } catch (error) {

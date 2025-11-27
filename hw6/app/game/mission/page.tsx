@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useLiffContext } from "@/components/providers/liff-provider";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function MissionPage() {
+function MissionPageContent() {
   const { liff, isReady, error: liffError } = useLiffContext();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -165,6 +165,14 @@ export default function MissionPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MissionPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <MissionPageContent />
+    </Suspense>
   );
 }
 

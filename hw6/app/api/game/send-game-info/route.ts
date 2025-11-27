@@ -69,12 +69,12 @@ export async function POST(req: NextRequest) {
       {
         type: "flex",
         altText: "任務配置",
-        contents: questStatusMessage,
+        contents: questStatusMessage as any,
       },
       {
         type: "flex",
         altText: "遊戲進度",
-        contents: roundLeaderMessage,
+        contents: roundLeaderMessage as any,
       },
     ]);
 

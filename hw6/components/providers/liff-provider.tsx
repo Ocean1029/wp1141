@@ -9,8 +9,13 @@ interface LiffObject {
   getProfile: () => Promise<{ userId: string; displayName: string; pictureUrl?: string }>;
   getContext: () => { type: string; groupId?: string; roomId?: string; userId?: string } | null;
   isInClient: () => boolean;
+  isLoggedIn: () => boolean;
   closeWindow: () => void;
   login: () => void;
+  logout: () => void;
+  getOS: () => string;
+  getLanguage: () => string;
+  getVersion: () => string;
 }
 
 declare global {
