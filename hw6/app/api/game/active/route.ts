@@ -62,6 +62,10 @@ export async function GET(req: NextRequest) {
 
     // Use Service to format return data same as getLobbyStatus
     const status = await GameService.getLobbyStatus(game.id);
+    if (!status) {
+      console.log(`[API active] getLobbyStatus returned null for gameId: ${game.id}`);
+      return NextResponse.json(null);
+    }
     console.log(`[API active] Returning game status for gameId: ${game.id}, players: ${status.players.length}`);
     return NextResponse.json(status);
   } catch (error) {
