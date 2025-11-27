@@ -30,37 +30,44 @@ export default function AdminDashboard() {
     try {
       setError(null);
       
-      // Add timeout to prevent hanging requests
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Request timeout")), 10000)
-      );
+      // Create AbortController for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const [statsRes, msgsRes] = await Promise.race([
-        Promise.all([
-          fetch("/api/admin/stats"),
-          fetch("/api/admin/messages?limit=50"),
-        ]),
-        timeoutPromise,
-      ]) as [Response, Response];
+      try {
+        // Fetch both endpoints in parallel with timeout
+        const [statsRes, msgsRes] = await Promise.all([
+          fetch("/api/admin/stats", { signal: controller.signal }),
+          fetch("/api/admin/messages?limit=50", { signal: controller.signal }),
+        ]);
 
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      } else {
-        const errorData = await statsRes.json().catch(() => ({ error: "Failed to fetch stats" }));
-        console.error("Stats API error:", errorData);
-        const errorMsg = errorData.details 
-          ? `${errorData.error}: ${errorData.details}` 
-          : (errorData.error || "Failed to fetch stats");
-        setError(errorMsg);
-      }
+        clearTimeout(timeoutId);
 
-      if (msgsRes.ok) {
-        const data = await msgsRes.json();
-        setMessages(data.data || []);
-      } else {
-        const errorData = await msgsRes.json().catch(() => ({ error: "Failed to fetch messages" }));
-        console.error("Messages API error:", errorData);
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setStats(statsData);
+        } else {
+          const errorData = await statsRes.json().catch(() => ({ error: "Failed to fetch stats" }));
+          console.error("Stats API error:", errorData);
+          const errorMsg = errorData.details 
+            ? `${errorData.error}: ${errorData.details}` 
+            : (errorData.error || "Failed to fetch stats");
+          setError(errorMsg);
+        }
+
+        if (msgsRes.ok) {
+          const data = await msgsRes.json();
+          setMessages(data.data || []);
+        } else {
+          const errorData = await msgsRes.json().catch(() => ({ error: "Failed to fetch messages" }));
+          console.error("Messages API error:", errorData);
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === "AbortError") {
+          throw new Error("Request timeout");
+        }
+        throw fetchError;
       }
     } catch (error) {
       console.error("Error fetching data:", error);
