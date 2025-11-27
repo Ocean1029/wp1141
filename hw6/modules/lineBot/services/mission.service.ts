@@ -159,7 +159,6 @@ export class MissionService {
       logger.info(`[MissionService] Mission result announced: Round ${proposal.round.roundNumber}, Success: ${isSuccess}`);
 
       // Check if we need to advance to next round
-      const questConfig = game.questConfig || [];
       const currentRoundNum = proposal.round.roundNumber;
       
       // If this is not the last round, advance to next round
