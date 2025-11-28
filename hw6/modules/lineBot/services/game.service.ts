@@ -228,6 +228,7 @@ export class GameService {
   static async startGame(gameId: string, requestUserId: string) {
     const game = await GameRepository.findById(gameId);
     if (!game) throw new Error("Game not found");
+    if (game.status !== GameStatus.WAITING) throw new Error("Game has already started");
 
     const host = game.players.find(p => p.isHost);
     if (host?.user.lineId !== requestUserId) throw new Error("Only host can start the game");
