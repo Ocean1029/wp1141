@@ -1,5 +1,5 @@
 {
-  "installCommand": "make setup",
-  "buildCommand": "make build"
+  "buildCommand": "npx prisma generate && npx prisma migrate deploy && npm run build",
+  "installCommand": "npm install"
 }
 
