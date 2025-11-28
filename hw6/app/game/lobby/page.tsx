@@ -12,6 +12,9 @@ import { RoleEditorModal } from "@/components/game/lobby/role-editor-modal";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 
+const BASE_URL = config.baseUrl;
+console.log(`[LobbyPage] BASE_URL: ${BASE_URL}`);
+
 interface Player {
   lineId: string;
   displayName: string;
