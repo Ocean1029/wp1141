@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { useLiffContext } from "@/components/providers/liff-provider";
 import { LoadingScreen } from "@/components/ui/loading-screen";
-import { useRouter, useSearchParams } from "next/navigation";
 
 function MissionPageContent() {
   const { liff, isReady, error: liffError } = useLiffContext();

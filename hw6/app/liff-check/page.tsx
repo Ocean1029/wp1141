@@ -1,7 +1,7 @@
 "use client";
 
-import { useLiff } from "@/hooks/use-liff";
 import { useEffect, useState } from "react";
+import { useLiff } from "@/hooks/use-liff";
 
 export default function LiffCheckPage() {
   const { liff, isReady, error } = useLiff();
