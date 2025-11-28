@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Role } from "@prisma/client";
 
+import {config} from "@/config/env";
 import { useLiffContext } from "@/components/providers/liff-provider";
 import { PlayerList } from "@/components/game/lobby/player-list";
 import { ActionBar } from "@/components/game/lobby/action-bar";
