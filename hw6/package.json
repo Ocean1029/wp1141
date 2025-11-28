@@ -16,6 +16,11 @@
     "@line/bot-sdk": "^9.3.0",
     "@line/liff": "^2.27.3",
     "@prisma/client": "^5.19.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-react": "^5.18.0",
     "autoprefixer": "^10.4.0",
     "next": "^14.2.0",
     "openai": "^4.28.0",
@@ -29,11 +34,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
-    "@types/react": "^18.3.0",
-    "@types/react-dom": "^18.3.0",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-react": "^5.18.0",
     "prisma": "^5.19.0"
   }
 }
