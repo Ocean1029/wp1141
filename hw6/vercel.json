@@ -1,5 +1,5 @@
 {
-  "buildCommand": "make setup && make build",
-  "installCommand": "make install"
+  "installCommand": "make setup",
+  "buildCommand": "make build"
 }
 
