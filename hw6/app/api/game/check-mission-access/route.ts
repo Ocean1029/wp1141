@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ 
       hasAccess,
-      error: hasAccess ? null : "You are not in the mission team"
+      error: hasAccess ? null : "正在等待其他玩家完成任務 ..."
     });
   } catch (error) {
     console.error("Error checking mission access:", error);
