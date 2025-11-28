@@ -4,16 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Role } from "@prisma/client";
 
-import {config} from "@/config/env";
-import { useLiffContext } from "@/components/providers/liff-provider";
-import { PlayerList } from "@/components/game/lobby/player-list";
-import { ActionBar } from "@/components/game/lobby/action-bar";
-import { RoleEditorModal } from "@/components/game/lobby/role-editor-modal";
-import { Button } from "@/components/ui/button";
-import { LoadingScreen } from "@/components/ui/loading-screen";
-
-const BASE_URL = config.baseUrl;
-console.log(`[LobbyPage] BASE_URL: ${BASE_URL}`);
+import { useLiffContext } from "../../../components/providers/liff-provider";
+import { PlayerList } from "../../../components/game/lobby/player-list";
+import { ActionBar } from "../../../components/game/lobby/action-bar";
+import { RoleEditorModal } from "../../../components/game/lobby/role-editor-modal";
+import { Button } from "../../../components/ui/button";
+import { LoadingScreen } from "../../../components/ui/loading-screen";
 
 interface Player {
   lineId: string;
