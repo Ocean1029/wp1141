@@ -158,40 +158,45 @@ export class MissionService {
 
       // Check if we need to advance to next round
       const currentRoundNum = proposal.round.roundNumber;
-      
+
       // If this is not the last round, advance to next round
       if (currentRoundNum < questConfig.length) {
         const nextRoundNumber = currentRoundNum + 1;
-        
-        // Check if next round already exists
-        const nextRoundExists = await prisma.round.findUnique({
-          where: {
-            gameId_roundNumber: {
-              gameId: game.id,
-              roundNumber: nextRoundNumber,
-            },
-          },
-        });
 
-        // Create next round if it doesn't exist
-        if (!nextRoundExists) {
-          const requiredPlayers = questConfig[nextRoundNumber - 1]; // questConfig is 0-indexed
-          if (requiredPlayers === undefined) {
-            throw new Error(`Quest config missing for round ${nextRoundNumber}`);
-          }
-          await prisma.round.create({
-            data: {
-              gameId: game.id,
-              roundNumber: nextRoundNumber,
-              requiredPlayers,
+        // Use transaction to atomically check and create next round
+        await prisma.$transaction(async (tx) => {
+          // Check if next round already exists
+          const nextRoundExists = await tx.round.findUnique({
+            where: {
+              gameId_roundNumber: {
+                gameId: game.id,
+                roundNumber: nextRoundNumber,
+              },
             },
           });
-        }
 
-        // Update current round number
-        await prisma.game.update({
-          where: { id: game.id },
-          data: { currentRoundNumber: nextRoundNumber },
+          // Create next round if it doesn't exist
+          if (!nextRoundExists) {
+            const requiredPlayers = questConfig[nextRoundNumber - 1]; // questConfig is 0-indexed
+            if (requiredPlayers === undefined) {
+              throw new Error(`Quest config missing for round ${nextRoundNumber}`);
+            }
+            await tx.round.create({
+              data: {
+                gameId: game.id,
+                roundNumber: nextRoundNumber,
+                requiredPlayers,
+              },
+            });
+
+            logger.info(`[MissionService] Created round ${nextRoundNumber}`);
+          }
+
+          // Update current round number
+          await tx.game.update({
+            where: { id: game.id },
+            data: { currentRoundNumber: nextRoundNumber },
+          });
         });
 
         logger.info(`[MissionService] Advanced to round ${nextRoundNumber}`);
